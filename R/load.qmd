@@ -10,29 +10,6 @@ library(tidyverse)
 library(dplyr)
 ```
 
-```{r}
-#then we need to load our data and transform them to tsv format
-
-
-
-#transform the human raw data
-human_sup_txt<-vroom::vroom("_raw/human_suppl.txt", show_col_types = FALSE) #this contains the raw data
-write.table(human_sup_txt, file = "data/human_sup.tsv", sep = "\t", row.names = FALSE, quote = FALSE)
-
-#transform the human metadata
-human_data_csv<- vroom::vroom("_raw/human.csv", show_col_types = FALSE)
-write.table(human_data_csv, file = "data/human_data.tsv", sep = "\t", row.names = FALSE, quote = FALSE)
-
-#transform the mouse raw data
-mouse_sup_txt<-vroom::vroom("_raw/mouse_suppl.txt", show_col_types = FALSE)
-write.table(mouse_sup_txt, file = "data/mouse_sup.tsv", sep = "\t", row.names = FALSE, quote = FALSE)
-
-#transform the mouse metadata
-mouse_data_gz<-vroom::vroom("_raw/mouse.gz", show_col_types = FALSE)
-write.table(mouse_data_gz, file = "data/mouse_data.tsv", sep = "\t", row.names = FALSE, quote = FALSE)
-
-```
-
 Then we can take a first look on the structure of the datasets.
 
 This dataset comes from the study (**Mouse melanoma cell line B16-F10 treated with G007-LK**) in which 12 samples were used. What was measured in that study was the effect of different compounds in the B16-F10 cells. The compounds that were used were the following: dimethyl sulfoxide, WNT3a and GOO7LK (Each of the compound was applied in equal number of samples ie. 3).
@@ -48,30 +25,80 @@ Three pooled technical replicates from a panel of 18 human melanoma cell lines w
 This study could be found under the Accession number: E-MTAB-8438
 
 ```{r}
-setwd("C:/Users/antot/Desktop/master/R for Bio Data science/project/group_24_project")
+#then we need to load our data and transform them to tsv format
 
-#we are going to load the tranformed datasets
-mouse_raw<- vroom::vroom("data/mouse_sup.tsv", show_col_types = FALSE)
-mouse_metadata<-vroom::vroom("data/mouse_data.tsv", show_col_types = FALSE)
+#transform the human metadata
+human_raw_csv<-vroom::vroom("../_raw/human_cell_lines_treated.csv",
+                        show_col_types = FALSE) 
+
+write.table(human_raw_csv,
+            file = "../data/human_raw.tsv",
+            sep = "\t",
+            row.names = FALSE, 
+            quote = FALSE)
+
+human_raw_data<- vroom::vroom("../data/human_raw.tsv", 
+                         show_col_types = FALSE)
 
 
-human_raw<- vroom::vroom("data/human_sup.tsv", show_col_types = FALSE)
-human_metadata<- vroom::vroom("data/human_data.tsv", show_col_types = FALSE)
+mouse_raw_csv<-vroom::vroom("../_raw/mouse_cell_lines_treated.csv",
+                                show_col_types = FALSE) 
+write.table(mouse_raw_csv,
+            file = "../data/mouse_raw.tsv",
+            sep = "\t",
+            row.names = FALSE, 
+            quote = FALSE)
+
+mouse_raw_data<- vroom::vroom("../data/mouse_raw.tsv", 
+                          show_col_types = FALSE)
 ```
 
 ```{r}
-head(mouse_raw)
+human_sup_txt<-vroom::vroom("../_raw/E-MTAB-8438.sdrf.txt",
+                        show_col_types = FALSE) 
+
+write.table(human_sup_txt,
+            file = "../data/human_sup.tsv",
+            sep = "\t",
+            row.names = FALSE, 
+            quote = FALSE)
+
+human_sup_data<- vroom::vroom("../data/human_sup.tsv", 
+                         show_col_types = FALSE)
+```
+
+```{r}
+mouse_sup_txt<-vroom::vroom("../_raw/E-MTAB-8101.sdrf.txt",
+                        show_col_types = FALSE) 
+
+write.table(mouse_sup_txt,
+            file = "../data/mouse_sup.tsv",
+            sep = "\t",
+            row.names = FALSE, 
+            quote = FALSE)
+
+mouse_sup_data<- vroom::vroom("../data/mouse_sup.tsv", 
+                         show_col_types = FALSE)
 ```
 
 ```{r}
 
-head(mouse_metadata)
 ```
 
 ```{r}
-head(human_raw)
-```
-
-```{r}
-head(human_metadata)
+#maybe a function for transform our uploading datasets
+#but needs improvement
+#file_tr <- function(origin,filename){
+ # x<-vroom::vroom("../_raw/origin",
+ #              show_col_types = FALSE)
+#  write.table(x,
+    #          file = "../data/filename.tsv",
+     #         sep = "\t",
+      #        row.names = FALSE, 
+       #       quote = FALSE)
+  
+  #filename<- vroom::vroom("../data/filename.tsv", 
+   #                       show_col_types = FALSE)
+  
+#}
 ```

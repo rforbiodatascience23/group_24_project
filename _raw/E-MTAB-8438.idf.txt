@@ -1,0 +1,69 @@
+MAGE-TAB Version	1.1
+Investigation Title	Human melanoma cell lines treated with G007-LK
+
+Experimental Design	compound treatment design
+Experimental Design Term Source REF	EFO
+Experimental Design Term Accession Number	EFO:0001755
+
+Experimental Factor Name	dose	compound
+Experimental Factor Type	dose	compound
+Experimental Factor Term Source REF
+Experimental Factor Term Accession Number
+
+Person Last Name	Waaler
+Person First Name	Jo
+Person Mid Initials
+Person Email	jo.waaler@rr-research.no
+Person Phone
+Person Fax
+Person Affiliation	Department of Immunology and Transfusion Medicine, Oslo University Hospital, Oslo, Norway and Hybrid Technology Hub - Centre of Excellence, Institute of Basic Medical Sciences, University of Oslo, Oslo, Norway.
+Person Address	Department of Immunology and Transfusion Medicine, Oslo University Hospital and Hybrid Technology Hub - Centre of Excellence, Institute of Basic Medical Sciences, University of Oslo. P.O. Box 1110 Blindern 0317, Oslo, Norway.
+Person Roles	investigator;submitter
+Person Roles Term Source REF
+Person Roles Term Accession Number
+
+Quality Control Type
+Quality Control Term Source REF
+Quality Control Term Accession Number
+
+Replicate Type
+Replicate Term Source REF
+Replicate Term Accession Number
+
+Normalization Type
+Normalization Term Source REF
+Normalization Term Accession Number
+
+Date of Experiment	2018-03-01
+Public Release Date	2023-11-02
+
+PubMed ID
+Publication DOI
+Publication Author List
+Publication Title
+Publication Status
+Publication Status Term Source REF
+Publication Status Term Accession Number
+
+Experiment Description	18 human melanoma cell lines were treated with G007-LK in order to investigate the effect and compare it with a similar experiment from a mouse melanoma cell line. Due to regulations regarding human data the fastq files are not provided.
+
+Protocol Name	P-MTAB-90386	P-MTAB-90385	P-MTAB-90389	P-MTAB-90388	P-MTAB-90387
+Protocol Type	nucleic acid extraction protocol	sample collection protocol	normalization data transformation protocol	nucleic acid sequencing protocol	nucleic acid library construction protocol
+Protocol Term Source REF	EFO	EFO	EFO	EFO	EFO
+Protocol Term Accession Number	EFO_0002944	EFO_0005518	EFO_0003816	EFO_0004170	EFO_0004184
+Protocol Description	Total RNA was isolated from treated cell lines and tumor samples using GenEluteTM Mammalian Total RNA Miniprep Kit (Sigma Aldrich).	Three pooled technical replicates from a panel of 18 human melanoma cell lines treated with DMSO (0.01%) or G007-LK (1 µM) for 24 hours: The cell lines SK-MEL-28, MeWo, and A-375 were obtained from the American Type Culture Collection (ATCC; Rockville, MD, USA). WM35, WM115, WM1341B, WM1366, WM983B, WM451Lu, WM239A, WM266.4, WM852, WM1382, WM9, WM793B were obtained from the Wistar Institute. LOX-IMVI, FEMX-I and FEMX-V were established at the Norwegian Radium Hospital (Oslo, Norway).	Transcripts were quantified with kallisto v0.44 using ensembl transcriptome release 91 (GRCh38) and TPM per gene was summarised using sleuth v0.29	NextSeq500 v2	Illumina TruSeq mRNA stranded library prep
+Protocol Parameters
+Protocol Hardware				NextSeq 500
+Protocol Software			kallisto v0.44, sleuth v0.29
+Protocol Contact
+
+Term Source Name	EFO	ArrayExpress
+Term Source File	http://www.ebi.ac.uk/efo/	http://www.ebi.ac.uk/arrayexpress/
+Term Source Version	2.38
+
+SDRF File	E-MTAB-8438.sdrf.txt
+Comment [Submitted Name]	Human melanoma cell lines treated with G007-LK
+Comment [TemplateType]	Cell line - High-throughput sequencing
+Comment [AEExperimentType]	RNA-seq of coding RNA
+Comment[ArrayExpressAccession]	E-MTAB-8438
+Comment [RelatedExperiment]	E-MTAB-8101
