@@ -3,3 +3,35 @@ title: "Clean file"
 format: html
 editor: visual
 ---
+
+Now we need to clean our data First we will check the sructure of the data
+
+```{r}
+str(human_raw)
+
+```
+
+Next we will convert the data into tibble
+
+```{r}
+human_raw |> 
+  as_tibble()
+```
+
+First we need to fix the columns names
+
+```{r}
+
+```
+
+We observe that there are many variable in column names, so we need to separate them
+
+```{r}
+human_raw|> 
+  pivot_longer(
+    cols = !(gene_id:symbol),
+    names_to = c("cell_line", "treatment"), 
+    names_sep = ".",
+    values_to = "expression levels"
+  )
+```
