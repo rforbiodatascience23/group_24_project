@@ -1,0 +1,51 @@
+---
+title: "load file_geor"
+author: "Georgios"
+format: html
+editor: visual
+---
+
+```{r}
+#| echo: false
+#| message: false
+#First we have to load the necessary libraries
+
+library(tidyverse)
+library(dplyr)
+library(readr)
+```
+
+```{r}
+#We need to load our data and transform them to tsv format
+
+  #Transformation of the human raw data
+
+
+    #This contains the raw data
+    human_csv<-vroom::vroom("_raw/human_cell_lines_treated.csv",
+                                show_col_types = FALSE) 
+    write.table(human_csv,
+                file = "data/human_raw.tsv",
+                sep = "\t",
+                row.names = FALSE, 
+                quote = FALSE)
+
+    human_raw<- vroom::vroom("data/human_raw.tsv", 
+                             show_col_types = FALSE)
+```
+
+```{r}
+  #Transformation of the mouse raw data
+
+    #This contains the raw data
+    mouse_csv<-vroom::vroom("_raw/mouse_cell_lines_treated.csv",
+                                show_col_types = FALSE) 
+    write.table(mouse_csv,
+                file = "data/mouse_raw.tsv",
+                sep = "\t",
+                row.names = FALSE, 
+                quote = FALSE)
+
+    mouse_raw<- vroom::vroom("data/mouse_raw.tsv", 
+                             show_col_types = FALSE)
+```
