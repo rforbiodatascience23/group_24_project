@@ -8,6 +8,7 @@ editor: visual
 #First we have to load the necessary libraries
 library(tidyverse)
 library(dplyr)
+library(readr)
 ```
 
 ```{r}
