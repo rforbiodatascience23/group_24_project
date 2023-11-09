@@ -22,15 +22,15 @@ library(readr)
 
 
     #This contains the raw data
-    human_csv<-vroom::vroom("_raw/human_cell_lines_treated.csv",
+    human_csv<-vroom::vroom("../_raw/human_cell_lines_treated.csv",
                                 show_col_types = FALSE) 
     write.table(human_csv,
-                file = "data/human_raw.tsv",
+                file = "../data/human_raw.tsv",
                 sep = "\t",
                 row.names = FALSE, 
                 quote = FALSE)
 
-    human_raw<- vroom::vroom("data/human_raw.tsv", 
+    human_raw<- vroom::vroom("../data/human_raw.tsv", 
                              show_col_types = FALSE)
 ```
 
@@ -38,14 +38,14 @@ library(readr)
   #Transformation of the mouse raw data
 
     #This contains the raw data
-    mouse_csv<-vroom::vroom("_raw/mouse_cell_lines_treated.csv",
+    mouse_csv<-vroom::vroom("../_raw/mouse_cell_lines_treated.csv",
                                 show_col_types = FALSE) 
     write.table(mouse_csv,
-                file = "data/mouse_raw.tsv",
+                file = "../data/mouse_raw.tsv",
                 sep = "\t",
                 row.names = FALSE, 
                 quote = FALSE)
 
-    mouse_raw<- vroom::vroom("data/mouse_raw.tsv", 
+    mouse_raw<- vroom::vroom("../data/mouse_raw.tsv", 
                              show_col_types = FALSE)
 ```
