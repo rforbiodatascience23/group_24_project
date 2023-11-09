@@ -1,0 +1,78 @@
+---
+title: "load file"
+format: html
+editor: visual
+---
+
+```{r}
+#First we have to load the necessary libraries
+library(tidyverse)
+library(dplyr)
+```
+
+```{r}
+#then we need to load our data and transform them to tsv format
+
+setwd("C:/Users/antot/Desktop/master/R for Bio Data science/project/group_24_project")
+
+
+#transform the human raw data
+human_sup_txt<-vroom::vroom("_raw/human_suppl.txt", show_col_types = FALSE) #this contains the raw data
+write.table(human_sup_txt, file = "data/human_sup.tsv", sep = "\t", row.names = FALSE, quote = FALSE)
+
+#transform the human metadata
+human_data_csv<- vroom::vroom("_raw/human.csv", show_col_types = FALSE)
+write.table(human_data_csv, file = "data/human_data.tsv", sep = "\t", row.names = FALSE, quote = FALSE)
+
+#transform the mouse raw data
+mouse_sup_txt<-vroom::vroom("_raw/mouse_suppl.txt", show_col_types = FALSE)
+write.table(mouse_sup_txt, file = "data/mouse_sup.tsv", sep = "\t", row.names = FALSE, quote = FALSE)
+
+#transform the mouse metadata
+mouse_data_gz<-vroom::vroom("_raw/mouse.gz", show_col_types = FALSE)
+write.table(mouse_data_gz, file = "data/mouse_data.tsv", sep = "\t", row.names = FALSE, quote = FALSE)
+
+```
+
+Then we can take a first look on the structure of the datasets.
+
+This dataset comes from the study (**Mouse melanoma cell line B16-F10 treated with G007-LK**) in which 12 samples were used. What was measured in that study was the effect of different compounds in the B16-F10 cells. The compounds that were used were the following: dimethyl sulfoxide, WNT3a and GOO7LK (Each of the compound was applied in equal number of samples ie. 3).
+
+This study could be found under the Accession number: E-MTAB-8101
+
+The dataset containing the human cells was generated though the **Human melanoma cell lines treated with G007-LK** study during which 18 human melanoma cell lines derived from the skin of the donors were treated with the compound GOO7-LK with the purpose of detecting its effect to the cells and in order to compare those results with a similar experiment performed on mice cell lines.
+
+In detail the experiment went like so:
+
+Three pooled technical replicates from a panel of 18 human melanoma cell lines were treated with DMSO and G007-LK for 24 hours.
+
+This study could be found under the Accession number: E-MTAB-8438
+
+```{r}
+setwd("C:/Users/antot/Desktop/master/R for Bio Data science/project/group_24_project")
+
+#we are going to load the tranformed datasets
+mouse_raw<- vroom::vroom("data/mouse_sup.tsv", show_col_types = FALSE)
+mouse_metadata<-vroom::vroom("data/mouse_data.tsv", show_col_types = FALSE)
+
+
+human_raw<- vroom::vroom("data/human_sup.tsv", show_col_types = FALSE)
+human_metadata<- vroom::vroom("data/human_data.tsv", show_col_types = FALSE)
+```
+
+```{r}
+head(mouse_raw)
+```
+
+```{r}
+
+head(mouse_metadata)
+```
+
+```{r}
+head(human_raw)
+```
+
+```{r}
+head(human_metadata)
+```
