@@ -11,6 +11,20 @@ library(dplyr)
 library(readr)
 ```
 
+Then we can take a first look on the structure of the datasets.
+
+This dataset comes from the study (**Mouse melanoma cell line B16-F10 treated with G007-LK**) in which 12 samples were used. What was measured in that study was the effect of different compounds in the B16-F10 cells. The compounds that were used were the following: dimethyl sulfoxide, WNT3a and GOO7LK (Each of the compound was applied in equal number of samples ie. 3).
+
+This study could be found under the Accession number: E-MTAB-8101
+
+The dataset containing the human cells was generated though the **Human melanoma cell lines treated with G007-LK** study during which 18 human melanoma cell lines derived from the skin of the donors were treated with the compound GOO7-LK with the purpose of detecting its effect to the cells and in order to compare those results with a similar experiment performed on mice cell lines.
+
+In detail the experiment went like so:
+
+Three pooled technical replicates from a panel of 18 human melanoma cell lines were treated with DMSO and G007-LK for 24 hours.
+
+This study could be found under the Accession number: E-MTAB-8438
+
 ```{r}
 #then we need to load our data and transform them to tsv format
 
@@ -30,43 +44,62 @@ human_raw_data<- vroom::vroom("../data/human_raw.tsv",
 
 mouse_raw_csv<-vroom::vroom("../_raw/mouse_cell_lines_treated.csv",
                                 show_col_types = FALSE) 
-write.table(mouse_csv,
+write.table(mouse_raw_csv,
             file = "../data/mouse_raw.tsv",
             sep = "\t",
             row.names = FALSE, 
             quote = FALSE)
 
-mouse_raw<- vroom::vroom("../data/mouse_raw.tsv", 
+mouse_raw_data<- vroom::vroom("../data/mouse_raw.tsv", 
                           show_col_types = FALSE)
 ```
 
-Then we can take a first look on the structure of the datasets.
+```{r}
+human_sup_txt<-vroom::vroom("../_raw/E-MTAB-8438.sdrf.txt",
+                        show_col_types = FALSE) 
 
-This dataset comes from the study (**Mouse melanoma cell line B16-F10 treated with G007-LK**) in which 12 samples were used. What was measured in that study was the effect of different compounds in the B16-F10 cells. The compounds that were used were the following: dimethyl sulfoxide, WNT3a and GOO7LK (Each of the compound was applied in equal number of samples ie. 3).
+write.table(human_sup_txt,
+            file = "../data/human_sup.tsv",
+            sep = "\t",
+            row.names = FALSE, 
+            quote = FALSE)
 
-This study could be found under the Accession number: E-MTAB-8101
-
-The dataset containing the human cells was generated though the **Human melanoma cell lines treated with G007-LK** study during which 18 human melanoma cell lines derived from the skin of the donors were treated with the compound GOO7-LK with the purpose of detecting its effect to the cells and in order to compare those results with a similar experiment performed on mice cell lines.
-
-In detail the experiment went like so:
-
-Three pooled technical replicates from a panel of 18 human melanoma cell lines were treated with DMSO and G007-LK for 24 hours.
-
-This study could be found under the Accession number: E-MTAB-8438
+human_sup_data<- vroom::vroom("../data/human_sup.tsv", 
+                         show_col_types = FALSE)
+```
 
 ```{r}
-head(mouse_raw)
+mouse_sup_txt<-vroom::vroom("../_raw/E-MTAB-8101.sdrf.txt",
+                        show_col_types = FALSE) 
+
+write.table(mouse_sup_txt,
+            file = "../data/mouse_sup.tsv",
+            sep = "\t",
+            row.names = FALSE, 
+            quote = FALSE)
+
+mouse_sup_data<- vroom::vroom("../data/mouse_sup.tsv", 
+                         show_col_types = FALSE)
 ```
 
 ```{r}
 
-head(mouse_metadata)
 ```
 
 ```{r}
-head(human_raw)
-```
-
-```{r}
-head(human_metadata)
+#maybe a function for transform our uploading datasets
+#but needs improvement
+#file_tr <- function(origin,filename){
+ # x<-vroom::vroom("../_raw/origin",
+ #              show_col_types = FALSE)
+#  write.table(x,
+    #          file = "../data/filename.tsv",
+     #         sep = "\t",
+      #        row.names = FALSE, 
+       #       quote = FALSE)
+  
+  #filename<- vroom::vroom("../data/filename.tsv", 
+   #                       show_col_types = FALSE)
+  
+#}
 ```

@@ -15,16 +15,3 @@ From what I understood, the initial files that we will use with the raw data sho
 # https://www.ebi.ac.uk/biostudies/arrayexpress/studies/E-MTAB-8438?query=G007-LK
 # https://www.ebi.ac.uk/biostudies/arrayexpress/studies/E-MTAB-8101
 ```
-
-```{r}
-library(tidyverse)
-library(readr)
-```
-
-```{r}
-# human <- read.csv("FIND_OUR_FILES_HERE_BROS/human.gz")
-mouse <-read.csv("FIND_OUR_FILES_HERE_BROS/mouse.gz")
-mouse_suppl <- read_table("FIND_OUR_FILES_HERE_BROS/mouse_suppl.txt")
-human_suppl <- read_table("FIND_OUR_FILES_HERE_BROS/human_suppl.txt")
-human <- read.csv("FIND_OUR_FILES_HERE_BROS/human.csv")
-```
