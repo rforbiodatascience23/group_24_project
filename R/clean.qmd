@@ -4,34 +4,87 @@ format: html
 editor: visual
 ---
 
-Now we need to clean our data First we will check the sructure of the data
+```{r}
+#|label: load the packages
+#|echo: false
+library(tidyverse)
+library(stringr)
+```
+
+Now we need to clean our data First we will check the structure of the data and convert them into tibble(better performance for large datasets)
 
 ```{r}
-str(human_raw)
+#|label: data structure
+str(human_raw_data)
+human_raw_data <- human_raw_data |> 
+  as_tibble() 
+  
+View(human_raw_data)
+
+  
 
 ```
 
-Next we will convert the data into tibble
+Next we will rename the columns name as treated and untreated based on DMSO and G007.LK respectively.We observe that there are many variable in column names, so we need to separate them
+
+**we need to see the unit of these expressions levels**
 
 ```{r}
-human_raw |> 
-  as_tibble()
-```
-
-First we need to fix the columns names
-
-```{r}
-
-```
-
-We observe that there are many variable in column names, so we need to separate them
-
-```{r}
-human_raw|> 
+#|label: rename and separate columns names
+#Maybe the followed code should be separated in two chunks
+human_raw_data_clean  <- human_raw_data |> 
+  rename_with(
+    ~case_when(
+      str_detect(.,".DMSO") ~ str_replace_all(.,
+                                            ".DMSO",
+                                            "_untreated"),
+      str_detect(.,".G007.LK") ~ str_replace_all(.,
+                                               ".G007.LK",
+                                               "_treated"),
+      TRUE ~ .  # If no pattern is matched, keep the original name
+    ),
+    everything()# Apply case when function in each column
+  ) |> 
   pivot_longer(
     cols = !(gene_id:symbol),
-    names_to = c("cell_line", "treatment"), 
-    names_sep = ".",
-    values_to = "expression levels"
-  )
+    names_to = c("cell_line", 
+                 "treatment"), 
+    names_sep = "_",
+    values_to = "expression_levels",
+    values_drop_na = TRUE
+      ) 
+#check the dataset for dyplicates
+
+human_raw_data |>
+  group_by(symbol) |> 
+  add_count(symbol) |> 
+  filter(n>1) |> 
+  select(n)
+#these reuslts indicate presence of different isomorphs  
 ```
+
+```{r}
+#|label: group by genes
+# not ready yet
+human_raw_data_clean |> 
+  select(-gene_id) |> 
+  group_by(symbol) |> 
+  nest() |> 
+  View()
+```
+
+```{r}
+#|label: selection of the useful columns
+# need to rename the columns
+human_sup_data|> 
+  as_tibble() |> 
+  select(`Source Name`,`Characteristics[genotype]`)
+```
+
+**To do:**
+
+check and manipulate possible NAs
+
+discard gene ID and use only symbol for each
+
+Fix the name in sup dataset
