@@ -10,6 +10,7 @@ editor: visual
 #First we have to load the necessary libraries
 library(tidyverse)
 library(dplyr)
+library(readr)
 ```
 
 Then we can take a first look on the structure of the datasets.
@@ -27,8 +28,10 @@ Three pooled technical replicates from a panel of 18 human melanoma cell lines w
 This study could be found under the Accession number: E-MTAB-8438
 
 ```{r}
+
 #|label: transform the human raw data
 #then we need to load our data and transform them to tsv format
+
 
 
 human_raw_csv<-vroom::vroom("../_raw/human_cell_lines_treated.csv",
@@ -76,7 +79,8 @@ human_sup_data<- vroom::vroom("../data/human_sup.tsv",
 ```
 
 ```{r}
-#|label: transform the moyse supplementary data
+
+#|label: transform the mouse supplementary data
 
 mouse_sup_txt<-vroom::vroom("../_raw/E-MTAB-8101.sdrf.txt",
                         show_col_types = FALSE) 
@@ -92,7 +96,7 @@ mouse_sup_data<- vroom::vroom("../data/mouse_sup.tsv",
 ```
 
 ```{r}
-
+head(human_sup_data)
 ```
 
 ```{r}

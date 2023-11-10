@@ -5,6 +5,7 @@ editor: visual
 ---
 
 ```{r}
+
 #|label: load the packages
 #|echo: false
 library(tidyverse)
@@ -22,7 +23,6 @@ human_raw_data <- human_raw_data |>
 View(human_raw_data)
 
   
-
 ```
 
 Next we will rename the columns name as treated and untreated based on DMSO and G007.LK respectively.We observe that there are many variable in column names, so we need to separate them
@@ -74,11 +74,13 @@ human_raw_data_clean |>
 ```
 
 ```{r}
+
 #|label: selection of the useful columns
 # need to rename the columns
 human_sup_data|> 
   as_tibble() |> 
   select(`Source Name`,`Characteristics[genotype]`)
+
 ```
 
 **To do:**

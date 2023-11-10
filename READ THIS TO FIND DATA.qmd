@@ -14,4 +14,7 @@ From what I understood, the initial files that we will use with the raw data sho
 
 # https://www.ebi.ac.uk/biostudies/arrayexpress/studies/E-MTAB-8438?query=G007-LK
 # https://www.ebi.ac.uk/biostudies/arrayexpress/studies/E-MTAB-8101
+
+Link for G007.LK compound:
+https://doi.org/10.1111/febs.12320
 ```
