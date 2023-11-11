@@ -20,7 +20,7 @@ str(human_raw_data)
 human_raw_data <- human_raw_data |> 
   as_tibble() 
   
-View(human_raw_data)
+head(human_raw_data)
 
   
 ```
@@ -70,7 +70,7 @@ human_raw_data_clean |>
   select(-gene_id) |> 
   group_by(symbol) |> 
   nest() |> 
-  View()
+  head()
 ```
 
 ```{r}
@@ -79,8 +79,35 @@ human_raw_data_clean |>
 # need to rename the columns
 human_sup_data|> 
   as_tibble() |> 
-  select(`Source Name`,`Characteristics[genotype]`)
+  select(`Source Name`,`Characteristics[genotype]`) |> 
+  sample_n(10)
 
+```
+
+```{r}
+# motifications in cleaned human raw
+ human_raw_data |> 
+  rename_with(
+    ~case_when(
+      str_detect(.,".DMSO") ~ str_replace_all(.,
+                                            ".DMSO",
+                                            "_DMSO"),
+      str_detect(.,".G007.LK") ~ str_replace_all(.,
+                                               ".G007.LK",
+                                               "_G007LK"),
+      TRUE ~ .  # If no pattern is matched, keep the original name
+    ),
+    everything()# Apply case when function in each column
+  ) |> 
+  pivot_longer(
+    cols = !(gene_id:symbol),
+    names_to = c("cell_line", 
+                 "treatment"), 
+    names_sep = "_",
+    values_to = "expression_levels",
+    values_drop_na = TRUE
+  ) |> 
+   sample_n(10)
 ```
 
 **To do:**
