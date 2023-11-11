@@ -13,52 +13,81 @@ library(dplyr)
 library(tidyr)
 ```
 
-Now we need to clean our data First we will check the structure of the data and convert them into tibble(better performance for large datasets)
+Now we need to clean our data First we will check the structure of the data and convert them into tibble (better performance for large datasets)
 
 ```{r}
-#|label: data structure
-str(human_raw_data)
-human_raw_data <- human_raw_data |> 
-  as_tibble() 
-  
-head(human_raw_data)
+#| label: load as tibbles and data structure
+human_data <- vroom::vroom("../data/human.tsv", delim = "/t")
+human_sup_data <- vroom::vroom("../data/human_sup.tsv", delim = "/t")
+
+glimpse(human_data)
+glimpse(human_sup_data)
+head(human_data)
+head(human_sup_data)
 ```
 
 ```{r}
-#human supplementary files 
-human_suppl_raw<- vroom::vroom("../data/human_sup.tsv", delim = "/t")
-```
-
-```{r}
-#Test for missing data
-is.na(human_raw_data)
+# Test for missing data
+if (any(is.na(mouse_data))) {
+  cat("There are NA values in the data frame.\n")
+} else {
+  cat("There are no NA values in the data frame.\n")
+}
 ```
 
 From this illustration we can see that there are no na data detected in our human raw dataframe
 
-Next we will rename the columns name as treated and untreated based on DMSO and G007.LK respectively.We observe that there are many variable in column names, so we need to separate them
+Next we will rename the column names as treated and untreated based on DMSO (vehicle solvent for the drug) and G007-LK (drug) respectively. We observe that there are many variable in column names, so we need to separate them
 
 **we need to see the unit of these expressions levels**
+
+```{r}
+library(dplyr)
+
+# Sample tibble
+my_tibble <- tibble(
+  old_col1 = c(1, 2, 3),
+  old_col2 = c(4, 5, 6),
+  old_col3 = c(7, 8, 9)
+)
+
+my_tibble
+
+# Function to modify column names
+modify_column_names <- function(name) {
+  # Replace "old_" with "new_"
+  gsub("old_", "new_", name)
+}
+
+# Use rename_with to apply the custom function to column names
+my_tibble <- my_tibble %>%
+  rename_with(~modify_column_names(.), starts_with("old_col"))
+
+# Print the updated tibble
+print(my_tibble)
+```
 
 ```{r}
 #|label: rename and separate columns names
 
 #Maybe the followed code should be separated in two chunks
-human_raw_data_clean  <- human_raw_data |> 
-  rename_with(
-    ~case_when(
-      str_detect(.,".DMSO") ~ str_replace_all(.,
-                                            ".DMSO",
-                                            "_untreated"),
-      str_detect(.,".G007.LK") ~ str_replace_all(.,
-                                               ".G007.LK",
-                                               "_treated"),
-      TRUE ~ .  # If no pattern is matched, keep the original name
-    ),
-    everything()# Apply case when function in each column
-  )
-
-head(human_raw_data_clean)
+human_data_clean  <- human_data |> 
+   treatment_cols(across(everything()))
+  
+#   rename_with(
+#     ~case_when(
+#       str_detect(.,".DMSO") ~ str_replace_all(.,
+#                                             ".DMSO",
+#                                             "_untreated"),
+#       str_detect(.,".G007.LK") ~ str_replace_all(.,
+#                                                ".G007.LK",
+#                                                "_treated"),
+#       TRUE ~ .  # If no pattern is matched, keep the original name
+#     ),
+#     everything()# Apply case when function in each column
+#   )
+# 
+# head(human_raw_data_clean)
 ```
 
 ```{r}
@@ -141,6 +170,11 @@ colnames(human_suppl_raw)
 Supplementary files
 
 ```{r}
+#Test for missing data
+is.na(human_suppl_raw)
+```
+
+```{r}
 colnames(human_suppl_raw)<- c("Name", "Organism","Developmental_stage", "Disease","Genotype","Organism_part",   "Cell_line","Material_Type","Protocol_REF","Protocol_REF1","Protocol_REF2","Performer", "Extract_Name",   "Library_Layout", "Library_Selection","Library_Source","Library_Strategy","Protocol_REF3", "Performer_1","Assay_Name","Technology_Type","Protocol_REF4", "Performer_2","Derived_Array_Data_File", "Derived_ArrayExpress_FTP_file", "Factor_Value_compound", "Factor_Value_dose", "Unit_dose_unit")
 ```
 
@@ -154,54 +188,41 @@ head(human_suppl_raw)
 ```
 
 ```{r}
-#Now we want to separate the Name of the Cell line and the name of the Compound in two columns
-# First we notice an inconsistency with the names of the cell lines which creates some problems when we try to separate the two components of the column Name
+#separate the Name and the Cell_lines columns
+human_suppl_raw |> 
+  group_by(Name) |> 
+  separate(Name, into = c("Cell_line1","Compound"), sep = "\\.")
+```
 
-human_suppl_clean<-human_suppl_raw |>
+```{r}
+human_suppl_raw |> 
+  distinct(Name)
+```
+
+```{r}
+# create the vector of the feature Name values 
+human_suppl_clean<-data.frame(Name = c(
+    "A375.DMSO", "LOX.DMSO", "Skmel28.DMSO", "WM115.DMSO", "WM1341.DMSO",
+    "WM239.DMSO", "WM266.DMSO", "WM35.DMSO", "WM45.1.DMSO", "WM793.DMSO",
+    "WM9.DMSO", "WM983.DMSO", "MeWo.DMSO", "FemxI.DMSO", "FemxV.DMSO",
+    "WM1366.DMSO", "WM852.DMSO", "WM1382.DMSO", "A375.G007.LK", "LOX.G007.LK",
+    "Skmel28.G007.LK", "WM115.G007.LK", "WM1341.G007.LK", "WM239.G007.LK",
+    "WM266.G007.LK", "WM35.G007.LK", "WM45.1.G007.LK", "WM793.G007.LK",
+    "WM9.G007.LK", "WM983.G007.LK"
+  )
+)
+
+# Now we want to split those values depending on the compound they used
+
+compound_pattern <- c("DMSO", "G007.LK")
+
+
+```
+
+```{r}
+human_suppl_clean |> 
   mutate(
-    Name = case_when(
-      Name == "WM45.1.DMSO"~ "WM45_1.DMSO",
-      Name == "WM45.1.G007.LK"~ "WM45_1.G007.LK",
-      TRUE~Name # Keeps the original value of the column if the condition is not met
-    )
+    Cell_Line1 = sub(paste(compound_pattern, collapse = "|"), "", Name),
+    column2 = sub(".*(" paste(compound_pattern, collapse = "|")").*", "\\1", Name)
   )
 ```
-
-```{r}
-#Separate the names from the compounds
-
-human_suppl_clean<- human_suppl_clean |> 
-  separate(Name, 
-           into = c("Cell_Line1", "Compound"),
-           sep = "\\.")
-```
-
-```{r}
-#We exclude the Cell_line1 and we relocate the Cell_Line feature to the first column of the dataframe
-human_suppl_clean<- human_suppl_clean |> 
-  select(-Cell_Line1) |> 
-  relocate(Cell_line, 1)
-
-head(human_suppl_clean)
-```
-
-```{r}
-colnames(human_suppl_clean) 
-```
-
-```{r}
-head(human_suppl_clean)
-```
-
-```{r}
-#Now we want to have all the Cell lines present in the same way
-
-#So we have to extract the - symbol from the Cell lines values
-
-```
-
-To do :
-
-Extract the "-" between the Cell lines
-
-Check the consistancy between the cell line names between the raw file and the supplementary(perhaps we want to join the dfs)
