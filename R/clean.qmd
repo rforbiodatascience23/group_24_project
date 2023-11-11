@@ -221,29 +221,6 @@ human_sup_data|>
   select(`Source Name`,`Characteristics[genotype]`)
 ```
 
-**To do:**
-
-check and manipulate possible NAs
-
-discard gene ID and use only symbol for each
-
-Fix the name in sup dataset
-
-```{r}
-colnames(human_raw_data_clean)
-```
-
-```{r}
-human_raw_data_clean |>
-  group_by(symbol) |>
-  summarise(n = n()) |> 
-  filter(n> 1)
-```
-
-```{r}
-colnames(human_suppl_raw)
-```
-
 Supplementary files
 
 ```{r}
