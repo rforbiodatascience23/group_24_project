@@ -1,9 +1,0 @@
----
-title: "example"
-format: html
-editor: visual
----
-
-## Example file
-
-Created in order to upload the folder as it can't be uploaded on GitHub when empty. This is meant to be deleted.

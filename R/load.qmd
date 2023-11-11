@@ -5,6 +5,8 @@ editor: visual
 ---
 
 ```{r}
+#|echo: false
+#|label: load libraries
 #First we have to load the necessary libraries
 library(tidyverse)
 library(dplyr)
@@ -26,9 +28,12 @@ Three pooled technical replicates from a panel of 18 human melanoma cell lines w
 This study could be found under the Accession number: E-MTAB-8438
 
 ```{r}
-#then we need to load our raw data human and mice data and transform them to tsv format
 
-#transform the human metadata
+#|label: transform the human raw data
+#then we need to load our data and transform them to tsv format
+
+
+
 human_raw_csv<-vroom::vroom("../_raw/human_cell_lines_treated.csv",
                         show_col_types = FALSE) 
 
@@ -42,6 +47,10 @@ human_raw_data<- vroom::vroom("../data/human_raw.tsv",
                          show_col_types = FALSE)
 
 
+```
+
+```{r}
+#|label: transform the mouse raw data
 mouse_raw_csv<-vroom::vroom("../_raw/mouse_cell_lines_treated.csv",
                                 show_col_types = FALSE) 
 write.table(mouse_raw_csv,
@@ -55,6 +64,7 @@ mouse_raw_data<- vroom::vroom("../data/mouse_raw.tsv",
 ```
 
 ```{r}
+#|label: transform the human supplementary data
 human_sup_txt<-vroom::vroom("../_raw/E-MTAB-8438.sdrf.txt",
                         show_col_types = FALSE) 
 
@@ -64,12 +74,14 @@ write.table(human_sup_txt,
             row.names = FALSE, 
             quote = FALSE)
 
-human_sup_data<- vroom::vroom("../data/human_sup.tsv", 
-                         show_col_types = FALSE)
+human_sup_data<- vroom::vroom("../data/human_sup.tsv",
+                              show_col_types = FALSE)
 ```
 
 ```{r}
-#this is code is to load and transform the supplementary data
+
+#|label: transform the mouse supplementary data
+
 mouse_sup_txt<-vroom::vroom("../_raw/E-MTAB-8101.sdrf.txt",
                         show_col_types = FALSE) 
 
@@ -80,7 +92,7 @@ write.table(mouse_sup_txt,
             quote = FALSE)
 
 mouse_sup_data<- vroom::vroom("../data/mouse_sup.tsv", 
-                         show_col_types = FALSE)
+                              show_col_types = FALSE)
 ```
 
 ```{r}
