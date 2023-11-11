@@ -223,3 +223,27 @@ write.table(mouse_sup_data, file = file.path(data_dir, "mouse_sup.tsv"), sep = "
 head(human_sup_data)
 head(mouse_sup_data)
 ```
+
+```{r}
+## FUNCTION FOR THE ABOVE
+
+download_and_convert <- function(file_url, file_name, data_dir) {
+  # Download file if it doesn't exist
+  if (!file.exists(file.path(data_dir, file_name))) {
+    download.file(url = file_url, destfile = file.path(data_dir, file_name))
+  }
+
+  # Read the data into a data frame
+  data <- read.csv(file.path(data_dir, file_name), header = TRUE, sep = ",")
+
+  # Write the data to a TSV file
+  write.table(data, file = file.path(data_dir, str_c(tools::file_path_sans_ext(file_name), ".tsv")),
+              sep = "\t", row.names = FALSE)
+}
+
+# Usage example
+human_file <- "https://raw.githubusercontent.com/s232996/project/main/gCSI_GRdata_v1.3.tsv/data/human.csv"
+data_directory <- "/path/to/your/data/directory/"
+
+download_and_convert(human_file, "human.csv", data_directory)
+```
