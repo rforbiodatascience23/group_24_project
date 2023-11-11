@@ -5,11 +5,12 @@ editor: visual
 ---
 
 ```{r}
-
 #|label: load the packages
 
 library(tidyverse)
 library(stringr)
+library(dplyr)
+library(tidyr)
 ```
 
 Now we need to clean our data First we will check the structure of the data and convert them into tibble(better performance for large datasets)
@@ -20,10 +21,20 @@ str(human_raw_data)
 human_raw_data <- human_raw_data |> 
   as_tibble() 
   
-View(human_raw_data)
-
-  
+head(human_raw_data)
 ```
+
+```{r}
+#human supplementary files 
+human_suppl_raw<- vroom::vroom("../data/human_sup.tsv", delim = "/t")
+```
+
+```{r}
+#Test for missing data
+is.na(human_raw_data)
+```
+
+From this illustration we can see that there are no na data detected in our human raw dataframe
 
 Next we will rename the columns name as treated and untreated based on DMSO and G007.LK respectively.We observe that there are many variable in column names, so we need to separate them
 
@@ -31,6 +42,7 @@ Next we will rename the columns name as treated and untreated based on DMSO and 
 
 ```{r}
 #|label: rename and separate columns names
+
 #Maybe the followed code should be separated in two chunks
 human_raw_data_clean  <- human_raw_data |> 
   rename_with(
@@ -44,7 +56,23 @@ human_raw_data_clean  <- human_raw_data |>
       TRUE ~ .  # If no pattern is matched, keep the original name
     ),
     everything()# Apply case when function in each column
-  ) |> 
+  )
+
+head(human_raw_data_clean)
+```
+
+```{r}
+human_raw_data_clean |>
+  group_by(symbol) |>
+  summarise(n = n()) |> 
+  filter(n> 1)
+
+#there are 1539 genes that appeared in more than one geneId 
+```
+
+```{r}
+#Pivot the human df
+human_raw_data_clean_long<- human_raw_data_clean |> 
   pivot_longer(
     cols = !(gene_id:symbol),
     names_to = c("cell_line", 
@@ -53,14 +81,19 @@ human_raw_data_clean  <- human_raw_data |>
     values_to = "expression_levels",
     values_drop_na = TRUE
       ) 
-#check the dataset for dyplicates
 
+head(human_raw_data_clean_long)
+```
+
+```{r}
+#| label: This one goes to the describe file
+#check the dataset for duplicates
 human_raw_data |>
   group_by(symbol) |> 
   add_count(symbol) |> 
   filter(n>1) |> 
   select(n)
-#these reuslts indicate presence of different isomorphs  
+#these results indicate presence of different isomorphs  
 ```
 
 ```{r}
@@ -70,7 +103,7 @@ human_raw_data_clean |>
   select(-gene_id) |> 
   group_by(symbol) |> 
   nest() |> 
-  View()
+  head()
 ```
 
 ```{r}
@@ -80,7 +113,6 @@ human_raw_data_clean |>
 human_sup_data|> 
   as_tibble() |> 
   select(`Source Name`,`Characteristics[genotype]`)
-
 ```
 
 **To do:**
@@ -90,3 +122,78 @@ check and manipulate possible NAs
 discard gene ID and use only symbol for each
 
 Fix the name in sup dataset
+
+```{r}
+colnames(human_raw_data_clean)
+```
+
+```{r}
+human_raw_data_clean |>
+  group_by(symbol) |>
+  summarise(n = n()) |> 
+  filter(n> 1)
+```
+
+```{r}
+colnames(human_suppl_raw)
+```
+
+Supplementary files
+
+```{r}
+#Test for missing data
+is.na(human_suppl_raw)
+```
+
+```{r}
+colnames(human_suppl_raw)<- c("Name", "Organism","Developmental_stage", "Disease","Genotype","Organism_part",   "Cell_line","Material_Type","Protocol_REF","Protocol_REF1","Protocol_REF2","Performer", "Extract_Name",   "Library_Layout", "Library_Selection","Library_Source","Library_Strategy","Protocol_REF3", "Performer_1","Assay_Name","Technology_Type","Protocol_REF4", "Performer_2","Derived_Array_Data_File", "Derived_ArrayExpress_FTP_file", "Factor_Value_compound", "Factor_Value_dose", "Unit_dose_unit")
+```
+
+```{r}
+#change the name of the columns of the human supplementary dataset
+colnames(human_suppl_raw)
+```
+
+```{r}
+head(human_suppl_raw)
+```
+
+```{r}
+#separate the Name and the Cell_lines columns
+human_suppl_raw |> 
+  group_by(Name) |> 
+  separate(Name, into = c("Cell_line1","Compound"), sep = "\\.")
+```
+
+```{r}
+human_suppl_raw |> 
+  distinct(Name)
+```
+
+```{r}
+# create the vector of the feature Name values 
+human_suppl_clean<-data.frame(Name = c(
+    "A375.DMSO", "LOX.DMSO", "Skmel28.DMSO", "WM115.DMSO", "WM1341.DMSO",
+    "WM239.DMSO", "WM266.DMSO", "WM35.DMSO", "WM45.1.DMSO", "WM793.DMSO",
+    "WM9.DMSO", "WM983.DMSO", "MeWo.DMSO", "FemxI.DMSO", "FemxV.DMSO",
+    "WM1366.DMSO", "WM852.DMSO", "WM1382.DMSO", "A375.G007.LK", "LOX.G007.LK",
+    "Skmel28.G007.LK", "WM115.G007.LK", "WM1341.G007.LK", "WM239.G007.LK",
+    "WM266.G007.LK", "WM35.G007.LK", "WM45.1.G007.LK", "WM793.G007.LK",
+    "WM9.G007.LK", "WM983.G007.LK"
+  )
+)
+
+# Now we want to split those values depending on the compound they used
+
+compound_pattern <- c("DMSO", "G007.LK")
+
+
+```
+
+```{r}
+human_suppl_clean |> 
+  mutate(
+    Cell_Line1 = sub(paste(compound_pattern, collapse = "|"), "", Name),
+    column2 = sub(".*(" paste(compound_pattern, collapse = "|")").*", "\\1", Name)
+  )
+```
