@@ -13,19 +13,41 @@ library(dplyr)
 library(readr)
 ```
 
-Then we can take a first look on the structure of the datasets.
+We study an RNA -seq RNA study perfomed on skin cells human and mice
 
-This dataset comes from the study (**Mouse melanoma cell line B16-F10 treated with G007-LK**) in which 12 samples were used. What was measured in that study was the effect of different compounds in the B16-F10 cells. The compounds that were used were the following: dimethyl sulfoxide, WNT3a and GOO7LK (Each of the compound was applied in equal number of samples ie. 3).
+This dataset comes from the study (**Mouse melanoma cell line B16-F10 treated with G007-LK**) in which 12 samples were used. What was measured in that study was the effect of different compounds in the B16-F10 skin cells of the samples. The compounds that were used were the following: dimethyl sulfoxide (DMSO), WNT3a and GOO7LK done one truplicates (Each of the compound was applied in equal number of samples ie. 3).
 
-This study could be found under the Accession number: E-MTAB-8101
+The sequencing was performed using Illumina HiSeq 2500 and the quantification of the RNA data was performed using the kallisto v0.44 using the GRCm38 assembly.
 
-The dataset containing the human cells was generated though the **Human melanoma cell lines treated with G007-LK** study during which 18 human melanoma cell lines derived from the skin of the donors were treated with the compound GOO7-LK with the purpose of detecting its effect to the cells and in order to compare those results with a similar experiment performed on mice cell lines.
+Technical infomation
+
+Cell line **B16-F10**
+
+Compound portions:
+
+dimethyl sulfoxide (DMSO) (0.1 percent), WNT3a (0.5 microgram per milliliter), WNT3a (0.5 microgram per milliliter); G007LK (1 micromolar), G007LK (1 micromolar)
+
+This study can be accessed under the Accession number: E-MTAB-8101.
+
+..............................................................................................................
+
+The dataset containing the human cells was generated though the **Human melanoma cell lines treated with G007-LK** study. During this experiment 18 human melanoma cell lines derived from the skin of the donors were treated with the compound GOO7-LK with the purpose of detecting its effect to the cells and in order to compare those results with a similar experiment perfo
 
 In detail the experiment went like so:
 
-Three pooled technical replicates from a panel of 18 human melanoma cell lines were treated with DMSO and G007-LK for 24 hours.
+Three pooled technical replicates from a panel of 18 human (Assay count 36) melanoma cell lines were treated with dimethyl sulfoxide (DMSO) or G007-LK for 24 hours.
 
-This study could be found under the Accession number: E-MTAB-8438
+The RNA sequence performed using the NextSeq 500 platform. The software kalliso n0.44 was used to identify quantify the human RNA transcripts using the GRCh38 assembly.
+
+Technical informations:
+
+Cell lines: SK-MEL-28, MeWo, A-375, WM35, WM115, WM1341B, WM1366, WM983B, WM451Lu, WM239A, WM266.4, WM852, WM1382,WM9, WM793B)
+
+Compound: G007LK (1mM), dimethyl sulfoxide (0.01)
+
+Dose: 1 micromolar, 0.01 percent
+
+This study can be accessed under the Accession number: E-MTAB-8438
 
 ```{r}
 
@@ -115,4 +137,76 @@ head(human_sup_data)
    #                       show_col_types = FALSE)
   
 #}
+```
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+### Create the supplementary files using the URLs
+
+Derive the file paths for the files
+
+```{r}
+#Load the human and mouse supplementary files
+
+raw_dir <- "../data/_raw"
+human_sup_file <- "E-MTAB-8438.sdrf.txt"
+human_sup_loc <- "https://ftp.ebi.ac.uk/biostudies/nfs/E-MTAB-/438/E-MTAB-8438/Files/"
+
+write.table(mouse_sup_file, file = "mouse_sup.tsv", sep = "\t", row.names = FALSE)
+
+# Create the data directory programmatically
+
+if( !dir.exists(raw_dir) ){
+  dir.create(path = raw_dir)
+}
+
+#download file if it does not exist
+
+if( !file.exists(str_c(raw_dir, human_sup_file)) ){
+  download.file(
+    url = str_c(human_sup_loc, human_sup_file),
+    destfile = str_c(raw_dir, human_sup_file))
+}
+#read the data
+
+
+human_sup_data<-read.table(str_c(raw_dir, human_sup_file), header = TRUE, sep = "\t")
+
+
+#mouse_data
+mouse_sup_file <- "E-MTAB-8101.sdrf.txt"
+mouse_sup_loc <- "https://ftp.ebi.ac.uk/biostudies/nfs/E-MTAB-/101/E-MTAB-8101/Files/"
+
+write.table(mouse_sup_file, file = "mouse_sup.tsv", sep = "\t", row.names = FALSE)
+
+# Create the data directory programmatically
+
+if( !dir.exists(raw_dir) ){
+  dir.create(path = raw_dir)
+}
+
+if( !file.exists(str_c(raw_dir, mouse_sup_file)) ){
+  download.file(
+    url = str_c(mouse_sup_loc, mouse_sup_file),
+    destfile = str_c(raw_dir, mouse_sup_file))
+}
+
+
+#create the tsv files inside the _raw folder
+
+write.table(human_sup_data, file = file.path(raw_dir, "human_sup.tsv"), sep = "/t", row.names = FALSE)
+write.table(mouse_sup_data, file = file.path(raw_dir, "mouse_sup.tsv"), sep = "/t", row.names = FALSE)
+```
+
+```{r}
+human_sup_data<-read.table(str_c(raw_dir, human_sup_file), header = TRUE, sep = "\t")
+mouse_sup_data<-read.table(str_c(raw_dir, mouse_sup_file), header = TRUE, sep = "\t")
+```
+
+```{r}
+head(human_sup_data)
+```
+
+```{r}
+head(mouse_sup_data)
 ```

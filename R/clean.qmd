@@ -7,7 +7,7 @@ editor: visual
 ```{r}
 
 #|label: load the packages
-#|echo: false
+
 library(tidyverse)
 library(stringr)
 ```
