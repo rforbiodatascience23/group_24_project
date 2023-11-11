@@ -141,11 +141,6 @@ colnames(human_suppl_raw)
 Supplementary files
 
 ```{r}
-#Test for missing data
-is.na(human_suppl_raw)
-```
-
-```{r}
 colnames(human_suppl_raw)<- c("Name", "Organism","Developmental_stage", "Disease","Genotype","Organism_part",   "Cell_line","Material_Type","Protocol_REF","Protocol_REF1","Protocol_REF2","Performer", "Extract_Name",   "Library_Layout", "Library_Selection","Library_Source","Library_Strategy","Protocol_REF3", "Performer_1","Assay_Name","Technology_Type","Protocol_REF4", "Performer_2","Derived_Array_Data_File", "Derived_ArrayExpress_FTP_file", "Factor_Value_compound", "Factor_Value_dose", "Unit_dose_unit")
 ```
 
@@ -159,41 +154,54 @@ head(human_suppl_raw)
 ```
 
 ```{r}
-#separate the Name and the Cell_lines columns
-human_suppl_raw |> 
-  group_by(Name) |> 
-  separate(Name, into = c("Cell_line1","Compound"), sep = "\\.")
-```
+#Now we want to separate the Name of the Cell line and the name of the Compound in two columns
+# First we notice an inconsistency with the names of the cell lines which creates some problems when we try to separate the two components of the column Name
 
-```{r}
-human_suppl_raw |> 
-  distinct(Name)
-```
-
-```{r}
-# create the vector of the feature Name values 
-human_suppl_clean<-data.frame(Name = c(
-    "A375.DMSO", "LOX.DMSO", "Skmel28.DMSO", "WM115.DMSO", "WM1341.DMSO",
-    "WM239.DMSO", "WM266.DMSO", "WM35.DMSO", "WM45.1.DMSO", "WM793.DMSO",
-    "WM9.DMSO", "WM983.DMSO", "MeWo.DMSO", "FemxI.DMSO", "FemxV.DMSO",
-    "WM1366.DMSO", "WM852.DMSO", "WM1382.DMSO", "A375.G007.LK", "LOX.G007.LK",
-    "Skmel28.G007.LK", "WM115.G007.LK", "WM1341.G007.LK", "WM239.G007.LK",
-    "WM266.G007.LK", "WM35.G007.LK", "WM45.1.G007.LK", "WM793.G007.LK",
-    "WM9.G007.LK", "WM983.G007.LK"
-  )
-)
-
-# Now we want to split those values depending on the compound they used
-
-compound_pattern <- c("DMSO", "G007.LK")
-
-
-```
-
-```{r}
-human_suppl_clean |> 
+human_suppl_clean<-human_suppl_raw |>
   mutate(
-    Cell_Line1 = sub(paste(compound_pattern, collapse = "|"), "", Name),
-    column2 = sub(".*(" paste(compound_pattern, collapse = "|")").*", "\\1", Name)
+    Name = case_when(
+      Name == "WM45.1.DMSO"~ "WM45_1.DMSO",
+      Name == "WM45.1.G007.LK"~ "WM45_1.G007.LK",
+      TRUE~Name # Keeps the original value of the column if the condition is not met
+    )
   )
 ```
+
+```{r}
+#Separate the names from the compounds
+
+human_suppl_clean<- human_suppl_clean |> 
+  separate(Name, 
+           into = c("Cell_Line1", "Compound"),
+           sep = "\\.")
+```
+
+```{r}
+#We exclude the Cell_line1 and we relocate the Cell_Line feature to the first column of the dataframe
+human_suppl_clean<- human_suppl_clean |> 
+  select(-Cell_Line1) |> 
+  relocate(Cell_line, 1)
+
+head(human_suppl_clean)
+```
+
+```{r}
+colnames(human_suppl_clean) 
+```
+
+```{r}
+head(human_suppl_clean)
+```
+
+```{r}
+#Now we want to have all the Cell lines present in the same way
+
+#So we have to extract the - symbol from the Cell lines values
+
+```
+
+To do :
+
+Extract the "-" between the Cell lines
+
+Check the consistancy between the cell line names between the raw file and the supplementary(perhaps we want to join the dfs)
