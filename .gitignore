@@ -3,4 +3,6 @@
 .RData
 .Ruserdata
 data/
-_raw/
+_raw/human_sup.tsv
+_raw/mouse_sup.tsv
+
