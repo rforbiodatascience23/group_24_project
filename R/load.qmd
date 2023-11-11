@@ -148,7 +148,7 @@ Derive the file paths for the files
 ```{r}
 #Load the human and mouse supplementary files
 
-raw_dir <- "../data/_raw"
+raw_dir <- "../data/"
 human_sup_file <- "E-MTAB-8438.sdrf.txt"
 human_sup_loc <- "https://ftp.ebi.ac.uk/biostudies/nfs/E-MTAB-/438/E-MTAB-8438/Files/"
 
