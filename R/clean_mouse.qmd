@@ -1,0 +1,66 @@
+---
+title: "clean_mouse"
+format: html
+editor: visual
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+mouse_data_backup <- mouse_data
+
+```
+
+```{r}
+library(dplyr)
+library(tidyr)
+
+library(tidyverse)
+
+# Convert to long format
+mouse_data_long <- mouse_data_backup %>%
+  pivot_longer(
+    cols = -c(gene_id, symbol), # Exclude gene_id and symbol
+    names_to = "treatment_replicate",
+    values_to = "value"
+  )
+
+# Separate the treatment and replicate information
+mouse_data_separated <- mouse_data_long %>%
+  separate(
+    col = treatment_replicate,
+    into = c("treatment", "replicate"),
+    sep = "\\." # The separator is a period, escaped because it's a special character in regex
+  )
+
+# View the result
+head(mouse_data_separated)
+
+```
+
+```{r}
+mouse_data_combined <- mouse_data_separated %>%
+  mutate(gene_id_symbol = paste(gene_id, symbol, sep = "_")) |>
+  select(-gene_id, -symbol)
+
+```
+
+```{r}
+mouse_wide<-pivot_wider(mouse_data_combined, names_from = gene_id_symbol)
+```
+
+```{}
+```
+
+You can add options to executable code like this
+
+```{}
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).

@@ -6,140 +6,12 @@ editor: visual
 
 ```{r}
 #|echo: false
+#|message: false
 #|label: load libraries
-#First we have to load the necessary libraries
 library(tidyverse)
 library(dplyr)
 library(readr)
 ```
-
-We study an RNA -seq RNA study performed on skin cells human and mice
-
-This dataset comes from the study (**Mouse melanoma cell line B16-F10 treated with G007-LK**) in which 12 samples were used. What was measured in that study was the effect of different compounds in the B16-F10 skin cells of the samples. The compounds that were used were the following: dimethyl sulfoxide (DMSO), WNT3a and GOO7LK done one truplicates (Each of the compound was applied in equal number of samples ie. 3).
-
-The sequencing was performed using Illumina HiSeq 2500 and the quantification of the RNA data was performed using the kallisto v0.44 using the GRCm38 assembly.
-
-Technical infomation
-
-Cell line **B16-F10**
-
-Compound portions:
-
-dimethyl sulfoxide (DMSO) (0.1 percent), WNT3a (0.5 microgram per milliliter), WNT3a (0.5 microgram per milliliter); G007LK (1 micromolar), G007LK (1 micromolar)
-
-This study can be accessed under the Accession number: E-MTAB-8101.
-
-..............................................................................................................
-
-The dataset containing the human cells was generated though the **Human melanoma cell lines treated with G007-LK** study. During this experiment 18 human melanoma cell lines derived from the skin of the donors were treated with the compound GOO7-LK with the purpose of detecting its effect to the cells and in order to compare those results with a similar experiment perfo
-
-In detail the experiment went like so:
-
-Three pooled technical replicates from a panel of 18 human (Assay count 36) melanoma cell lines were treated with dimethyl sulfoxide (DMSO) or G007-LK for 24 hours.
-
-The RNA sequence performed using the NextSeq 500 platform. The software kalliso n0.44 was used to identify quantify the human RNA transcripts using the GRCh38 assembly.
-
-Technical informations:
-
-Cell lines: SK-MEL-28, MeWo, A-375, WM35, WM115, WM1341B, WM1366, WM983B, WM451Lu, WM239A, WM266.4, WM852, WM1382,WM9, WM793B)
-
-Compound: G007LK (1mM), dimethyl sulfoxide (0.01)
-
-Dose: 1 micromolar, 0.01 percent
-
-This study can be accessed under the Accession number: E-MTAB-8438
-
-### A) Creating the files IF they are allowed on GitHub
-
-```{r}
-
-#|label: transform the human raw data
-#then we need to load our data and transform them to tsv format
-
-
-
-human_raw_csv<-vroom::vroom("../_raw/human_cell_lines_treated.csv",
-                        show_col_types = FALSE) 
-
-write.table(human_raw_csv,
-            file = "../data/human_raw.tsv",
-            sep = "\t",
-            row.names = FALSE, 
-            quote = FALSE)
-
-human_raw_data<- vroom::vroom("../data/human_raw.tsv", 
-                         show_col_types = FALSE)
-```
-
-```{r}
-#|label: transform the mouse raw data
-mouse_raw_csv<-vroom::vroom("../_raw/mouse_cell_lines_treated.csv",
-                                show_col_types = FALSE) 
-write.table(mouse_raw_csv,
-            file = "../data/mouse_raw.tsv",
-            sep = "\t",
-            row.names = FALSE, 
-            quote = FALSE)
-
-mouse_raw_data<- vroom::vroom("../data/mouse_raw.tsv", 
-                          show_col_types = FALSE)
-```
-
-```{r}
-#|label: transform the human supplementary data
-human_sup_txt<-vroom::vroom("../_raw/E-MTAB-8438.sdrf.txt",
-                        show_col_types = FALSE) 
-
-write.table(human_sup_txt,
-            file = "../data/human_sup.tsv",
-            sep = "\t",
-            row.names = FALSE, 
-            quote = FALSE)
-
-human_sup_data<- vroom::vroom("../data/human_sup.tsv",
-                              show_col_types = FALSE)
-```
-
-```{r}
-
-#|label: transform the mouse supplementary data
-
-mouse_sup_txt<-vroom::vroom("../_raw/E-MTAB-8101.sdrf.txt",
-                        show_col_types = FALSE) 
-
-write.table(mouse_sup_txt,
-            file = "../data/mouse_sup.tsv",
-            sep = "\t",
-            row.names = FALSE, 
-            quote = FALSE)
-
-mouse_sup_data<- vroom::vroom("../data/mouse_sup.tsv", 
-                              show_col_types = FALSE)
-```
-
-```{r}
-#maybe a function for transform our uploading datasets
-#but needs improvement
-#file_tr <- function(origin,filename){
- # x<-vroom::vroom("../_raw/origin",
- #              show_col_types = FALSE)
-#  write.table(x,
-    #          file = "../data/filename.tsv",
-     #         sep = "\t",
-      #        row.names = FALSE, 
-       #       quote = FALSE)
-  
-  #filename<- vroom::vroom("../data/filename.tsv", 
-   #                       show_col_types = FALSE)
-  
-#}
-```
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-### B) Creating the files using the URLs
-
-Derive the file paths for the files
 
 ```{r}
 # Create data directory 
@@ -155,8 +27,20 @@ if( !dir.exists(raw_dir) ){
 }
 ```
 
+URLS
+
 ```{r}
-# Download human files 
+human_file <- "https://raw.githubusercontent.com/s232996/project/main/gCSI_GRdata_v1.3.tsv/data/human.csv"
+
+human_supp_file <- "https://raw.githubusercontent.com/s232996/project/main/gCSI_GRdata_v1.3.tsv/data/human_suppl.txt"
+
+mouse_file <- "https://raw.githubusercontent.com/s232996/project/main/gCSI_GRdata_v1.3.tsv/data/mouse.csv"
+
+mouse_supp_file <- "https://raw.githubusercontent.com/s232996/project/main/gCSI_GRdata_v1.3.tsv/data/mouse_suppl.txt"
+```
+
+```{r}
+# Download human data set files 
 
 human_file <- "https://raw.githubusercontent.com/s232996/project/main/gCSI_GRdata_v1.3.tsv/data/human.csv"
 
@@ -166,29 +50,57 @@ if( !file.exists(str_c(raw_dir, "human.csv"))){
     destfile = str_c(raw_dir, "human.csv"))
 }
 
-human_data<-read.csv(str_c(raw_dir, "human.csv"), header = TRUE, sep = ",")
+human_data <- read_csv(file = str_c(raw_dir, "human.csv"))
 
-write.table(human_data, file = file.path(data_dir, "human.tsv"), sep = "/t", row.names = FALSE)
+write_tsv(x = human_data,
+          file = str_c(data_dir, "human.tsv"))
+
+human_data <- read_tsv(file = str_c(data_dir, "human.tsv")) 
+
 ```
 
 ```{r}
-# Download human supplementary files 
+# Download human supplementary data set files 
 
-human_sup_file <- "https://raw.githubusercontent.com/s232996/project/main/gCSI_GRdata_v1.3.tsv/data/human_suppl.txt"
+human_supp_file <- "https://raw.githubusercontent.com/s232996/project/main/gCSI_GRdata_v1.3.tsv/data/human_suppl.txt"
 
-if( !file.exists(str_c(raw_dir, "human_sup.txt"))){
+if( !file.exists(str_c(raw_dir, "human_supp.txt"))){
   download.file(
-    url = human_sup_file,
-    destfile = str_c(raw_dir, "human_suppl.txt"))
+    url = human_supp_file,
+    destfile = str_c(raw_dir, "human_supp.txt"))
 }
 
-human_sup_data<-read.table(str_c(raw_dir, "human_suppl.txt"), header = TRUE, sep = "\t")
+human_sup_data <- read_tsv(str_c(raw_dir, "human_suppl.txt"))
 
-write.table(human_sup_data, file = file.path(data_dir, "human_sup.tsv"), sep = "/t", row.names = FALSE)
+write_tsv( x= human_sup_data,
+           file = str_c(data_dir, "human_sup.tsv"))
 ```
 
 ```{r}
-# Download mouse files 
+#|label: define a function for import the data csv
+
+data_import <- function(data_url,filename,variablename){
+  if (!file.exists(str_c(raw_dir,filename))){
+    download.file(url = data_url,
+                  destfile = str_c(raw_dir, filename))
+  }
+  variablename <- read_csv(file = str_c(raw_dir,filename))
+  
+  write_tsv(x = variablename,
+            file = str_c(data_dir,filename))
+  variablename <- read_tsv(file = str_c(data_dir,filename,".tsv"))
+  
+  
+}
+
+
+
+data_import("https://github.com/s232996/project/tree/main/gCSI_GRdata_v1.3.tsv/data/mouse.csv","mouse.csv", mouse_data)
+
+```
+
+```{r}
+# Download mouse data set files 
 
 mouse_file <- "https://raw.githubusercontent.com/s232996/project/main/gCSI_GRdata_v1.3.tsv/data/mouse.csv"
 
@@ -198,52 +110,113 @@ if( !file.exists(str_c(raw_dir, "mouse.csv"))){
     destfile = str_c(raw_dir, "mouse.csv"))
 }
 
-mouse_data<-read.csv(str_c(raw_dir, "mouse.csv"), header = TRUE, sep = ",")
+mouse_data<-read_csv(str_c(raw_dir, "mouse.csv"))
 
-write.table(mouse_data, file = file.path(data_dir, "mouse.tsv"), sep = "/t", row.names = FALSE)
+write_tsv(x = mouse_data,
+          file = str_c(data_dir, "mouse.tsv"))
+mouse_data <- read_tsv(str_c(data_dir, "mouse.tsv"))
 ```
 
 ```{r}
-# Download mouse supplementary files 
+# Download mouse supplementary data set files 
 
-mouse_sup_file <- "https://raw.githubusercontent.com/s232996/project/main/gCSI_GRdata_v1.3.tsv/data/mouse_suppl.txt"
+mouse_supp_file <- "https://raw.githubusercontent.com/s232996/project/main/gCSI_GRdata_v1.3.tsv/data/mouse_suppl.txt"
 
-if( !file.exists(str_c(raw_dir, "mouse_suppl.txt"))){
+if( !file.exists(str_c(raw_dir, "mouse_supp.txt"))){
   download.file(
-    url = mouse_sup_file,
-    destfile = str_c(raw_dir, "mouse_suppl.txt"))
+    url = mouse_supp_file,
+    destfile = str_c(raw_dir, "mouse_supp.txt"))
 }
 
-mouse_sup_data<-read.table(str_c(raw_dir, "mouse_suppl.txt"), header = TRUE, sep = "\t")
+mouse_sup_data<-read_tsv(str_c(raw_dir, "mouse_suppl.txt"))
 
-write.table(mouse_sup_data, file = file.path(data_dir, "mouse_sup.tsv"), sep = "/t", row.names = FALSE)
+write_tsv(x = mouse_sup_data, 
+          file = str_c(data_dir, "mouse_sup.tsv"))
+
 ```
 
 ```{r}
+head(human_data)
 head(human_sup_data)
+head(mouse_data)
 head(mouse_sup_data)
 ```
 
 ```{r}
 ## FUNCTION FOR THE ABOVE
 
-download_and_convert <- function(file_url, file_name, data_dir) {
+download_and_convert <- function(file_url, file_name, data_dir, raw_dir) {
   # Download file if it doesn't exist
-  if (!file.exists(file.path(data_dir, file_name))) {
-    download.file(url = file_url, destfile = file.path(data_dir, file_name))
+  if (!file.exists(file.path(raw_dir, file_name))) {
+    download.file(url = file_url, destfile = file.path(raw_dir, file_name))
   }
 
   # Read the data into a data frame
-  data <- read.csv(file.path(data_dir, file_name), header = TRUE, sep = ",")
+  data <- read.csv(str_c(raw_dir, file_name), header = TRUE, sep = ",")
 
   # Write the data to a TSV file
-  write.table(data, file = file.path(data_dir, str_c(tools::file_path_sans_ext(file_name), ".tsv")),
-              sep = "\t", row.names = FALSE)
+  write.table(data, file = file.path(data_dir, str_c(file_name, ".tsv")), sep = "/t", row.names = FALSE)
 }
 
 # Usage example
-human_file <- "https://raw.githubusercontent.com/s232996/project/main/gCSI_GRdata_v1.3.tsv/data/human.csv"
-data_directory <- "/path/to/your/data/directory/"
 
-download_and_convert(human_file, "human.csv", data_directory)
+download_and_convert(human_file, "human.csv", data_dir, raw_dir)
+```
+
+```{r}
+#Load the human and mouse supplementary files
+
+raw_dir <- "../_raw/"
+human_sup_file <- "E-MTAB-8438.sdrf.txt"
+human_sup_loc <- "https://ftp.ebi.ac.uk/biostudies/nfs/E-MTAB-/438/E-MTAB-8438/Files/"
+
+write.table(human_sup_file, file = "mouse_sup.tsv", sep = "\t", row.names = FALSE)
+
+# Create the data directory programmatically
+
+if( !dir.exists(raw_dir) ){
+  dir.create(path = raw_dir)
+}
+
+#download file if it does not exist
+
+if( !file.exists(str_c(raw_dir, human_sup_file)) ){
+  download.file(
+    url = str_c(human_sup_loc, human_sup_file),
+    destfile = str_c(raw_dir, human_sup_file))
+  write.table(human_sup_file,
+              file = "mouse_sup.tsv",
+              sep = "\t",
+              row.names = FALSE)
+
+}
+#read the data
+
+
+human_sup_data<-read.table(str_c(raw_dir, human_sup_file), header = TRUE, sep = "\t")
+
+
+#mouse_data
+mouse_sup_file <- "E-MTAB-8101.sdrf.txt"
+mouse_sup_loc <- "https://ftp.ebi.ac.uk/biostudies/nfs/E-MTAB-/101/E-MTAB-8101/Files/"
+
+write.table(mouse_sup_file, file = "mouse_sup.tsv", sep = "\t", row.names = FALSE)
+
+# Create the data directory programmatically
+
+if( !dir.exists(raw_dir) ){
+  dir.create(path = raw_dir)
+}
+
+if( !file.exists(str_c(raw_dir, mouse_sup_file)) ){
+  download.file(
+    url = str_c(mouse_sup_loc, mouse_sup_file),
+    destfile = str_c(raw_dir, mouse_sup_file))
+}
+
+
+#create the tsv files inside the _raw folder
+
+write.table(human_sup_data, file = file.path(raw_dir, "human_sup.tsv"), sep = "/t", row.names = FALSE)
+write.table(mouse_sup_data, file = file.path(raw_dir, "mouse_sup.tsv"), sep = "/t", row.names = FALSE)
 ```
