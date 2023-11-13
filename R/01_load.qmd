@@ -2,10 +2,6 @@
 title: "load file"
 format: html
 editor: visual
-output:
-  quarto::quarto_html:
-    self_contained: true
-    path: "../results/"
 ---
 
 ```{r message = FALSE}
@@ -43,4 +39,4 @@ mouse_suppl_data <- download_txt(mouse_suppl_file, "mouse_suppl")
 ```{r}
 data_list <- list(human_data, human_suppl_data, mouse_data, mouse_suppl_data)
 head_all(data_list)
-```
+---
