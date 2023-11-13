@@ -1,25 +1,37 @@
-# test
-# treatment_cols <- function(column){
-#   if (str_detect(column, ".DMSO")){
-#     str_replace_all(column, ".DMSO", "_untreated")
-#   } else if (str_detect(column, ".G007.LK")){
-#     str_replace_all(column, ".GOO7.LK", "_treated")
-#   }
-# }
+download_csv <- function(file_url, file_name) {
+  # Download file if it doesn't exist
+  if (!file.exists(str_c(raw_dir, file_name, ".csv"))) {
+    download.file(url = file_url, destfile = str_c(raw_dir, file_name, ".csv"))
+  }
+  # Read data into a data frame
+  df <- read_csv(file = str_c(raw_dir, file_name, ".csv"), delim = ",")
+  
+  # Write data to a TSV file
+  write_tsv(x = df, file = str_c(data_dir, file_name, ".tsv.gz"))
+  
+  # Read data from TSV
+  df <- read_tsv(file = str_c(data_dir, file_name, ".tsv.gz"))
+}
 
 
-#maybe a function for transform our uploading datasets
-#but needs improvement
-#file_tr <- function(origin,filename){
-# x<-vroom::vroom("../_raw/origin",
-#              show_col_types = FALSE)
-#  write.table(x,
-#          file = "../data/filename.tsv",
-#         sep = "\t",
-#        row.names = FALSE, 
-#       quote = FALSE)
 
-#filename<- vroom::vroom("../data/filename.tsv", 
-#                       show_col_types = FALSE)
+-------------------------------------------------------------------------------
+  
+download_txt <- function(file_url, file_name) {
+  # Download file if it doesn't exist
+  if (!file.exists(str_c(raw_dir, file_name, ".txt"))) {
+    download.file(url = file_url, destfile = str_c(raw_dir, file_name, ".txt"))
+  }
+  # Read data into a data frame
+  df <- read_csv(file = str_c(raw_dir, file_name, ".txt"))
+  
+  # Write data to a TSV file
+  write_tsv(x = df, file = str_c(data_dir, file_name, ".tsv.gz"))
+  
+  # Read data from TSV
+  df <- read_tsv(file = str_c(data_dir, file_name, ".tsv.gz"))
+}
 
-#}
+
+
+-------------------------------------------------------------------------------
