@@ -11,20 +11,12 @@ editor: visual
 library(tidyverse)
 library(dplyr)
 library(readr)
+library(purrr)
+source("../R/99_proj_func.R")
 ```
 
 ```{r}
-# Create data directory 
-
-data_dir <- "../data/"
-if( !dir.exists(data_dir) ){
-  dir.create(path = data_dir)
-}
-
-raw_dir <- "../data/_raw/"
-if( !dir.exists(raw_dir) ){
-  dir.create(path = raw_dir)
-}
+generate_dir()
 ```
 
 URLS
@@ -53,9 +45,9 @@ if( !file.exists(str_c(raw_dir, "human.csv"))){
 human_data <- read_csv(file = str_c(raw_dir, "human.csv"))
 
 write_tsv(x = human_data,
-          file = str_c(data_dir, "human.tsv"))
+          file = str_c(data_dir, "human.tsv.gz"))
 
-human_data <- read_tsv(file = str_c(data_dir, "human.tsv")) 
+human_data <- read_tsv(file = str_c(data_dir, "human.tsv.gz")) 
 
 ```
 
@@ -76,27 +68,6 @@ write_tsv( x= human_suppl_data,
            file = str_c(data_dir, "human_suppl.tsv"))
 
 human_suppl_data <- read_tsv(file = str_c(data_dir, "human_suppl.tsv"))
-```
-
-```{r}
-#|label: define a function for import the data csv
-
-data_import <- function(data_url,filename,variablename){
-  if (!file.exists(str_c(raw_dir,filename))){
-    download.file(url = data_url,
-                  destfile = str_c(raw_dir, filename))
-  }
-  variablename <- read_csv(file = str_c(raw_dir,filename))
-  
-  write_tsv(x = variablename,
-            file = str_c(data_dir,filename))
-  variablename <- read_tsv(file = str_c(data_dir,filename,".tsv"))
-  
-  
-}
-
-data_import("https://github.com/s232996/project/tree/main/gCSI_GRdata_v1.3.tsv/data/mouse.csv","mouse.csv", mouse_data)
-
 ```
 
 ```{r}
@@ -138,16 +109,19 @@ mouse_suppl_data <- read_tsv(file = str_c(data_dir, "mouse_suppl.tsv"))
 ```
 
 ```{r}
-head(human_data)
-head(human_sup_data)
-head(mouse_data)
-head(mouse_sup_data)
-```
-
-```{r}
 human_data <- download_csv(human_file, "human")
 mouse_data <- download_csv(mouse_file, "mouse")
 
 human_suppl_data <- download_txt(human_suppl_file, "human_suppl")
 mouse_suppl_data <- download_txt(mouse_suppl_file, "mouse_suppl")
+```
+
+```{r}
+head(human_data)
+head(human_sup_data)
+head(mouse_data)
+head(mouse_sup_data)
+
+mylist <- list(human_data, human_suppl_data, mouse_data, mouse_suppl_data)
+head_all(mylist)
 ```
