@@ -6,49 +6,12 @@ editor: visual
 
 ```{r}
 #|echo: false
+#|message: false
 #|label: load libraries
 library(tidyverse)
 library(dplyr)
 library(readr)
 ```
-
-We study an RNA -seq RNA study performed on skin cells human and mice
-
-This dataset comes from the study (**Mouse melanoma cell line B16-F10 treated with G007-LK**) in which 12 samples were used. What was measured in that study was the effect of different compounds in the B16-F10 skin cells of the samples. The compounds that were used were the following: dimethyl sulfoxide (DMSO), WNT3a and GOO7LK done one truplicates (Each of the compound was applied in equal number of samples ie. 3).
-
-The sequencing was performed using Illumina HiSeq 2500 and the quantification of the RNA data was performed using the kallisto v0.44 using the GRCm38 assembly.
-
-Technical infomation
-
-Cell line **B16-F10**
-
-Compound portions:
-
-dimethyl sulfoxide (DMSO) (0.1 percent), WNT3a (0.5 microgram per milliliter), WNT3a (0.5 microgram per milliliter); G007LK (1 micromolar), G007LK (1 micromolar)
-
-This study can be accessed under the Accession number: E-MTAB-8101.
-
-..............................................................................................................
-
-The dataset containing the human cells was generated though the **Human melanoma cell lines treated with G007-LK** study. During this experiment 18 human melanoma cell lines derived from the skin of the donors were treated with the compound GOO7-LK with the purpose of detecting its effect to the cells and in order to compare those results with a similar experiment perfo
-
-In detail the experiment went like so:
-
-Three pooled technical replicates from a panel of 18 human (Assay count 36) melanoma cell lines were treated with dimethyl sulfoxide (DMSO) or G007-LK for 24 hours.
-
-The RNA sequence performed using the NextSeq 500 platform. The software kalliso n0.44 was used to identify quantify the human RNA transcripts using the GRCh38 assembly.
-
-Technical informations:
-
-Cell lines: SK-MEL-28, MeWo, A-375, WM35, WM115, WM1341B, WM1366, WM983B, WM451Lu, WM239A, WM266.4, WM852, WM1382,WM9, WM793B)
-
-Compound: G007LK (1mM), dimethyl sulfoxide (0.01)
-
-Dose: 1 micromolar, 0.01 percent
-
-This study can be accessed under the Accession number: E-MTAB-8438
-
-### 
 
 ```{r}
 # Create data directory 
@@ -75,9 +38,12 @@ if( !file.exists(str_c(raw_dir, "human.csv"))){
     destfile = str_c(raw_dir, "human.csv"))
 }
 
-human_data<-read.csv(str_c(raw_dir, "human.csv"), header = TRUE, sep = ",")
+human_data <- read_csv(file = str_c(raw_dir, "human.csv"))
 
-write.table(human_data, file = file.path(data_dir, "human.tsv"), sep = "/t", row.names = FALSE)
+write_tsv(x = human_data,
+          file = str_c(data_dir, "human.tsv"))
+
+human_data <- read_tsv(file = str_c(data_dir, "human.tsv")) 
 ```
 
 ```{r}
@@ -91,9 +57,33 @@ if( !file.exists(str_c(raw_dir, "human_sup.txt"))){
     destfile = str_c(raw_dir, "human_suppl.txt"))
 }
 
-human_sup_data<-read.table(str_c(raw_dir, "human_suppl.txt"), header = TRUE, sep = "\t")
+human_sup_data <- read_tsv(str_c(raw_dir, "human_suppl.txt"))
 
-write.table(human_sup_data, file = file.path(data_dir, "human_sup.tsv"), sep = "/t", row.names = FALSE)
+write_tsv( x= human_sup_data,
+           file = str_c(data_dir, "human_sup.tsv"))
+```
+
+```{r}
+#|label: define a function for import the data csv
+
+data_import <- function(data_url,filename,variablename){
+  if (!file.exists(str_c(raw_dir,filename))){
+    download.file(url = data_url,
+                  destfile = str_c(raw_dir, filename))
+  }
+  variablename <- read_csv(file = str_c(raw_dir,filename))
+  
+  write_tsv(x = variablename,
+            file = str_c(data_dir,filename))
+  variablename <- read_tsv(file = str_c(data_dir,filename,".tsv"))
+  
+  
+}
+
+
+
+data_import("https://github.com/s232996/project/tree/main/gCSI_GRdata_v1.3.tsv/data/mouse.csv","mouse.csv", mouse_data)
+
 ```
 
 ```{r}
@@ -107,9 +97,11 @@ if( !file.exists(str_c(raw_dir, "mouse.csv"))){
     destfile = str_c(raw_dir, "mouse.csv"))
 }
 
-mouse_data<-read.csv(str_c(raw_dir, "mouse.csv"), header = TRUE, sep = ",")
+mouse_data<-read_csv(str_c(raw_dir, "mouse.csv"))
 
-write.table(mouse_data, file = file.path(data_dir, "mouse.tsv"), sep = "/t", row.names = FALSE)
+write_tsv(x = mouse_data,
+          file = str_c(data_dir, "mouse.tsv"))
+mouse_data <- read_tsv(str_c(data_dir, "mouse.tsv"))
 ```
 
 ```{r}
@@ -123,9 +115,10 @@ if( !file.exists(str_c(raw_dir, "mouse_suppl.txt"))){
     destfile = str_c(raw_dir, "mouse_suppl.txt"))
 }
 
-mouse_sup_data<-read.table(str_c(raw_dir, "mouse_suppl.txt"), header = TRUE, sep = "\t")
+mouse_sup_data<-read_tsv(str_c(raw_dir, "mouse_suppl.txt"))
 
-write.table(mouse_sup_data, file = file.path(data_dir, "mouse_sup.tsv"), sep = "/t", row.names = FALSE)
+write_tsv(x = mouse_sup_data, 
+          file = str_c(data_dir, "mouse_sup.tsv"))
 ```
 
 ```{r}
