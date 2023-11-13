@@ -27,7 +27,6 @@ head(human_data)
 head(human_sup_data)
 ```
 
-
 ```{r}
 #| label: Missing data in the mouse_raw dataset 
 # Test for missing data
@@ -114,15 +113,18 @@ human_data_clean_long<- human_data_clean |>
     values_to = "Expression_levels", #The third column that is going to be created. It contains values of the Cell_line.Compound column 
       ) 
 
-head(human_data_clean_long)
+human_data_clean_long
 ```
 
-Now we are going to check the Cell_line format
-
 ```{r}
-human_data_clean_long |> 
-  group_by(Cell_line) |> 
-  distinct(Cell_line)
+#We will create two new columns for the two compounds that were used so that we have a better understanding on the differences in Copmound
+human_data_final<- human_data_clean_long |> 
+  pivot_wider(
+    names_from = Compound,
+    values_from = Expression_levels
+  )
+
+human_data_final
 ```
 
 From this illustration we can see that all of the genes except one (WM45.1) do not contain any special symbols so we do not need to perform extra cleaning on that feature.
@@ -177,74 +179,38 @@ human_suppl_clean |>
 
 ```{r}
 #Now we are going to separate the column in to two columns
-human_suppl_clean<- human_suppl_clean |> 
+human_suppl_trans<- human_suppl_clean |> 
   separate(Cell_line.Compound, 
            into = c("Cell_Line1", "Compound"),
            sep = "\\.")
-
+human_suppl_trans
 ```
 
 ```{r}
 #We exclude the Cell_line1 and we relocate the Cell_Line feature to the first column of the dataframe
-human_suppl_clean<- human_suppl_clean |> 
-  select(-Cell_Line1) |> 
-  relocate(Cell_line, 1)
-
-head(human_suppl_clean)
-```
-
-Check for consistancy in Cell_lines between the human datasets
-
-```{r}
-human_data_clean_long |> 
-  group_by(Cell_line) |> 
-  distinct(Cell_line)
-```
-
-```{r}
-human_suppl_clean |> 
-  group_by(Cell_line) |> 
-  distinct(Cell_line)
-```
-
-We can see that there are many inconsistances in the Cell_line column between the two datasets. We are going to use the supplementary file one cause it is more detailed than the raw data one
-
-```{r}
-human_data_clean_long |> 
-  right_join(human_suppl_clean, join_by(Cell_line,Compound))
-```
-
-```{r}
-human <-human_data_clean_long |> 
-  right_join(human_suppl_clean, 
-             join_by(Cell_line,Compound)) |> 
-  select(-c(Developmental_stage, Disease, Protocol_REF:Factor_Value_compound, Organism_part, Material_Type)) |> 
+human_suppl_final<- human_suppl_trans |> 
   mutate(
-    Factor_unit_dose = paste(Factor_Value_dose, 
-    Unit_dose_unit, sep =" ")) |> 
-  select(-c(Factor_Value_dose, Unit_dose_unit))
-head(human)
-```
-
-```{r}
-#We want to change the 0.01 percent to 0.01% and 1 micromolar to 1M in the Factor_unit_dose
-
-human<- human |> 
-  mutate(
-    Factor_unit_dose = case_when(
-      Factor_unit_dose == "0.01 percent" ~ "0.01%",
-      Factor_unit_dose == "1 micromolar" ~ "1M",
-      TRUE ~ Factor_unit_dose# Keeps the original value of the column if the condition is not met
-    )
+    Factor_Unit = paste(Factor_Value_dose, Unit_dose_unit , sep = " ")
+  #We want to change the 0.01 percent to 0.01% and 1 micromolar to 1M in the Factor_unit_dose
   )
-head(human)
+  
+  
+human_suppl_final
+```
+
+```{r}
+human_suppl_final <- human_suppl_final |> 
+  mutate(
+    Factor_Unit = case_when(
+      Factor_Unit == "0.01 percent" ~ "0.01%",
+      Factor_Unit == "1 micromolar" ~ "1M",
+      TRUE ~ Factor_Unit# Keeps the original value of the column if the condition is not met
+    )
+    )
+human_suppl_final
 ```
 
 ## We have to be consistant also with the mouse data since we might want to join the datasets
-
-```{r}
-
-```
 
 Now we are finished with the cleaning process. Bellow are some extra stuff
 
@@ -326,12 +292,3 @@ human_sup_data|>
   #sample_n(10)
 
 ```
-
-```{r}
-
-
-```
-
-**To do:**:
-
-Check the consistancy between the cell line names between the raw file and the supplementary(perhaps we want to join the dfs)

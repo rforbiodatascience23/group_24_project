@@ -1,0 +1,42 @@
+---
+title: "load file"
+format: html
+editor: visual
+---
+
+```{r message = FALSE}
+library(tidyverse)
+library(readr)
+library(purrr)
+source("../R/99_proj_func.R")
+```
+
+```{r}
+# Generates data folder and _raw sub folder
+generate_dir()
+```
+
+```{r}
+# Captures URLs containing needed data sets
+
+human_file <- "https://raw.githubusercontent.com/s232996/project/main/gCSI_GRdata_v1.3.tsv/data/human.csv"
+
+human_suppl_file <- "https://raw.githubusercontent.com/s232996/project/main/gCSI_GRdata_v1.3.tsv/data/human_suppl.txt"
+
+mouse_file <- "https://raw.githubusercontent.com/s232996/project/main/gCSI_GRdata_v1.3.tsv/data/mouse.csv"
+
+mouse_suppl_file <- "https://raw.githubusercontent.com/s232996/project/main/gCSI_GRdata_v1.3.tsv/data/mouse_suppl.txt"
+```
+
+```{r message = FALSE, warning = FALSE}
+human_data <- download_csv(human_file, "human")
+mouse_data <- download_csv(mouse_file, "mouse")
+
+human_suppl_data <- download_txt(human_suppl_file, "human_suppl")
+mouse_suppl_data <- download_txt(mouse_suppl_file, "mouse_suppl")
+```
+
+```{r}
+data_list <- list(human_data, human_suppl_data, mouse_data, mouse_suppl_data)
+head_all(data_list)
+```
