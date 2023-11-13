@@ -27,6 +27,18 @@ if( !dir.exists(raw_dir) ){
 }
 ```
 
+URLS
+
+```{r}
+human_file <- "https://raw.githubusercontent.com/s232996/project/main/gCSI_GRdata_v1.3.tsv/data/human.csv"
+
+human_supp_file <- "https://raw.githubusercontent.com/s232996/project/main/gCSI_GRdata_v1.3.tsv/data/human_suppl.txt"
+
+mouse_file <- "https://raw.githubusercontent.com/s232996/project/main/gCSI_GRdata_v1.3.tsv/data/mouse.csv"
+
+mouse_supp_file <- "https://raw.githubusercontent.com/s232996/project/main/gCSI_GRdata_v1.3.tsv/data/mouse_suppl.txt"
+```
+
 ```{r}
 # Download human data set files 
 
@@ -44,17 +56,18 @@ write_tsv(x = human_data,
           file = str_c(data_dir, "human.tsv"))
 
 human_data <- read_tsv(file = str_c(data_dir, "human.tsv")) 
+
 ```
 
 ```{r}
 # Download human supplementary data set files 
 
-human_sup_file <- "https://raw.githubusercontent.com/s232996/project/main/gCSI_GRdata_v1.3.tsv/data/human_suppl.txt"
+human_supp_file <- "https://raw.githubusercontent.com/s232996/project/main/gCSI_GRdata_v1.3.tsv/data/human_suppl.txt"
 
-if( !file.exists(str_c(raw_dir, "human_sup.txt"))){
+if( !file.exists(str_c(raw_dir, "human_supp.txt"))){
   download.file(
-    url = human_sup_file,
-    destfile = str_c(raw_dir, "human_suppl.txt"))
+    url = human_supp_file,
+    destfile = str_c(raw_dir, "human_supp.txt"))
 }
 
 human_sup_data <- read_tsv(str_c(raw_dir, "human_suppl.txt"))
@@ -107,18 +120,19 @@ mouse_data <- read_tsv(str_c(data_dir, "mouse.tsv"))
 ```{r}
 # Download mouse supplementary data set files 
 
-mouse_sup_file <- "https://raw.githubusercontent.com/s232996/project/main/gCSI_GRdata_v1.3.tsv/data/mouse_suppl.txt"
+mouse_supp_file <- "https://raw.githubusercontent.com/s232996/project/main/gCSI_GRdata_v1.3.tsv/data/mouse_suppl.txt"
 
-if( !file.exists(str_c(raw_dir, "mouse_suppl.txt"))){
+if( !file.exists(str_c(raw_dir, "mouse_supp.txt"))){
   download.file(
-    url = mouse_sup_file,
-    destfile = str_c(raw_dir, "mouse_suppl.txt"))
+    url = mouse_supp_file,
+    destfile = str_c(raw_dir, "mouse_supp.txt"))
 }
 
 mouse_sup_data<-read_tsv(str_c(raw_dir, "mouse_suppl.txt"))
 
 write_tsv(x = mouse_sup_data, 
           file = str_c(data_dir, "mouse_sup.tsv"))
+
 ```
 
 ```{r}
@@ -131,25 +145,22 @@ head(mouse_sup_data)
 ```{r}
 ## FUNCTION FOR THE ABOVE
 
-download_and_convert <- function(file_url, file_name, data_dir) {
+download_and_convert <- function(file_url, file_name, data_dir, raw_dir) {
   # Download file if it doesn't exist
-  if (!file.exists(file.path(data_dir, file_name))) {
-    download.file(url = file_url, destfile = file.path(data_dir, file_name))
+  if (!file.exists(file.path(raw_dir, file_name))) {
+    download.file(url = file_url, destfile = file.path(raw_dir, file_name))
   }
 
   # Read the data into a data frame
-  data <- read.csv(file.path(data_dir, file_name), header = TRUE, sep = ",")
+  data <- read.csv(str_c(raw_dir, file_name), header = TRUE, sep = ",")
 
   # Write the data to a TSV file
-  write.table(data, file = file.path(data_dir, str_c(tools::file_path_sans_ext(file_name), ".tsv")),
-              sep = "\t", row.names = FALSE)
+  write.table(data, file = file.path(data_dir, str_c(file_name, ".tsv")), sep = "/t", row.names = FALSE)
 }
 
 # Usage example
-human_file <- "https://raw.githubusercontent.com/s232996/project/main/gCSI_GRdata_v1.3.tsv/data/human.csv"
-data_directory <- "/path/to/your/data/directory/"
 
-download_and_convert(human_file, "human.csv", data_directory)
+download_and_convert(human_file, "human.csv", data_dir, raw_dir)
 ```
 
 ```{r}
