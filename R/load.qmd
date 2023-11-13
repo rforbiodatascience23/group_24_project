@@ -7,7 +7,6 @@ editor: visual
 ```{r}
 #|echo: false
 #|label: load libraries
-#First we have to load the necessary libraries
 library(tidyverse)
 library(dplyr)
 library(readr)
@@ -49,97 +48,7 @@ Dose: 1 micromolar, 0.01 percent
 
 This study can be accessed under the Accession number: E-MTAB-8438
 
-### A) Creating the files IF they are allowed on GitHub
-
-```{r}
-
-#|label: transform the human raw data
-#then we need to load our data and transform them to tsv format
-
-
-
-human_raw_csv<-vroom::vroom("../_raw/human_cell_lines_treated.csv",
-                        show_col_types = FALSE) 
-
-write.table(human_raw_csv,
-            file = "../data/human_raw.tsv",
-            sep = "\t",
-            row.names = FALSE, 
-            quote = FALSE)
-
-human_raw_data<- vroom::vroom("../data/human_raw.tsv", 
-                         show_col_types = FALSE)
-```
-
-```{r}
-#|label: transform the mouse raw data
-mouse_raw_csv<-vroom::vroom("../_raw/mouse_cell_lines_treated.csv",
-                                show_col_types = FALSE) 
-write.table(mouse_raw_csv,
-            file = "../data/mouse_raw.tsv",
-            sep = "\t",
-            row.names = FALSE, 
-            quote = FALSE)
-
-mouse_raw_data<- vroom::vroom("../data/mouse_raw.tsv", 
-                          show_col_types = FALSE)
-```
-
-```{r}
-#|label: transform the human supplementary data
-human_sup_txt<-vroom::vroom("../_raw/E-MTAB-8438.sdrf.txt",
-                        show_col_types = FALSE) 
-
-write.table(human_sup_txt,
-            file = "../data/human_sup.tsv",
-            sep = "\t",
-            row.names = FALSE, 
-            quote = FALSE)
-
-human_sup_data<- vroom::vroom("../data/human_sup.tsv",
-                              show_col_types = FALSE)
-```
-
-```{r}
-
-#|label: transform the mouse supplementary data
-
-mouse_sup_txt<-vroom::vroom("../_raw/E-MTAB-8101.sdrf.txt",
-                        show_col_types = FALSE) 
-
-write.table(mouse_sup_txt,
-            file = "../data/mouse_sup.tsv",
-            sep = "\t",
-            row.names = FALSE, 
-            quote = FALSE)
-
-mouse_sup_data<- vroom::vroom("../data/mouse_sup.tsv", 
-                              show_col_types = FALSE)
-```
-
-```{r}
-#maybe a function for transform our uploading datasets
-#but needs improvement
-#file_tr <- function(origin,filename){
- # x<-vroom::vroom("../_raw/origin",
- #              show_col_types = FALSE)
-#  write.table(x,
-    #          file = "../data/filename.tsv",
-     #         sep = "\t",
-      #        row.names = FALSE, 
-       #       quote = FALSE)
-  
-  #filename<- vroom::vroom("../data/filename.tsv", 
-   #                       show_col_types = FALSE)
-  
-#}
-```
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-### B) Creating the files using the URLs
-
-Derive the file paths for the files
+### 
 
 ```{r}
 # Create data directory 
@@ -156,7 +65,7 @@ if( !dir.exists(raw_dir) ){
 ```
 
 ```{r}
-# Download human files 
+# Download human data set files 
 
 human_file <- "https://raw.githubusercontent.com/s232996/project/main/gCSI_GRdata_v1.3.tsv/data/human.csv"
 
@@ -172,7 +81,7 @@ write.table(human_data, file = file.path(data_dir, "human.tsv"), sep = "/t", row
 ```
 
 ```{r}
-# Download human supplementary files 
+# Download human supplementary data set files 
 
 human_sup_file <- "https://raw.githubusercontent.com/s232996/project/main/gCSI_GRdata_v1.3.tsv/data/human_suppl.txt"
 
@@ -188,7 +97,7 @@ write.table(human_sup_data, file = file.path(data_dir, "human_sup.tsv"), sep = "
 ```
 
 ```{r}
-# Download mouse files 
+# Download mouse data set files 
 
 mouse_file <- "https://raw.githubusercontent.com/s232996/project/main/gCSI_GRdata_v1.3.tsv/data/mouse.csv"
 
@@ -204,7 +113,7 @@ write.table(mouse_data, file = file.path(data_dir, "mouse.tsv"), sep = "/t", row
 ```
 
 ```{r}
-# Download mouse supplementary files 
+# Download mouse supplementary data set files 
 
 mouse_sup_file <- "https://raw.githubusercontent.com/s232996/project/main/gCSI_GRdata_v1.3.tsv/data/mouse_suppl.txt"
 
@@ -220,7 +129,9 @@ write.table(mouse_sup_data, file = file.path(data_dir, "mouse_sup.tsv"), sep = "
 ```
 
 ```{r}
+head(human_data)
 head(human_sup_data)
+head(mouse_data)
 head(mouse_sup_data)
 ```
 
