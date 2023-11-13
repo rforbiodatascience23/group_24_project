@@ -70,7 +70,7 @@ if( !file.exists(str_c(raw_dir, "human_supp.txt"))){
     destfile = str_c(raw_dir, "human_supp.txt"))
 }
 
-human_sup_data <- read_tsv(str_c(raw_dir, "human_suppl.txt"))
+human_sup_data <- read_tsv(str_c(raw_dir, "human_supp.txt"))
 
 write_tsv( x= human_sup_data,
            file = str_c(data_dir, "human_sup.tsv"))
@@ -79,23 +79,21 @@ write_tsv( x= human_sup_data,
 ```{r}
 #|label: define a function for import the data csv
 
-data_import <- function(data_url,filename,variablename){
-  if (!file.exists(str_c(raw_dir,filename))){
-    download.file(url = data_url,
-                  destfile = str_c(raw_dir, filename))
-  }
-  variablename <- read_csv(file = str_c(raw_dir,filename))
-  
-  write_tsv(x = variablename,
-            file = str_c(data_dir,filename))
-  variablename <- read_tsv(file = str_c(data_dir,filename,".tsv"))
-  
-  
-}
+# data_import <- function(data_url,filename,variablename){
+#  if (!file.exists(str_c(raw_dir,filename))){
+#    download.file(url = data_url,
+#                  destfile = str_c(raw_dir, filename))
+#  }
+#  variablename <- read_csv(file = str_c(raw_dir,filename))
+#  
+#  write_tsv(x = variablename,
+#            file = str_c(data_dir,filename))
+#  variablename <- read_tsv(file = str_c(data_dir,"mouse.tsv"))
+#  
+#  
+# }
 
-
-
-data_import("https://github.com/s232996/project/tree/main/gCSI_GRdata_v1.3.tsv/data/mouse.csv","mouse.csv", mouse_data)
+#data_import("https://github.com/s232996/project/tree/main/gCSI_GRdata_v1.3.tsv/data/mouse.csv", "mouse.csv", mouse_data)
 
 ```
 
@@ -110,7 +108,7 @@ if( !file.exists(str_c(raw_dir, "mouse.csv"))){
     destfile = str_c(raw_dir, "mouse.csv"))
 }
 
-mouse_data<-read_csv(str_c(raw_dir, "mouse.csv"))
+mouse_data <- read_csv(str_c(raw_dir, "mouse.csv"))
 
 write_tsv(x = mouse_data,
           file = str_c(data_dir, "mouse.tsv"))
@@ -128,7 +126,7 @@ if( !file.exists(str_c(raw_dir, "mouse_supp.txt"))){
     destfile = str_c(raw_dir, "mouse_supp.txt"))
 }
 
-mouse_sup_data<-read_tsv(str_c(raw_dir, "mouse_suppl.txt"))
+mouse_sup_data <- read_tsv(str_c(raw_dir, "mouse_supp.txt"))
 
 write_tsv(x = mouse_sup_data, 
           file = str_c(data_dir, "mouse_sup.tsv"))
