@@ -158,3 +158,61 @@ data_directory <- "/path/to/your/data/directory/"
 
 download_and_convert(human_file, "human.csv", data_directory)
 ```
+
+```{r}
+#Load the human and mouse supplementary files
+
+raw_dir <- "../_raw/"
+human_sup_file <- "E-MTAB-8438.sdrf.txt"
+human_sup_loc <- "https://ftp.ebi.ac.uk/biostudies/nfs/E-MTAB-/438/E-MTAB-8438/Files/"
+
+write.table(human_sup_file, file = "mouse_sup.tsv", sep = "\t", row.names = FALSE)
+
+# Create the data directory programmatically
+
+if( !dir.exists(raw_dir) ){
+  dir.create(path = raw_dir)
+}
+
+#download file if it does not exist
+
+if( !file.exists(str_c(raw_dir, human_sup_file)) ){
+  download.file(
+    url = str_c(human_sup_loc, human_sup_file),
+    destfile = str_c(raw_dir, human_sup_file))
+  write.table(human_sup_file,
+              file = "mouse_sup.tsv",
+              sep = "\t",
+              row.names = FALSE)
+
+}
+#read the data
+
+
+human_sup_data<-read.table(str_c(raw_dir, human_sup_file), header = TRUE, sep = "\t")
+
+
+#mouse_data
+mouse_sup_file <- "E-MTAB-8101.sdrf.txt"
+mouse_sup_loc <- "https://ftp.ebi.ac.uk/biostudies/nfs/E-MTAB-/101/E-MTAB-8101/Files/"
+
+write.table(mouse_sup_file, file = "mouse_sup.tsv", sep = "\t", row.names = FALSE)
+
+# Create the data directory programmatically
+
+if( !dir.exists(raw_dir) ){
+  dir.create(path = raw_dir)
+}
+
+if( !file.exists(str_c(raw_dir, mouse_sup_file)) ){
+  download.file(
+    url = str_c(mouse_sup_loc, mouse_sup_file),
+    destfile = str_c(raw_dir, mouse_sup_file))
+}
+
+
+#create the tsv files inside the _raw folder
+
+write.table(human_sup_data, file = file.path(raw_dir, "human_sup.tsv"), sep = "/t", row.names = FALSE)
+write.table(mouse_sup_data, file = file.path(raw_dir, "mouse_sup.tsv"), sep = "/t", row.names = FALSE)
+```

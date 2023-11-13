@@ -16,6 +16,7 @@ library(tidyr)
 Now we need to clean our data First we will check the structure of the data and convert them into tibble (better performance for large datasets)
 
 ```{r}
+
 #| label: load as tibbles and data structure
 human_data <- vroom::vroom("../data/human.tsv", delim = "/t")
 human_sup_data <- vroom::vroom("../data/human_sup.tsv", delim = "/t")
@@ -25,6 +26,7 @@ glimpse(human_sup_data)
 head(human_data)
 head(human_sup_data)
 ```
+
 
 ```{r}
 #| label: Missing data in the mouse_raw dataset 
@@ -57,6 +59,7 @@ if (any(is.na(human_sup_data))) {
 ```
 
 ```{r}
+
 #| label: Missing data in the mouse_sup dataset
 
 if (any(is.na(mouse_sup_data))) {
@@ -296,7 +299,9 @@ human_raw_data |>
   add_count(symbol) |> 
   filter(n>1) |> 
   select(n)
-#these results indicate presence of different isomorphs  
+
+#these results indicate presence of different transcript variants  
+
 ```
 
 ```{r}
@@ -311,65 +316,22 @@ human_raw_data_clean |>
 
 ```{r}
 
-#|label: selection of the useful columns
+#|label: selection of the useful columns in sup data
 # need to rename the columns
 human_sup_data|> 
   as_tibble() |> 
   select(`Source Name`,`Characteristics[genotype]`)
-```
+  #janitor::clean_names() |> #this turns all column names into snake case at once
+  #select(source_name,characteristics_genotype)
+  #sample_n(10)
 
-**To do:**
-
-discard gene ID and use only symbol for each
-
-Fix the name in sup dataset
-
-```{r}
-human_raw_data_clean |>
-  group_by(symbol) |>
-  summarise(n = n()) |> 
-  filter(n> 1)
-```
-
-```{r}
-human_raw_data_clean |>
-  group_by(symbol) |>
-  summarise(n = n()) |> 
-  filter(n> 1)
-
-#there are 1539 genes that appeared in more than one geneId 
-```
-
-```{r}
-#| label: This one goes to the describe file
-#check the dataset for duplicates
-human_raw_data |>
-  group_by(symbol) |> 
-  add_count(symbol) |> 
-  filter(n>1) |> 
-  select(n)
-#these results indicate presence of different isomorphs  
-```
-
-```{r}
-#|label: group by genes
-# not ready yet
-human_raw_data_clean |> 
-  select(-gene_id) |> 
-  group_by(symbol) |> 
-  nest() |> 
-  head()
 ```
 
 ```{r}
 
-#|label: selection of the useful columns
-# need to rename the columns
-human_sup_data|> 
-  as_tibble() |> 
-  select(`Source Name`,`Characteristics[genotype]`)
+
 ```
 
-To do :
+**To do:**:
 
 Check the consistancy between the cell line names between the raw file and the supplementary(perhaps we want to join the dfs)
