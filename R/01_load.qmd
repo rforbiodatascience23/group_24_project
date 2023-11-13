@@ -39,4 +39,4 @@ mouse_suppl_data <- download_txt(mouse_suppl_file, "mouse_suppl")
 ```{r}
 data_list <- list(human_data, human_suppl_data, mouse_data, mouse_suppl_data)
 head_all(data_list)
----
+```
