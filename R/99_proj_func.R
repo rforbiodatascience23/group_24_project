@@ -1,26 +1,25 @@
 download_csv <- function(file_url, file_name) {
-  raw_dir <- "../data/_raw"
+  raw_dir <- "../data/_raw/"
   data_dir <- "../data/"
-  # Download file if it doesn't exist
+  # Downloads file if it doesn't exist
   if (!file.exists(str_c(raw_dir, file_name, ".csv"))) {
     download.file(url = file_url, destfile = str_c(raw_dir, file_name, ".csv"))
   }
-  # Read data into a data frame
+  # Reads data into a data frame
   df <- read_csv(file = str_c(raw_dir, file_name, ".csv"))
   
-  # Write data to a TSV file
+  # Writes data to a TSV file
   write_tsv(x = df, file = str_c(data_dir, file_name, ".tsv.gz"))
   
-  # Read data from TSV
+  # Reads data from TSV
   df <- read_tsv(file = str_c(data_dir, file_name, ".tsv.gz"))
 }
-
 
 
 ###############################################################################
   
 download_txt <- function(file_url, file_name) {
-  raw_dir <- "../data/_raw"
+  raw_dir <- "../data/_raw/"
   data_dir <- "../data/"
   # Download file if it doesn't exist
   if (!file.exists(str_c(raw_dir, file_name, ".txt"))) {
@@ -37,7 +36,6 @@ download_txt <- function(file_url, file_name) {
 }
 
 
-
 ###############################################################################
 
 generate_dir <- function(){
@@ -51,7 +49,6 @@ generate_dir <- function(){
     dir.create(path = raw_dir)
   }
 }
-
 
 
 ###############################################################################
