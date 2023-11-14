@@ -6,23 +6,20 @@ editor: visual
 
 ## Quarto
 
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
-
-## Running Code
-
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
-
-```{r}
-mouse_data_backup <- mouse_data
-
-```
+This document cleanes the mouse data
 
 ```{r}
 library(dplyr)
 library(tidyr)
-
 library(tidyverse)
+```
 
+```{r}
+mouse_data <- read_tsv(file = "../data/01_dat_load_mouse.tsv.gz")
+```
+
+
+```{r}
 # Convert to long format
 mouse_data_long <- mouse_data_backup %>%
   pivot_longer(
@@ -56,8 +53,8 @@ mouse_wide<-pivot_wider(mouse_data_combined, names_from = gene_id_symbol)
 ```
 
 ```{r}
-data_dir <- "../data/"
-file_name <- "02_dat_clean.tsv"
-write_tsv(x = df, file = str_c(data_dir, file_name, ".tsv.gz"))
+data_dir <- 
+file_name <- 
+write_tsv(x = mouse_wide, file = str_c("../data/02_dat_clean_mouse", ".tsv.gz"))
 ```
 
