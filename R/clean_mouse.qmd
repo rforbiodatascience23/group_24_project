@@ -55,12 +55,9 @@ mouse_data_combined <- mouse_data_separated %>%
 mouse_wide<-pivot_wider(mouse_data_combined, names_from = gene_id_symbol)
 ```
 
-```{}
+```{r}
+data_dir <- "../data/"
+file_name <- "02_dat_clean.tsv"
+write_tsv(x = df, file = str_c(data_dir, file_name, ".tsv.gz"))
 ```
 
-You can add options to executable code like this
-
-```{}
-```
-
-The `echo: false` option disables the printing of code (only output is displayed).
