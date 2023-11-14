@@ -1,0 +1,321 @@
+---
+title: "Clean file"
+format: html
+editor: visual
+---
+
+```{r}
+#|label: load the packages
+
+library(tidyverse)
+library(stringr)
+library(dplyr)
+library(tidyr)
+```
+
+Now we need to clean our data First we will check the structure of the data and convert them into tibble (better performance for large datasets)
+
+```{r}
+
+#| label: load as tibbles and data structure
+human_data <- vroom::vroom("../data/human.tsv", delim = "/t")
+human_sup_data <- vroom::vroom("../data/human_sup.tsv", delim = "/t")
+
+glimpse(human_data)
+glimpse(human_sup_data)
+head(human_data)
+head(human_sup_data)
+```
+
+```{r}
+#| label: Missing data in the mouse_raw dataset 
+# Test for missing data
+if (any(is.na(mouse_data))) {
+  cat("There are NA values in the data frame.\n")
+} else {
+  cat("There are no NA values in the data frame.\n")
+}
+```
+
+```{r}
+#| label: Missing data in the human_raw dataset
+  
+if (any(is.na(human_data))) {
+  cat("There are NA values in the data frame.\n")
+} else {
+  cat("There are no NA values in the data frame.\n")
+}
+```
+
+```{r}
+#| label: Missing data in the human_sup dataset
+
+if (any(is.na(human_sup_data))) {
+  cat("There are NA values in the data frame.\n")
+} else {
+  cat("There are no NA values in the data frame.\n")
+}
+```
+
+```{r}
+
+#| label: Missing data in the mouse_sup dataset
+
+if (any(is.na(mouse_sup_data))) {
+  cat("There are NA values in the data frame.\n")
+} else {
+  cat("There are no NA values in the data frame.\n")
+}
+```
+
+## From this illustration we can see that there are no NA data detected in our datasets. We have to discuss if the NAs are depicted as 0 in the expression levels if this is something that is not anticipated
+
+```{r}
+#first take a look at our data
+head(human_data)
+```
+
+This dataframe contains A column of the gene id, a column with the common gene name and the rest of the columns are composed of the cell lines that were used for the experiment.
+
+Next we will rename the column names as treated and untreated based on DMSO (vehicle solvent for the drug) and G007-LK (drug) respectively. We observe that there are many variables in column names, so we need to separate them
+
+```{r}
+human_data_clean <-human_data |>
+  rename_with( #we use this function in order to change the name of the columns
+    ~case_when( # change the name of the column based on a condition met by str_detect
+      #We see that the columns containing the cell lines contain the name of the cell lines and the DMSO or G007.LK compounds separated by a. 
+       str_detect(.,".DMSO") ~ str_replace_all(.,
+                                             ".DMSO",
+                                             "_DMSO"),
+       str_detect(.,".G007.LK") ~ str_replace_all(.,
+                                                ".G007.LK",
+                                                "_G007.LK"),
+       TRUE ~ .  # Keep the original name of the columns if the aforementioned conditions are not met
+     )# Apply case when function in each column
+   ) #rename_with()
+
+
+#check how the column names changed
+colnames(human_data_clean)
+```
+
+These data are untidy. So we are going to transform them via pivoting
+
+```{r}
+
+#Pivot the human df
+human_data_clean_long<- human_data_clean |> 
+  pivot_longer(
+    cols = -(gene_id:symbol),#Which of the columns are going to be included in the pivoting process
+
+   names_to = c("Cell_line", 
+                 "Compound"), # Columns to be created during pivoting 
+    names_sep = "_", #Separate the column when identifying the "_" symbol
+    values_to = "Expression_levels", #The third column that is going to be created. It contains values of the Cell_line.Compound column 
+      ) 
+
+human_data_clean_long
+```
+
+Now we are going to check the Cell_line format
+
+```{r}
+human_data_clean_long |> 
+  group_by(Cell_line) |> 
+  distinct(Cell_line)
+```
+
+From this illustration we can see that all of the genes except one (WM45.1) do not contain any special symbols so we do not need to perform extra cleaning on that feature.
+
+### Now our Human dataframe is tidy and ready to be used.
+
+Now we are going to perform cleaning on the human supplementary files
+
+#############################################################3
+
+The join here is not working we are going to perform it with the mouse data####
+
+\#############################################################
+
+```{r}
+head(human_suppl_raw)
+```
+
+The name column has the same format as the columns we pivoted before and separated them into Cell_line and Compound columns.
+
+We are going to do the same here
+
+First we are going to rename the feature names because they are now appealing
+
+```{r}
+colnames(human_suppl_raw)<- c("Cell_line.Compound", "Organism","Developmental_stage", "Disease","Genotype","Organism_part", "Cell_line","Material_Type","Protocol_REF","Protocol_REF1","Protocol_REF2","Performer", "Extract_Name",   "Library_Layout", "Library_Selection","Library_Source","Library_Strategy","Protocol_REF3", "Performer_1","Assay_Name","Technology_Type","Protocol_REF4", "Performer_2","Derived_Array_Data_File", "Derived_ArrayExpress_FTP_file", "Factor_Value_compound", "Factor_Value_dose", "Unit_dose_unit")
+```
+
+```{r}
+head(human_suppl_raw)
+```
+
+```{r}
+human_suppl_raw |> 
+  group_by(Cell_line.Compound) |> 
+  distinct(Cell_line.Compound)
+```
+
+```{r}
+ # First we notice an inconsistency with the names of the cell lines which creates some problems when we try to separate the two components of the column Name
+
+human_suppl_clean<- human_suppl_raw |>
+  mutate(
+    Cell_line.Compound = case_when(
+      Cell_line.Compound == "WM45.1.DMSO"~ "WM45_1.DMSO",
+      Cell_line.Compound == "WM45.1.G007.LK"~ "WM45_1.G007.LK",
+      TRUE ~ Cell_line.Compound# Keeps the original value of the column if the condition is not met
+    )
+  )
+
+```
+
+```{r}
+human_suppl_clean |> 
+  group_by(Cell_line.Compound) |> 
+  distinct(Cell_line.Compound)
+```
+
+```{r}
+#Now we are going to separate the column in to two columns
+human_suppl_clean_trans<- human_suppl_clean |> 
+  separate(Cell_line.Compound, 
+           into = c("Cell_Line1", "Compound"),
+           sep = "\\.") |> 
+    mutate(
+    Cell_Line1 = case_when(
+      Cell_Line1 == "WM45_1"~ "WM45.1",
+      TRUE ~ Cell_Line1# Keeps the original value of the column if the condition is not met
+    )
+  )
+```
+
+```{r}
+human_suppl_clean_trans
+```
+
+Check for consistency in Cell_lines between the human datasets
+
+We can see that there are many inconsistances in the Cell_line column between the two datasets. We are going to use the supplementary file one cause it is more detailed than the raw data one
+
+```{r}
+human_suppl_final <- human_suppl_clean_trans |> 
+  select(-c(Developmental_stage, Disease, Protocol_REF:Factor_Value_compound, Organism_part, Material_Type)) |> 
+  mutate(
+    Factor_unit_dose = paste(Factor_Value_dose, 
+    Unit_dose_unit, sep =" ")) |> 
+  select(-c(Factor_Value_dose, Unit_dose_unit)) |> 
+  #We want to change the 0.01 percent to 0.01% and 1 micromolar to 1M in the Factor_unit_dose
+  mutate(
+    Factor_unit_dose = case_when(
+      Factor_unit_dose == "0.01 percent" ~ "0.01%",
+      Factor_unit_dose == "1 micromolar" ~ "1M",
+      TRUE ~ Factor_unit_dose# Keeps the original value of the column if the condition is not met
+    )
+  )
+
+human_suppl_final
+```
+
+## We have to be consistant also with the mouse data since we might want to join the datasets
+
+```{r}
+human_data_clean_long |> 
+  group_by(Compound) |> 
+  count(n = n())
+```
+
+Now we are finished with the cleaning process. Bellow are some extra stuff
+
+\##########################################################################################
+
+do not know what is the use of the following chunk###################################################
+
+**we need to see the unit of these expressions levels##################################################**
+
+\##########################################################################################
+
+```{r}
+library(dplyr)
+
+# Sample tibble
+my_tibble <- tibble(
+  old_col1 = c(1, 2, 3),
+  old_col2 = c(4, 5, 6),
+  old_col3 = c(7, 8, 9)
+)
+
+my_tibble
+
+# Function to modify column names
+modify_column_names <- function(name) {
+  # Replace "old_" with "new_"
+  gsub("old_", "new_", name)
+}
+
+# Use rename_with to apply the custom function to column names
+my_tibble <- my_tibble %>%
+  rename_with(~modify_column_names(.), starts_with("old_col"))
+
+# Print the updated tibble
+print(my_tibble)
+```
+
+```{r}
+human_raw_data_clean |>
+  group_by(symbol) |>
+  summarise(n = n()) |> 
+  filter(n> 1)
+
+#there are 1539 genes that appeared in more than one geneId 
+```
+
+```{r}
+#| label: This one goes to the describe file
+#check the dataset for duplicates
+human_raw_data |>
+  group_by(symbol) |> 
+  add_count(symbol) |> 
+  filter(n>1) |> 
+  select(n)
+
+#these results indicate presence of different transcript variants  
+
+```
+
+```{r}
+#|label: group by genes
+# not ready yet
+human_raw_data_clean |> 
+  select(-gene_id) |> 
+  group_by(symbol) |> 
+  nest() |> 
+  head()
+```
+
+```{r}
+
+#|label: selection of the useful columns in sup data
+# need to rename the columns
+human_sup_data|> 
+  as_tibble() |> 
+  select(`Source Name`,`Characteristics[genotype]`)
+  #janitor::clean_names() |> #this turns all column names into snake case at once
+  #select(source_name,characteristics_genotype)
+  #sample_n(10)
+
+```
+
+```{r}
+
+
+```
+
+**To do:**:
+
+Check the consistancy between the cell line names between the raw file and the supplementary(perhaps we want to join the dfs)
