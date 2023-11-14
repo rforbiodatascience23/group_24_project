@@ -20,7 +20,7 @@ mouse_data <- read_tsv(file = "../data/01_dat_load_mouse.tsv.gz")
 
 ```{r}
 # Convert to long format
-mouse_data_long <- mouse_data_backup %>%
+mouse_data_long <- mouse_data %>%
   pivot_longer(
     cols = -c(gene_id, symbol), # Exclude gene_id and symbol
     names_to = "treatment_replicate",
@@ -45,8 +45,7 @@ head(mouse_data_separated)
 min_non_zero_value <- min(mouse_data_separated$value[mouse_data_separated$value > 0])
 
 mouse_data_separated <- mouse_data_separated |>
-  mutate(value, log(value + 0.99*min_non_zero_value, 2))
-  
+  mutate(value = log(value + 0.99*min_non_zero_value, 2))
 
 ```
 

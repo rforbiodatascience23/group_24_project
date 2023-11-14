@@ -40,9 +40,8 @@ df_mouse_supp <- df_mouse_supp |>
   distinct(treatment, `Factor Value[compound]`)
   
 
-
 ```
 
 ```{r}
-write_tsv(x = df_mouse_supp, file = str_c("../data/02_dat_clean_mouse_supp", ".tsv.gz"))
+write_tsv(x = df_mouse_supp, file = str_c("../data/02_dat_clean_mouse_suppl", ".tsv.gz"))
 ```

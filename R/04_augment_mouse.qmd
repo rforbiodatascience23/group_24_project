@@ -12,8 +12,25 @@ library(dplyr)
 library(tidyr)
 ```
 
-Now we need to augment our data by adding the data meta data.
+Here we begin by loading our two clean mouse datasets; the main one and the supplemantary data
 
 ```{r}
-
+Sys.setenv(VROOM_CONNECTION_SIZE = 3062144) # Setting a larger connection buffer to be able to load the data
+# Loading the data
+mouse_data <- read_tsv(file = "../data/02_dat_clean_mouse.tsv.gz")
+mouse_data_suppl <- read_tsv(file = "../data/02_dat_clean_mouse_suppl.tsv.gz")
 ```
+Now we add the metadata to the main data
+```{r}
+mouse_df <- left_join(mouse_data, mouse_data_suppl, join_by(treatment))
+```
+
+
+```{r}
+mouse_df 
+```
+
+
+
+
+
