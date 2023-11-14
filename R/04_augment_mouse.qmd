@@ -21,13 +21,59 @@ mouse_data <- read_tsv(file = "../data/02_dat_clean_mouse.tsv.gz")
 mouse_data_suppl <- read_tsv(file = "../data/02_dat_clean_mouse_suppl.tsv.gz")
 ```
 Now we add the metadata to the main data
-```{r}
+```{r} 
+#Join main and metadata
 mouse_df <- left_join(mouse_data, mouse_data_suppl, join_by(treatment))
 ```
 
 
+We now create a new df where we lose the control group experiments (DMSO) and instead subtract the DMSO values of each replicate from the other treatment gene expressions, and thereby convert from expression value to log2 transformed relative expressions, i.e.
+$$
+\log(\frac{expression\_control\_trial (DMSO)}{expression\_drugX\_trial})
+$$
+This relationship comes from the following rule
+$$
+\log(\frac{expression\_control\_trial (DMSO)}{expression\_drugX\_trial}) = \log(expression\_control\_trial (DMSO)) - \log(expression\_drugX\_trial)
+$$
+
 ```{r}
-mouse_df 
+DMSO <- mouse_df |> 
+  filter(treatment=='DMSO') |> 
+  select(-c(treatment))
+
+rel_mouse_df <- mouse_df |> 
+  filter(treatment != 'DMSO') |> 
+  left_join(DMSO, by = 'replicate', suffix = c("", "_baseline")) |> 
+  mutate(across(-c("treatment", "replicate", `Factor Value[compound]`), 
+         ~ .x - get(paste0(cur_column(), "_baseline")), 
+         .names = "{.col}_adjusted"))
+  
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+#A function that should not be used now but might come in handy in the analysis to get the mean across the repetitions
+mouse_df |> 
+    group_by(treatment) |> 
+    summarise(across(-c(replicate,`Factor Value[compound]`), mean, na.rm = TRUE))
+  
 ```
 
 
