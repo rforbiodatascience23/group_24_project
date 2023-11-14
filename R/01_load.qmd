@@ -7,7 +7,6 @@ editor: visual
 ```{r message = FALSE}
 library(tidyverse)
 library(readr)
-library(purrr)
 source("../R/99_proj_func.R")
 ```
 
@@ -28,15 +27,20 @@ mouse_file <- "https://raw.githubusercontent.com/s232996/project/main/gCSI_GRdat
 mouse_suppl_file <- "https://raw.githubusercontent.com/s232996/project/main/gCSI_GRdata_v1.3.tsv/data/mouse_suppl.txt"
 ```
 
-```{r message = FALSE, warning = FALSE}
-human_data <- download_csv(human_file, "human")
-mouse_data <- download_csv(mouse_file, "mouse")
+The following functions download the files and saves them in the data correct folders
 
-human_suppl_data <- download_txt(human_suppl_file, "human_suppl")
-mouse_suppl_data <- download_txt(mouse_suppl_file, "mouse_suppl")
+```{r message = FALSE, warning = FALSE}
+human_data <- download_csv(human_file, "01_dat_load_human")
+mouse_data <- download_csv(mouse_file, "01_dat_load_mouse")
+
+human_suppl_data <- download_txt(human_suppl_file, "01_dat_load_human_suppl")
+mouse_suppl_data <- download_txt(mouse_suppl_file, "01_dat_load_mouse_suppl")
 ```
 
 ```{r}
 data_list <- list(human_data, human_suppl_data, mouse_data, mouse_suppl_data)
 head_all(data_list)
 ```
+
+\
+\
