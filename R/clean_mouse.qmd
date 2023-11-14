@@ -18,7 +18,6 @@ library(tidyverse)
 mouse_data <- read_tsv(file = "../data/01_dat_load_mouse.tsv.gz")
 ```
 
-
 ```{r}
 # Convert to long format
 mouse_data_long <- mouse_data_backup %>%
@@ -50,6 +49,8 @@ mouse_data_combined <- mouse_data_separated %>%
 
 ```{r}
 mouse_wide<-pivot_wider(mouse_data_combined, names_from = gene_id_symbol)
+#drop row_id row
+mouse_wide <- mouse_wide[-13,]
 ```
 
 ```{r}
@@ -57,4 +58,3 @@ data_dir <-
 file_name <- 
 write_tsv(x = mouse_wide, file = str_c("../data/02_dat_clean_mouse", ".tsv.gz"))
 ```
-
