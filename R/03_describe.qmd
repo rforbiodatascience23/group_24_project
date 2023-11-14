@@ -15,8 +15,8 @@ library(patchwork)
 
 ```{r}
 #load the clean datasets that we created in the clean.qmd file
-human_data_final$DMSO<- as.numeric(human_data_final$DMSO)
-human_data_final$G007.LK<-as.numeric(human_data_final$G007.LK)
+human_data_clean$DMSO<- as.numeric(human_data_clean$DMSO)
+human_data_clean$G007.LK<-as.numeric(human_data_clean$G007.LK)
 ```
 
 Categorical variables: gene_id, symbol, Cell_line, Compound, Organism, Genotype, Factor_unit_dose
@@ -26,7 +26,7 @@ Numerical variables: Expression_levels (Measured in Transcripts per million)
 ### Before performing the descriptive statistics we need to log2 transform the Expression levels in order to reduce the heteroscedasticity and stabilize the variance among the expression levels. ASK THE GUYS IF WE NEED TO DO THIS
 
 ```{r}
-human_log_trans<- human_data_final|> 
+human_log_trans<- human_data_clean|> 
   mutate(
     log2_DMSO_Expression_levels = log2(DMSO +1),
     log2_G007.LK_Expression_levels = log2(G007.LK+1)

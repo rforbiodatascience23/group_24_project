@@ -7,7 +7,6 @@ editor: visual
 ```{r message = FALSE}
 library(tidyverse)
 library(readr)
-library(purrr)
 source("../R/99_proj_func.R")
 ```
 
