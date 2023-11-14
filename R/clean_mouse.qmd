@@ -32,7 +32,7 @@ mouse_data_separated <- mouse_data_long %>%
   separate(
     col = treatment_replicate,
     into = c("treatment", "replicate"),
-    sep = "\\." # The separator is a period, escaped because it's a special character in regex
+    sep = "-"
   )
 
 # View the result

@@ -13,3 +13,7 @@ library(tidyr)
 ```
 
 Now we need to augment our data by adding the data meta data.
+
+```{r}
+
+```
