@@ -39,6 +39,16 @@ mouse_data_separated <- mouse_data_long %>%
 head(mouse_data_separated)
 
 ```
+```{r}
+# Log2 transform the code, but first add a very samll number to all values, in order to avoid log(0). 
+# The number we add is 99% fo the minimum value, so that we can still differentiate the artificial low values with the actual min, if needed.
+min_non_zero_value <- min(mouse_data_separated$value[mouse_data_separated$value > 0])
+
+mouse_data_separated <- mouse_data_separated |>
+  mutate(value, log(value + 0.99*min_non_zero_value, 2))
+  
+
+```
 
 ```{r}
 mouse_data_combined <- mouse_data_separated %>%
@@ -51,10 +61,10 @@ mouse_data_combined <- mouse_data_separated %>%
 mouse_wide<-pivot_wider(mouse_data_combined, names_from = gene_id_symbol)
 #drop row_id row
 mouse_wide <- mouse_wide[-13,]
+
 ```
 
+
 ```{r}
-data_dir <- 
-file_name <- 
 write_tsv(x = mouse_wide, file = str_c("../data/02_dat_clean_mouse", ".tsv.gz"))
 ```
