@@ -1,0 +1,48 @@
+---
+title: "clean_mouse"
+format: html
+editor: visual
+---
+
+## Quarto
+
+This document cleans the supplementary mouse data
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(tidyverse)
+```
+
+```{r}
+df_mouse_supp <- read_tsv(file = "../data/01_dat_load_mouse_suppl.tsv.gz")
+head(df_mouse_supp)
+```
+Upon inspection of the dataset it is seen that most supplementary data are simply consistent general experiment metadata that do not vary between the individual drug experiments. The concentration of the drugs used is the only column that could pose any valuable information and we there filter the dataset to only retain this value for each compound. 
+
+DISCLAIMER: This metadata might not be relevant for the analysis, but we mainly do it to display that we know how to joing metadata to main data
+
+```{r}
+# Filtering the columns to the Factor Value and the compound
+df_mouse_supp <- df_mouse_supp |> 
+  select(c("Source Name", 
+           "Factor Value[compound]"))
+
+```
+
+```{r}
+# splitting the compound and grouping the dataset on compound
+df_mouse_supp <- df_mouse_supp |> 
+  separate(
+    col = `Source Name`,
+    into = c("treatment", "replicate"),
+    sep = "-") |> 
+  distinct(treatment, `Factor Value[compound]`)
+  
+
+
+```
+
+```{r}
+write_tsv(x = df_mouse_supp, file = str_c("../data/02_dat_clean_mouse_supp", ".tsv.gz"))
+```
