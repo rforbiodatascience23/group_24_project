@@ -93,7 +93,7 @@ human_data_trans <-human_data |>
 
 
 #check how the column names changed
-colnames(human_data_trans)
+human_data_trans
 ```
 
 These data are untidy. So we are going to transform them via pivoting
@@ -113,7 +113,17 @@ human_data_trans_long
 ```
 
 ```{r}
-#We will create two new columns for the two compounds that were used so that we have a better understanding on the differences in Copmound
+human_data_trans_long <- human_data_trans_long |>
+  mutate(
+    Genes = str_c(Genes = gene_id, symbol, sep = "_")
+    ,.before = 1) |> 
+  select(-c(gene_id, symbol))
+
+human_data_trans_long
+```
+
+```{r}
+# Now we are going to make ouyr data wide making the values of the "Genes" our variables  since we want to see how are they affected by the compound G007.LK
 human_data_clean<- human_data_trans_long |> 
   pivot_wider(
     names_from = Compound,
@@ -123,6 +133,17 @@ human_data_clean<- human_data_trans_long |>
 human_data_clean
 ```
 
+```{r}
+human_data_wide <- human_data_trans_long |> 
+  pivot_wider(
+    names_from = Genes,
+    values_from = Expression_levels
+  ) |> 
+  relocate(Compound,1)
+
+human_data_wide
+```
+
 From this illustration we can see that all of the genes except one (WM45.1) do not contain any special symbols so we do not need to perform extra cleaning on that feature.
 
 ### Now our Human dataframe is tidy and ready to be used.
@@ -130,7 +151,7 @@ From this illustration we can see that all of the genes except one (WM45.1) do n
 Now we are going to perform cleaning on the human supplementary files
 
 ```{r}
-head(human_suppl_data)
+human_suppl_data
 ```
 
 The name column has the same format as the columns we pivoted before and separated them into Cell_line and Compound columns.
@@ -140,92 +161,100 @@ We are going to do the same here
 First we are going to rename the feature names because they are now appealing
 
 ```{r}
-colnames(human_suppl_data)<- c("Cell_line.Compound", "Organism","Developmental_stage", "Disease","Genotype","Organism_part", "Cell_line","Material_Type","Protocol_REF","Protocol_REF1","Protocol_REF2","Performer", "Extract_Name",   "Library_Layout", "Library_Selection","Library_Source","Library_Strategy","Protocol_REF3", "Performer_1","Assay_Name","Technology_Type","Protocol_REF4", "Performer_2","Derived_Array_Data_File", "Derived_ArrayExpress_FTP_file", "Factor_Value_compound", "Factor_Value_dose", "Unit_dose_unit")
-```
+# We will use the clean_names function provided by the janitor package in order to make our columns look more appealing
+human_sup_data_col_renamed<- human_suppl_data |> 
+  janitor::clean_names()
 
-```{r}
-head(human_suppl_data)
-```
-
-```{r}
-human_suppl_data |> 
-  group_by(Cell_line.Compound) |> 
-  distinct(Cell_line.Compound)
+human_sup_data_col_renamed
 ```
 
 ```{r}
  # First we notice an inconsistency with the names of the cell lines which creates some problems when we try to separate the two components of the column Name
 
-human_suppl_clean<-human_suppl_data |>
+human_suppl_clean<-human_sup_data_col_renamed |>
   mutate(
-    Cell_line.Compound = case_when(
-      Cell_line.Compound == "WM45.1.DMSO"~ "WM45_1.DMSO",
-      Cell_line.Compound == "WM45.1.G007.LK"~ "WM45_1.G007.LK",
-      TRUE ~ Cell_line.Compound# Keeps the original value of the column if the condition is not met
+    source_name = case_when(
+      source_name == "WM45.1.DMSO"~ "WM45_1.DMSO",
+      source_name == "WM45.1.G007.LK"~ "WM45_1.G007.LK",
+      TRUE ~ source_name# Keeps the original value of the column if the condition is not met
     )
   )
-```
 
-```{r}
-human_suppl_clean |> 
-  group_by(Cell_line.Compound) |> 
-  distinct(Cell_line.Compound)
+human_suppl_clean
 ```
 
 ```{r}
 #Now we are going to separate the column into two columns
 human_suppl_trans<- human_suppl_clean |> 
-  separate(Cell_line.Compound, 
-           into = c("Cell_Line1", "Compound"),
-           sep = "\\.")
-human_suppl_trans
-```
-
-```{r}
- # We return the value WM45_1 to its initial form WM45.1
-
-human_suppl_trans <-human_suppl_trans |>
+  separate(source_name, 
+           into = c("Cell_line", "Compound"),
+           sep = "\\.") |> 
+   # We return the value WM45_1 to its initial form WM45.1
   mutate(
-    Cell_Line1 = case_when(
-      Cell_Line1 == "WM45_1"~ "WM45.1",
-      TRUE ~ Cell_Line1# Keeps the original value of the column if the condition is not met
+    Cell_line = case_when(
+      Cell_line == "WM45_1"~ "WM45.1",
+      TRUE ~ Cell_line# Keeps the original value of the column if the condition is not met
     )
-  )
+  ) |> 
+  relocate(Compound, 1)
+
+human_suppl_trans
 ```
 
 ```{r}
 human_suppl_final<- human_suppl_trans |> 
   mutate(
-    Factor_Unit = str_c(Factor_Value_dose, Unit_dose_unit , sep = " ")
+    Compound_dose_unit = str_c(factor_value_dose ,unit_dose_unit, sep = " "),
   #We want to change the 0.01 percent to 0.01% and 1 micromolar to 1M in the Factor_unit_dose
-  ) |>
-  select(-c(Factor_Value_dose, Unit_dose_unit))
+    Compound_dose_unit = case_when(
+      Compound_dose_unit == "0.01 percent" ~ "0.01%",
+      Compound_dose_unit == "1 micromolar" ~ "1μM",
+      TRUE ~ Compound_dose_unit
+      ) # Keeps the original value of the column if the condition is not met
+  )|> select(
+      -c(factor_value_dose,unit_dose_unit)
+    )
   
   
 human_suppl_final
 ```
 
 ```{r}
-human_suppl_final <- human_suppl_final |> 
-  mutate(
-    Factor_Unit = case_when(
-      Factor_Unit == "0.01 percent" ~ "0.01%",
-      Factor_Unit == "1 micromolar" ~ "1μM",
-      TRUE ~ Factor_Unit# Keeps the original value of the column if the condition is not met
-    )
-    )
+human_suppl_final<-human_suppl_final |> 
+  select(-c(
+    characteristics_developmental_stage, 
+            characteristics_disease,
+            characteristics_organism_part,
+            material_type,
+            protocol_ref_9,
+            protocol_ref_10, 
+            protocol_ref_11, 
+            performer_12,
+            extract_name, 
+            comment_library_layout, 
+            comment_library_selection, 
+            comment_library_source,   
+            comment_library_strategy,
+            protocol_ref_18,
+            performer_19,assay_name, 
+            technology_type,
+            protocol_ref_22,
+            performer_23, 
+            derived_array_data_file,
+            comment_derived_array_express_ftp_file,
+            factor_value_compound))
+
 human_suppl_final
 ```
 
-## We have to be consistant also with the mouse data since we might want to join the datasets
+```{r}
+#create the to clean datasets to 01_human_clean.tsv
 
-Now we are finished with the cleaning process. Bellow are some extra stuff
+write_tsv(human_data_wide, "../data/02_dat_clean_human.tsv")
+write_tsv(human_suppl_final, "../data/02_dat_human_suppl.tsv")
+```
 
-\##########################################################################################
-
-do not know what is the use of the following chunk###################################################
-
-\##########################################################################################
+\######################################################################################
 
 ```{r}
 library(dplyr)
