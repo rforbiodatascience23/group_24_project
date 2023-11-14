@@ -6,7 +6,7 @@ The two data sets concerning mouse RNA-seq were derived from the study "Mouse me
 
 Each of the compound was applied on three samples (triplicates).
 
-The sequencing was performed using Illumina HiSeq 2500 and the quantification of RNA data was performed with kallisto v0.44 using the GRCm38 assembly and TPM (transcripts per million) per gene was summarized using sleuth v0.29
+The sequencing was performed using Illumina HiSeq 2500 and the quantification of RNA data was performed with kallisto v0.44 using the GRCm38 assembly and TPM (transcripts per million) per gene was normalized using sleuth v0.29
 
 **Cell line**: B16-F10C
 
@@ -24,7 +24,7 @@ The two data sets concerning human RNA-seq were derived from the study "Human me
 
 Three pooled technical replicates from a panel of the 18 human melanoma cell lines were treated with dimethyl sulfoxide (DMSO) or G007-LK for 24 hours.
 
-The RNA sequence was performed using the NextSeq 500 platform and the quantification of RNA data was performed with kallisto v0.44 using the GRCm38 assembly TPM per gene was summarized using sleuth v0.29
+The RNA sequence was performed using the NextSeq 500 platform and the quantification of RNA data was performed with kallisto v0.44 using the GRCm38 assembly TPM per gene was normalized using sleuth v0.29
 
 **Cell lines**: A-375, FEMX-I, FEMX-V, LOX-IMVI, MeWo, SK-MEL-28, WM115, WM1341B, WM1366, WM1382, WM239A, WM266.4, WM35, WM451Lu, WM793B, WM852, WM9, WM983B
 
@@ -34,9 +34,7 @@ The RNA sequence was performed using the NextSeq 500 platform and the quantifica
 |---------------|-------|---------|
 | Concentration | 0.01% | 1μM     |
 
-
-The four data sets were retrieved from from EBI-EMBL website (<https://www.ebi.ac.uk/biostudies/arrayexpress/studies>) and uploaded to 
-another repo of Group 24 from where the URLs are provided for data loading.
+The four data sets were retrieved from from EBI-EMBL website (<https://www.ebi.ac.uk/biostudies/arrayexpress/studies>) and uploaded to another repo of Group 24 from where the URLs are provided for data loading.
 
 Study on human cell lines Accession Number: E-MTAB-8438
 
