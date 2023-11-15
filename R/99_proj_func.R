@@ -54,7 +54,7 @@ generate_dir <- function(){
 ###############################################################################
 
 head_all <- function(alist){
-  map(.x = alist,
+  purrr::map(.x = alist,
       .f = ~head(.x)) 
 }
 
