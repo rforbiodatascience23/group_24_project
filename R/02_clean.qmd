@@ -10,71 +10,20 @@ library(tidyverse)
 library(stringr)
 library(dplyr)
 library(tidyr)
-```
-
-Now we need to clean our data First we will check the structure of the data and convert them into tibble (better performance for large data sets)
-
-```{r}
-# maybe create a function
-#| label: load as tibbles and data structure
-summary(human_data)
-summary(human_suppl_data)
-summary(mouse_data)
-summary(mouse_suppl_data)
+source("../R/99_proj_func.R")
 ```
 
 ```{r}
-# create a function here
-#| label: Missing data in the mouse_raw dataset 
-# Test for missing data
-if (any(is.na(mouse_data))) {
-  cat("There are NA values in the data frame.\n")
-} else {
-  cat("There are no NA values in the data frame.\n")
-}
+walk(data_list, nas_present)
 ```
 
-```{r}
-#| label: Missing data in the human_raw dataset
-  
-if (any(is.na(human_data))) {
-  cat("There are NA values in the data frame.\n")
-} else {
-  cat("There are no NA values in the data frame.\n")
-}
-```
+This data set contains a column of the gene id, a column of the common gene name and the rest of the columns are composed of the cell lines that were used for the experiment.
+
+We will rename the column names as untreated and treated based on DMSO (vehicle solvent for the drug) and G007-LK (drug), respectively. We observe that there are many variables in column names, so we need to separate them.
 
 ```{r}
-#| label: Missing data in the human_sup dataset
-
-if (any(is.na(human_sup_data))) {
-  cat("There are NA values in the data frame.\n")
-} else {
-  cat("There are no NA values in the data frame.\n")
-}
-```
-
-```{r}
-
-#| label: Missing data in the mouse_sup dataset
-
-if (any(is.na(mouse_sup_data))) {
-  cat("There are NA values in the data frame.\n")
-} else {
-  cat("There are no NA values in the data frame.\n")
-}
-```
-
-## From this illustration we can see that there are no NA data detected in our data sets. We have to discuss if the NAs are depicted as 0 in the expression levels
-
-```{r}
-#first take a look at our data
 human_data
 ```
-
-This dataframe contains a column of the gene id, a column with the common gene name and the rest of the columns are composed of the cell lines that were used for the experiment.
-
-Next we will rename the column names as treated and untreated based on DMSO (vehicle solvent for the drug) and G007-LK (drug) respectively. We observe that there are many variables in column names, so we need to separate them
 
 ```{r}
 human_data_trans <-human_data |>
@@ -99,14 +48,14 @@ human_data_trans
 These data are untidy. So we are going to transform them via pivoting
 
 ```{r}
-#Pivot the human df
-human_data_trans_long<- human_data_trans |> 
+#Pivot the human dataframe
+human_data_trans_long <- human_data_trans |> 
   pivot_longer(
-    cols = -(gene_id:symbol),#Which of the columns are going to be included in the pivoting process
+    cols = -(gene_id:symbol),
     names_to = c("Cell_line", 
-                 "treatment"), # Columns to be created during pivoting 
-    names_sep = "_", #Separate the column when identifying the "_" symbol
-    values_to = "Expression_levels" #The third column that is going to be created. It contains values of the Cell_line.Compound column 
+                 "treatment"),  
+    values_to = "Expression_levels",
+    names_sep = "_"
       ) 
 
 human_data_trans_long
@@ -115,7 +64,7 @@ human_data_trans_long
 ```{r}
 human_data_trans_long <- human_data_trans_long |>
   mutate(
-    Genes = str_c(Genes = gene_id, symbol, sep = "_")
+    Gene = str_c(gene_id, symbol, sep = "_")
     ,.before = 1) |> 
   select(-c(gene_id, symbol))
 
@@ -123,7 +72,8 @@ human_data_trans_long
 ```
 
 ```{r}
-# Now we are going to make ouyr data wide making the values of the "Genes" our variables  since we want to see how are they affected by the compound G007.LK
+# to kanume prota long kai meta wide, prepei na dialeksume ena mono, den yparxei noima na to kanume long kai 2 grammes kato pali wide (an kai pisteuo oti to long einai kalitero btw)
+# Now we are going to make our data wide making the values of the "Genes" our variables  since we want to see how are they affected by the compound G007.LK
 human_data_clean<- human_data_trans_long |> 
   pivot_wider(
     names_from = treatment,
@@ -136,7 +86,7 @@ human_data_clean
 ```{r}
 human_data_wide <- human_data_trans_long |> 
   pivot_wider(
-    names_from = Genes,
+    names_from = Gene,
     values_from = Expression_levels
   ) |> 
   relocate(treatment,1)
@@ -144,9 +94,7 @@ human_data_wide <- human_data_trans_long |>
 human_data_wide
 ```
 
-### Now our Human dataframe is tidy and ready to be used.
-
-Now we are going to perform cleaning on the human supplementary files
+### \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--
 
 ```{r}
 human_suppl_data
@@ -154,101 +102,65 @@ human_suppl_data
 
 The name column has the same format as the columns we pivoted before and separated them into Cell_line and Compound columns.
 
-We are going to do the same here
-
-First we are going to rename the feature names because they are now appealing
-
 ```{r}
 # We will use the clean_names function provided by the janitor package in order to make our columns look more appealing
-human_sup_data_col_renamed<- human_suppl_data |> 
+human_suppl_clean<- human_suppl_data |> 
   janitor::clean_names()
-
-human_sup_data_col_renamed
 ```
 
 ```{r}
- # First we notice an inconsistency with the names of the cell lines which creates some problems when we try to separate the two components of the column Name
+#We separate the first column
+# We notice an inconsistency with the names of the cell lines which creates some problems when we try to separate the two components of the first column 
 
-human_suppl_clean<-human_sup_data_col_renamed |>
+human_suppl_clean<-human_suppl_clean |>
   mutate(
     source_name = case_when(
       source_name == "WM45.1.DMSO"~ "WM45_1.DMSO",
       source_name == "WM45.1.G007.LK"~ "WM45_1.G007.LK",
-      TRUE ~ source_name# Keeps the original value of the column if the condition is not met
+      TRUE ~ source_name)) |> # Keeps the original value of the column if the condition is not met 
+  
+  separate(source_name, 
+           into = c("Cell_line", "Treatment"),
+           sep = "\\.") |> 
+  
+   # We return the value WM45_1 to its initial form WM45.1
+  mutate(
+    Cell_line = case_when(
+      Cell_line == "WM45_1"~ "WM45.1",
+      TRUE ~ Cell_line )) |> 
+  relocate(Treatment, 1)
+```
+
+```{r}
+human_suppl_clean<- human_suppl_clean |> 
+  mutate(
+    Compound_dose = str_c(factor_value_dose ,unit_dose_unit, sep = " "),
+    Compound_dose = case_when(
+    Compound_dose == "0.01 percent" ~ "0.01%",
+    Compound_dose == "1 micromolar" ~ "1μM",
+    TRUE ~ Compound_dose
+      ) # Keeps the original value of the column if the condition is not met
+  )|> select(
+      -c(factor_value_dose,unit_dose_unit)
     )
-  )
+```
+
+We drop the columns that we don't need
+
+```{r}
+human_suppl_clean <- human_suppl_clean |> 
+  mutate(Genotype = characteristics_genotype) |>
+  select(c(Treatment,
+           Cell_line,
+           Genotype,
+           Compound_dose))
 
 human_suppl_clean
 ```
 
 ```{r}
-#Now we are going to separate the column into two columns
-human_suppl_trans<- human_suppl_clean |> 
-  separate(source_name, 
-           into = c("Cell_line", "treatment"),
-           sep = "\\.") |> 
-   # We return the value WM45_1 to its initial form WM45.1
-  mutate(
-    Cell_line = case_when(
-      Cell_line == "WM45_1"~ "WM45.1",
-      TRUE ~ Cell_line# Keeps the original value of the column if the condition is not met
-    )
-  ) |> 
-  relocate(treatment, 1)
-
-human_suppl_trans
-```
-
-```{r}
-human_suppl_final<- human_suppl_trans |> 
-  mutate(
-    Compound_dose_unit = str_c(factor_value_dose ,unit_dose_unit, sep = " "),
-  #We want to change the 0.01 percent to 0.01% and 1 micromolar to 1M in the Factor_unit_dose
-    Compound_dose_unit = case_when(
-      Compound_dose_unit == "0.01 percent" ~ "0.01%",
-      Compound_dose_unit == "1 micromolar" ~ "1μM",
-      TRUE ~ Compound_dose_unit
-      ) # Keeps the original value of the column if the condition is not met
-  )|> select(
-      -c(factor_value_dose,unit_dose_unit)
-    )
-  
-  
-human_suppl_final
-```
-
-Drop the columns of the human_suppl we do not need
-
-```{r}
-human_suppl_final<-human_suppl_final |> 
-  select(-c(
-    characteristics_developmental_stage, 
-            characteristics_disease,
-            characteristics_organism_part,
-            material_type,
-            protocol_ref_9,
-            protocol_ref_10, 
-            protocol_ref_11, 
-            performer_12,
-            extract_name, 
-            comment_library_layout, 
-            comment_library_selection, 
-            comment_library_source,   
-            comment_library_strategy,
-            protocol_ref_18,
-            performer_19,assay_name, 
-            technology_type,
-            protocol_ref_22,
-            performer_23, 
-            derived_array_data_file,
-            comment_derived_array_express_ftp_file))
-
-human_suppl_final
-```
-
-```{r}
-#create the to clean datasets to 01_human_clean.tsv
+#create the two clean datasets to 01_human_clean.tsv
 
 write_tsv(human_data_wide, "../data/02_dat_clean_human.tsv")
-write_tsv(human_suppl_final, "../data/02_dat_human_suppl.tsv")
+write_tsv(human_suppl_clean, "../data/02_dat_human_suppl.tsv")
 ```
