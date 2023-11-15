@@ -1,0 +1,42 @@
+---
+title: "Human augmentation"
+format: html
+editor: visual
+---
+
+```{r}
+library(tidyverse)
+library(dplyr)
+```
+
+We are a=going to merge our clean human datasets
+
+```{r}
+human_joined<- human_data_wide |> 
+  left_join(human_suppl_final, join_by(treatment, Cell_line)) 
+
+human_joined
+```
+
+There are less genes that are not activated when we add the compound G007.LK
+
+Though we can see again that almost half of our observations have 0 Expression Levels. How can we deal with that?
+
+#########################Have to check it again################################
+
+Thought I should check what did the other guys do with the mouse data. Προσπάθησα να παίξω με og transformation και δεν πέτυχε καλά. Θα δούμε αν μπορούμε να βγάλουμε κάτι από αυτό. Δεν μπορώ να τρέξω τον κώδικα των παιδιών για να καταλάβω τι παίζει γιατί δεν μου κάνει load τα αρχεία τους
+
+Θέλει debugging δεν έχει ολοκληρωθεί
+
+```{r}
+DMSO <- human_joined |> 
+  filter(treatment=='DMSO') |> 
+  select(-c(treatment))
+
+rel_human_df <- human_joined |> 
+  filter(treatment != 'DMSO') |> 
+  left_join(DMSO, by = 'replicate', suffix = c("", "_baseline")) |> 
+  mutate(across(-c("treatment", "factor_value_compound"), 
+         ~ .x - get(paste0(cur_column(), "_baseline")), 
+         .names = "{.col}_adjusted"))
+```

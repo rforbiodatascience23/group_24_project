@@ -104,7 +104,7 @@ human_data_trans_long<- human_data_trans |>
   pivot_longer(
     cols = -(gene_id:symbol),#Which of the columns are going to be included in the pivoting process
     names_to = c("Cell_line", 
-                 "Compound"), # Columns to be created during pivoting 
+                 "treatment"), # Columns to be created during pivoting 
     names_sep = "_", #Separate the column when identifying the "_" symbol
     values_to = "Expression_levels" #The third column that is going to be created. It contains values of the Cell_line.Compound column 
       ) 
@@ -126,7 +126,7 @@ human_data_trans_long
 # Now we are going to make ouyr data wide making the values of the "Genes" our variables  since we want to see how are they affected by the compound G007.LK
 human_data_clean<- human_data_trans_long |> 
   pivot_wider(
-    names_from = Compound,
+    names_from = treatment,
     values_from = Expression_levels
   )
 
@@ -139,12 +139,10 @@ human_data_wide <- human_data_trans_long |>
     names_from = Genes,
     values_from = Expression_levels
   ) |> 
-  relocate(Compound,1)
+  relocate(treatment,1)
 
 human_data_wide
 ```
-
-From this illustration we can see that all of the genes except one (WM45.1) do not contain any special symbols so we do not need to perform extra cleaning on that feature.
 
 ### Now our Human dataframe is tidy and ready to be used.
 
@@ -187,7 +185,7 @@ human_suppl_clean
 #Now we are going to separate the column into two columns
 human_suppl_trans<- human_suppl_clean |> 
   separate(source_name, 
-           into = c("Cell_line", "Compound"),
+           into = c("Cell_line", "treatment"),
            sep = "\\.") |> 
    # We return the value WM45_1 to its initial form WM45.1
   mutate(
@@ -196,7 +194,7 @@ human_suppl_trans<- human_suppl_clean |>
       TRUE ~ Cell_line# Keeps the original value of the column if the condition is not met
     )
   ) |> 
-  relocate(Compound, 1)
+  relocate(treatment, 1)
 
 human_suppl_trans
 ```
@@ -218,6 +216,8 @@ human_suppl_final<- human_suppl_trans |>
   
 human_suppl_final
 ```
+
+Drop the columns of the human_suppl we do not need
 
 ```{r}
 human_suppl_final<-human_suppl_final |> 
@@ -241,8 +241,7 @@ human_suppl_final<-human_suppl_final |>
             protocol_ref_22,
             performer_23, 
             derived_array_data_file,
-            comment_derived_array_express_ftp_file,
-            factor_value_compound))
+            comment_derived_array_express_ftp_file))
 
 human_suppl_final
 ```
@@ -252,77 +251,4 @@ human_suppl_final
 
 write_tsv(human_data_wide, "../data/02_dat_clean_human.tsv")
 write_tsv(human_suppl_final, "../data/02_dat_human_suppl.tsv")
-```
-
-\######################################################################################
-
-```{r}
-library(dplyr)
-
-# Sample tibble
-my_tibble <- tibble(
-  old_col1 = c(1, 2, 3),
-  old_col2 = c(4, 5, 6),
-  old_col3 = c(7, 8, 9)
-)
-
-my_tibble
-
-# Function to modify column names
-modify_column_names <- function(name) {
-  # Replace "old_" with "new_"
-  gsub("old_", "new_", name)
-}
-
-# Use rename_with to apply the custom function to column names
-my_tibble <- my_tibble %>%
-  rename_with(~modify_column_names(.), starts_with("old_col"))
-
-# Print the updated tibble
-print(my_tibble)
-```
-
-```{r}
-human_raw_data_clean |>
-  group_by(symbol) |>
-  summarise(n = n()) |> 
-  filter(n> 1)
-
-#there are 1539 genes that appeared in more than one geneId 
-```
-
-```{r}
-#| label: This one goes to the describe file
-#check the dataset for duplicates
-human_raw_data |>
-  group_by(symbol) |> 
-  add_count(symbol) |> 
-  filter(n>1) |> 
-  select(n)
-
-#these results indicate presence of different transcript variants  
-
-```
-
-```{r}
-#|label: group by genes
-# not ready yet
-human_raw_data_clean |> 
-  select(-gene_id) |> 
-  group_by(symbol) |> 
-  nest() |> 
-  head()
-```
-
-```{r}
-
-#|label: selection of the useful columns in sup data
-# need to rename the columns
-human_sup_data|> 
-  as_tibble() |> 
-  select(`Source Name`,`Characteristics[genotype]`)
-  #janitor::clean_names() |> #this turns all column names into snake case at once
-  #select(source_name,characteristics_genotype)
-  #sample_n(10)
-
 ```
