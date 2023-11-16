@@ -6,7 +6,8 @@ download_csv <- function(file_url, file_name) {
     download.file(url = file_url, destfile = str_c(raw_dir, file_name, ".csv"))
   }
   # Reads data into a data frame
-  df <- read_csv(file = str_c(raw_dir, file_name, ".csv"))
+  df <- read_csv(file = str_c(raw_dir, file_name, ".csv"),
+                 na = c("", "NA", "N/A","na"))
   
   # Writes data to a TSV file
   write_tsv(x = df, file = str_c(data_dir, file_name, ".tsv.gz"))
@@ -26,8 +27,10 @@ download_txt <- function(file_url, file_name) {
     download.file(url = file_url, destfile = str_c(raw_dir, file_name, ".txt"))
   }
   # Read data into a data frame
-  df <- read_csv(file = str_c(raw_dir, file_name, ".txt"))
-  
+  df <- read_delim(file = str_c(raw_dir, file_name, ".txt"),
+                  delim = "\t",
+                  na = c("", "NA", "N/A","na"))
+                
   # Write data to a TSV file
   write_tsv(x = df, file = str_c(data_dir, file_name, ".tsv.gz"))
   
@@ -54,6 +57,26 @@ generate_dir <- function(){
 ###############################################################################
 
 head_all <- function(alist){
-  map(.x = alist,
+  purrr::map(.x = alist,
       .f = ~head(.x)) 
 }
+
+
+###############################################################################
+
+summary_all <- function(alist){
+  purrr::map(.x = alist,
+             .f = ~summary(.x)) 
+}
+
+
+###############################################################################
+
+nas_present <- function(alist){
+  if (any(is.na(alist))) {
+    cat("There are NA values in the data frame.\n")
+  } else {
+    cat("There are no NA values in the data frame.\n")
+  }
+}
+
