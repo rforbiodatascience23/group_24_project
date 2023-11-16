@@ -9,7 +9,7 @@ library(tidyverse)
 library(dplyr)
 ```
 
-We are a=going to merge our clean human datasets
+We are going to merge our clean human datasets
 
 ```{r}
 human_joined<- human_data_wide |> 
@@ -18,25 +18,181 @@ human_joined<- human_data_wide |>
 human_joined
 ```
 
+Thinks to Keep in mind. Our data have been already normalized with the TPM method when the researchers used the sleuth v0.29 in their expreriment.
+
 There are less genes that are not activated when we add the compound G007.LK
 
 Though we can see again that almost half of our observations have 0 Expression Levels. How can we deal with that?
 
 #########################Have to check it again################################
 
-Thought I should check what did the other guys do with the mouse data. Προσπάθησα να παίξω με og transformation και δεν πέτυχε καλά. Θα δούμε αν μπορούμε να βγάλουμε κάτι από αυτό. Δεν μπορώ να τρέξω τον κώδικα των παιδιών για να καταλάβω τι παίζει γιατί δεν μου κάνει load τα αρχεία τους
+Estimate the relative expression of the genes (Actually that one is a way to reduce our 0s ):
 
-Θέλει debugging δεν έχει ολοκληρωθεί
+following the formula
 
 ```{r}
-DMSO <- human_joined |> 
-  filter(treatment=='DMSO') |> 
-  select(-c(treatment))
-
-rel_human_df <- human_joined |> 
-  filter(treatment != 'DMSO') |> 
-  left_join(DMSO, by = 'replicate', suffix = c("", "_baseline")) |> 
-  mutate(across(-c("treatment", "factor_value_compound"), 
-         ~ .x - get(paste0(cur_column(), "_baseline")), 
-         .names = "{.col}_adjusted"))
+human_data_transform<-human_data_trans_long |> 
+  pivot_wider(
+    names_from = treatment,
+    values_from = Expression_levels
+  )
+human_data_transform
 ```
+
+This is the log2fold transformation for the genes between the two compounds
+
+```{r}
+human_data_transform1<- human_data_transform |> 
+  mutate(
+    log2fold_expression = log2(G007.LK/ DMSO)
+  )
+human_data_transform1
+```
+
+```{r}
+human_data_transform1 |> 
+  ggplot(mapping = aes(x = log2fold_expression))+
+  geom_freqpoly()
+```
+
+From that illustration we can see that there is not a global upregulation or down regulation by the gene. This is very common in RNA-seq arrays where most genes are not affected by the usage of a gene.
+
+We can perform several test to assess the statistical analysis of this result
+
+\##########################################
+
+Alternative approaches in order to get rid of the 0s####
+
+\############################################
+
+1st approach: The most naive one
+
+But before we do that we have to log transform our data and add a constant (e.g. 1)
+
+```{r}
+#log_transformation +1 to deal with the huge number of zeros
+
+#we do this before the tests
+human_data_transform1<- human_data_transform1 |> 
+  mutate(
+    log2_DMSO = log2(DMSO +1),
+    log2_G007.LK = log2(G007.LK +1)
+  )
+human_data_transform1
+```
+
+This is the distribution of our data before the transformation
+
+```{r}
+human_data_transform1 |> 
+  ggplot(mapping = aes(x = DMSO))+
+  geom_histogram()
+```
+
+```{r}
+human_data_transform1 |> 
+  ggplot(mapping = aes(x = G007.LK))+
+  geom_histogram()
+```
+
+These are the distributions after the transformation
+
+```{r}
+human_data_transform1 |> 
+  ggplot(mapping = aes(x = log2_DMSO))+
+  geom_histogram()
+```
+
+We can see here that we reduced some of the skewness in our data
+
+```{r}
+human_data_transform1 |> 
+  ggplot(mapping = aes(x = log2_G007.LK))+
+  geom_histogram()
+```
+
+\##############################################
+
+Approach 2 We can use an the minimum positive value contained in the dataset as an offset based on the dataset characterisitics.
+
+```{r}
+human_data_trans_long |> 
+  filter(Expression_levels > 0) |> 
+  arrange(Expression_levels) |> 
+  select(treatment, Expression_levels)
+```
+
+```{r}
+#min positive value
+min_pos_value<- min(human_data_trans_long$Expression_levels> 0)# I selected this feature as the one with the min value because I found that 
+
+human_data_transform2<-
+  human_data_trans_long |> 
+  mutate(log2_Expression_levels = log2(Expression_levels + min_pos_value)
+         )
+
+human_data_transform2
+```
+
+```{r}
+human_data_transform2 |> 
+  ggplot(mapping = aes(
+    x = log2_Expression_levels
+  ))+
+  geom_freqpoly()+
+  scale_x_continuous(breaks = seq(-30,15, by = 5))
+  
+  
+
+```
+
+Here we can see that the majority of the observations are gathered between -5 +5.
+
+Which reveals may indicate a binomial distribution. We have to look more into it.
+
+\##############################################################################################################
+
+## Do not pay attention to what is written below. These are just tests
+
+\########################################################################################################
+
+We are going to perform some tests in order to evaluate the significance of the experiment;s results
+
+t-test : T- test is a type of statistical anaylsis used in order to compare the averages of two groups and determine whether differences between them are significant or not.
+
+So we are going to use this test in order to assess the significancy of the results of the experiment.
+
+The null hypothesis is that there are no differentially expressed genes. So we are going to perform some tests in order to see if we can reject it or not.
+
+The first test is a paired t-test ince we want to estimate the p-values of the p-values before and after the treatment simultaneously
+
+```{r}
+human_data_transform1_tests<- human_data_transform1 |> 
+  rowwise() |> #we use this function because we want to apply t.test to every one of our observations and get the p.value of each observation
+  mutate(p_values = 
+    t.test(c(log2_G007.LK, log2_DMSO, paired = TRUE))$p.value, #this extracts the pvalues of the ttest (t.test(c(treatment, control))$p.value) those are the raw p_values
+    q_values = p.adjust(p_values))
+human_data_transform1_tests
+```
+
+\###############################################
+
+We are going to estimate the p-value of the t-statis
+
+```{r}
+human_data_transform1_tests |> 
+  ggplot(mapping = aes(x = p_values)) +
+  geom_freqpoly()
+```
+
+We know that the q-value is a better estimate to calculate multiple
+
+DeSeq2
+
+This distribution of the t-statistic suggests that on average there is not a strong global effect between the two compounds.
+
+The bulk of t-statistics near 0 suggests that, for most genes, there is little to no difference in expression between the two groups. This is a common observation, as many genes are not expected to respond strongly to experimental conditionsHowever we can witness a second peak close to 0.5 is interesting and may indicate some meaningful biological phenomena
+
+The peak around 0.5 in the tail could indicate that there are some genes with moderate but consistent differences in the expression between the two conditions. We could potentially perform a more thorough analysis in order to identify them. Caution this tail could by caused by biological Heterogeneity.
+
+We are going to perform an extra test using the q-value of our results
