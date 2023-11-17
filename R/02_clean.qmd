@@ -49,49 +49,26 @@ These data are untidy. So we are going to transform them via pivoting
 
 ```{r}
 #Pivot the human dataframe
-human_data_trans_long <- human_data_trans |> 
+human_data_clean_long <- human_data_trans |> 
   pivot_longer(
     cols = -(gene_id:symbol),
     names_to = c("Cell_line", 
-                 "treatment"),  
+                 "Treatment"),  
     values_to = "Expression_levels",
     names_sep = "_"
       ) 
 
-human_data_trans_long
+human_data_clean_long
 ```
 
 ```{r}
-human_data_trans_long <- human_data_trans_long |>
+human_data_clean_long <- human_data_clean_long |>
   mutate(
     Gene = str_c(gene_id, symbol, sep = "_")
     ,.before = 1) |> 
   select(-c(gene_id, symbol))
 
-human_data_trans_long
-```
-
-```{r}
-# to kanume prota long kai meta wide, prepei na dialeksume ena mono, den yparxei noima na to kanume long kai 2 grammes kato pali wide (an kai pisteuo oti to long einai kalitero btw)
-# Now we are going to make our data wide making the values of the "Genes" our variables  since we want to see how are they affected by the compound G007.LK
-human_data_clean<- human_data_trans_long |> 
-  pivot_wider(
-    names_from = treatment,
-    values_from = Expression_levels
-  )
-
-human_data_clean
-```
-
-```{r}
-human_data_wide <- human_data_trans_long |> 
-  pivot_wider(
-    names_from = Gene,
-    values_from = Expression_levels
-  ) |> 
-  relocate(treatment,1)
-
-human_data_wide
+human_data_clean_long
 ```
 
 ### \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--
@@ -113,22 +90,17 @@ human_suppl_clean<- human_suppl_data |>
 # We notice an inconsistency with the names of the cell lines which creates some problems when we try to separate the two components of the first column 
 
 human_suppl_clean<-human_suppl_clean |>
-  mutate(
-    source_name = case_when(
-      source_name == "WM45.1.DMSO"~ "WM45_1.DMSO",
-      source_name == "WM45.1.G007.LK"~ "WM45_1.G007.LK",
-      TRUE ~ source_name)) |> # Keeps the original value of the column if the condition is not met 
-  
+  mutate(source_name = 
+  case_when( # change the name of the column based on a condition met by str_detect
+      #We see that the column source name contains the name of the cell lines and the compounds separated by a "." 
+       str_detect(source_name, "\\.DMSO$") ~ str_replace(source_name,"\\.DMSO", "_DMSO"),
+       str_detect(source_name, "\\.G007.LK") ~ str_replace(source_name,"\\.G007.LK", "_G007.LK"),
+       TRUE ~ source_name  # Keep the original name of the columns if the aforementioned conditions are not met
+     )# Apply case when function in each column
+   ) |> 
   separate(source_name, 
            into = c("Cell_line", "Treatment"),
-           sep = "\\.") |> 
-  
-   # We return the value WM45_1 to its initial form WM45.1
-  mutate(
-    Cell_line = case_when(
-      Cell_line == "WM45_1"~ "WM45.1",
-      TRUE ~ Cell_line )) |> 
-  relocate(Treatment, 1)
+           sep = "\\_") #rename_wet 
 ```
 
 ```{r}
@@ -159,8 +131,8 @@ human_suppl_clean
 ```
 
 ```{r}
-#create the two clean datasets to 01_human_clean.tsv
+#create the two clean datasets to 02_human_clean.tsv
 
-write_tsv(human_data_wide, "../data/02_dat_clean_human.tsv")
-write_tsv(human_suppl_clean, "../data/02_dat_human_suppl.tsv")
+write_tsv(human_data_clean_long, "../data/02_dat_clean_human.tsv")
+write_tsv(human_suppl_clean, "../data/02_dat_clean_human_suppl.tsv")
 ```
