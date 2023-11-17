@@ -80,6 +80,22 @@ human_joined_aug <- human_joined_aug |>
 human_joined_aug
 ```
 
+```{r}
+human_joined_aug <- human_joined_aug |>
+  mutate(log2fold = G007.LK / DMSO)
+
+human_joined_aug
+```
+
+We want to create a subset where we don't take into account genes with the same expression levels with and without treatment.
+
+```{r}
+human_diff_expr <- human_joined_aug |>
+  filter(log2fold != 1)
+
+human_diff_expr
+```
+
 From that illustration we can see that there is not a global upregulation or down regulation by the gene. This is very common in RNA-seq arrays where most genes are not affected by the usage of a gene.
 
 We can perform several test to assess the statistical analysis of this result
