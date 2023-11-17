@@ -14,12 +14,11 @@ library(patchwork)
 ```
 
 ```{r}
-#load the clean datasets that we created in the clean.qmd file
 human_data_clean$DMSO<- as.numeric(human_data_clean$DMSO)
 human_data_clean$G007.LK<-as.numeric(human_data_clean$G007.LK)
 ```
 
-Categorical variables: gene_id, symbol, Cell_line, Compound, Organism, Genotype, Factor_unit_dose
+Categorical variables: Gene, Cell_line, Compound, Genotype
 
 Numerical variables: Expression_levels (Measured in Transcripts per million)
 

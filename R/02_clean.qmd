@@ -117,15 +117,12 @@ human_suppl_clean<- human_suppl_clean |>
     )
 ```
 
-We drop the columns that we don't need
-
 ```{r}
 human_suppl_clean <- human_suppl_clean |> 
   mutate(Genotype = characteristics_genotype) |>
-  select(c(Treatment,
-           Cell_line,
-           Genotype,
-           Compound_dose))
+  select(-c(characteristics_cell_line,
+            extract_name,
+            assay_name))
 
 human_suppl_clean
 ```
