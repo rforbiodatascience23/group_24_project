@@ -39,27 +39,45 @@ human_joined <- human_data_clean_long |>
 human_joined
 ```
 
-```{r}
-# We also want to create a wide version where the compounds are on different columns
-human_joined <- human_joined |> 
-  pivot_wider(
-    names_from = Treatment,
-    values_from = Expression_levels
-  )
-
-human_joined
-```
-
 Thinks to Keep in mind. Our data have been already normalized with the TPM method when the researchers used the sleuth v0.29 in their expreriment.
 
 Estimate the relative expression of the genes (Actually that one is a way to reduce our 0s ):
 
 following the formula
 
+\#################################################################################
+
+### This were we create the new metrics for our augmented file
+
+In order to transform our DMSO and G007.LK values we chose to move with log transformation.
+
+Because we can't log on zeros we add on all the values the 0.99% of the minimum positive value as an offset
+
 ```{r}
-human_data_transform1 |> 
-  ggplot(mapping = aes(x = log2fold_expression))+
-  geom_freqpoly()
+min_pos_value <- human_joined |>
+  select(Expression_levels) |>
+  filter(Expression_levels != 0) |>
+  summarize(min = min(Expression_levels)) |>
+  pull()
+
+
+human_joined_aug <- human_joined |> 
+  mutate(Log_expression_levels = log(Expression_levels + 0.99*min_pos_value)
+         ) |> 
+  select(-Expression_levels)
+
+human_joined_aug
+```
+
+```{r}
+# We also want to create a wide version where the compounds are on different columns
+human_joined_aug <- human_joined_aug |> 
+  pivot_wider(
+    names_from = Treatment,
+    values_from = Log_expression_levels
+  )
+
+human_joined_aug
 ```
 
 From that illustration we can see that there is not a global upregulation or down regulation by the gene. This is very common in RNA-seq arrays where most genes are not affected by the usage of a gene.
