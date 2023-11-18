@@ -40,12 +40,14 @@ head(mouse_data_separated)
 
 ```
 ```{r}
+#Old code, but I (Oliver) commented it out, to work with relative expression levels, so this is not needed here anymore
+
 # Log2 transform the code, but first add a very samll number to all values, in order to avoid log(0). 
 # The number we add is 99% fo the minimum value, so that we can still differentiate the artificial low values with the actual min, if needed.
-min_non_zero_value <- min(mouse_data_separated$value[mouse_data_separated$value > 0])
-
-mouse_data_separated <- mouse_data_separated |>
-  mutate(value = log(value + 0.99*min_non_zero_value, 2))
+#min_non_zero_value <- min(mouse_data_separated$value[mouse_data_separated$value > 0])
+#
+#mouse_data_separated <- mouse_data_separated |>
+#  mutate(value = log(value + 0.99*min_non_zero_value, 2))
 
 ```
 

@@ -27,38 +27,36 @@ mouse_df <- left_join(mouse_data, mouse_data_suppl, join_by(treatment))
 ```
 
 
-We now create a new df where we lose the control group experiments (DMSO) and instead subtract the DMSO values of each replicate from the other treatment gene expressions, and thereby convert from expression value to log2 transformed relative expressions, i.e.
+We now create a new df where we lose the control group experiments (DMSO) and instead divide the noin-control values with the DMSO values of each replicate from the other treatment gene expressions, and thereby convert from expression value to relative expressions. We then log2 transofrm the relative expression, such that a 0 means no change between control and treatment, and positive values mean upregulated and negative means down_regulated
 $$
 \log(\frac{expression\_control\_trial (DMSO)}{expression\_drugX\_trial})
 $$
-This relationship comes from the following rule
-$$
-\log(\frac{expression\_control\_trial (DMSO)}{expression\_drugX\_trial}) = \log(expression\_control\_trial (DMSO)) - \log(expression\_drugX\_trial)
-$$
 
+This operation will be performed now
 ```{r}
+"Make a baseline dataset with the values for the control group"
 DMSO <- mouse_df |> 
   filter(treatment=='DMSO') |> 
   select(-c(treatment))
 
+"Making the relative dataset"
 rel_mouse_df <- mouse_df |> 
-  filter(treatment != 'DMSO') |> 
-  left_join(DMSO, by = 'replicate', suffix = c("", "_baseline")) |> 
-  mutate(across(-c("treatment", "replicate", `Factor Value[compound]`), 
-         ~ .x - get(paste0(cur_column(), "_baseline")), 
-         .names = "{.col}_adjusted"))
-  
+  filter(treatment != 'DMSO') |>     # filtering to the non control baseline values
+  left_join(DMSO,                    # Creating baseline columns for each gene with the baseline values for each replicate 
+            by = 'replicate', 
+            suffix = c("", "_baseline")
+            ) |> 
+  mutate(across(-c("treatment",      # Subtracting baseline values from the original gene columns
+                   "replicate", 
+                   `Factor Value[compound]`, 
+                   ends_with('baseline')
+                   ),
+                ~ log(.x / get(paste0(cur_column(), "_baseline")),2)
+                )
+         ) |> 
+  select(-c(ends_with('baseline')))  # loose the baseline helper columns
+
 ```
-
-
-
-
-
-
-
-
-
-
 
 
 
