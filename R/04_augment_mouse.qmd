@@ -53,10 +53,29 @@ rel_mouse_df <- mouse_df |>
                    ),
                 ~ log(.x / get(paste0(cur_column(), "_baseline")),2)
                 )
-         ) |> 
+         ) |>         # Replace NaNs with 0 since R returns 0 for log(0/0,2)
   select(-c(ends_with('baseline')))  # loose the baseline helper columns
 
+
+
 ```
+we then need to handle the inf values (originating from either 0/expression_control ot expression_treatmnet/0) and nan values that originate from 0/0
+```{r}
+inf_cap_value <- 31
+rel_mouse_df_final <- rel_mouse_df |> 
+  mutate(across(everything(), 
+                ~ ifelse(is.na(.x), 0,    # Replace NaNs with 0
+                         ifelse(is.infinite(.x), inf_cap_value * sign(.x), .x)))) # Cap Inf and -Inf relative expression
+  
+```
+
+
+
+
+
+
+
+
 
 
 
