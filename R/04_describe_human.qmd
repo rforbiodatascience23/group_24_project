@@ -10,27 +10,19 @@ library(dplyr)
 library(ggplot2)
 library(tidyr)
 library(patchwork)
-
 ```
 
-```{r}
-human_joined$DMSO<- as.numeric(human_joined$DMSO)
-human_joined$G007.LK<-as.numeric(human_joined$G007.LK)
-```
+Categorical variables: Gene, Cell_line, Treatment, Genotype
 
-Categorical variables: Gene, Cell_line, treatment, Genotype
+Numerical variables: Expression_levels (Measured in transcripts per million)
 
-Numerical variables: Expression_levels (Measured in Transcripts per million)
+We check the distribution of expression levels
 
-### Before performing the descriptive statistics we need to log2 transform the Expression levels in order to reduce the heteroscedasticity and stabilize the variance among the expression levels. ASK THE GUYS IF WE NEED TO DO THIS
+###DESC_1
 
-view the distribution of our dataset first
+###DESC_2
 
-```{r}
-human_joined |> 
-  ggplot(mapping = aes(x = Expression_levels))+
-  geom_histogram()
-```
+We then check the distribution of expression levels after log2 transformation
 
 ```{r}
 human_joined_aug |>
@@ -39,10 +31,8 @@ human_joined_aug |>
 ```
 
 ```{r}
-zero_color = "red"
-
 human_diff_expr |> 
-  sample_n(10) |>
+  sample_n(100) |>
   ggplot(aes(x = Cell_line, 
              y = Gene, 
              fill = log2fold))+
@@ -57,61 +47,9 @@ Here we can see that teh distribution of both of the compounds is 0. This is som
 
 In order to move on with our analysis we have to log transform our data so we can get some insghts
 
-human_augm,qmd
-
-```{r}
-human_log_trans<- human_data_clean|> 
-  mutate(
-    log2_DMSO_Expression_levels = log2(DMSO +1),
-    log2_G007.LK_Expression_levels = log2(G007.LK+1)
-  )
-human_log_trans
-```
-
-```{r}
-#create a histogram
-human_log_trans|> 
-  ggplot(mapping = aes(x = log2_DMSO_Expression_levels))+
-           geom_freqpoly(aes(color = Cell_line))+
-  labs(x= "Expression Levels",
-       y = "Density",
-       title = "Density of the expression of human skin cells in DMSO ")
-
-```
-
-We see that there are many 0 but how many are there?
-
-```{r}
-
-#create a new variable called Expression_differences
-human_log_trans |> 
-  filter(log2_DMSO_Expression_levels == 0) |> 
-  count(n = n())
-```
-
-How many are expressed though?
-
-```{r}
-human_log_trans |> 
-  filter(log2_DMSO_Expression_levels != 0) |> 
-  count(n = n())
-```
-
 What happens when we add G007,LK
 
-```{r}
-human_log_trans|> 
-  ggplot(mapping = aes(x = log2_G007.LK_Expression_levels))+
-           geom_freqpoly(mapping = aes(color = Cell_line))+
-  labs(x= "Expression Levels",
-       y = "Density",
-       title = "Density of the expression of human skin cells when introducing G007.LK")
-```
-
-```{r}
-human_log_trans |> 
-  filter(log2_G007.LK_Expression_levels == 0) |> 
-  count(n = n())
+```         
 ```
 
 These are the genes that are not expressed by the DMSO
@@ -120,20 +58,7 @@ From the last two illustrations we can see that half of the genes are not expres
 
 We can see that there are less genes that there are 2731 more genes that were expressed when we introduced the G007.LK
 
-```{r}
-#|label: install dependencies
-install.packages(c("BiocManager", "BiocParallel"))
-```
-
 Estimate the difference in gene expression when we add the G007.LK. DESeq analysis..
-
-```{r}
-
-if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-
-BiocManager::install("DESeq2")
-```
 
 Questions to be investigated:
 
