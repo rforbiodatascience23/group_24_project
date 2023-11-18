@@ -58,7 +58,7 @@ min_pos_value <- human_joined |>
 
 
 human_joined_aug <- human_joined |> 
-  mutate(Log_expression_levels = log(Expression_levels + 0.99*min_pos_value)
+  mutate(norm_expression_levels =(Expression_levels + 0.99 * min_pos_value) 
          ) |> 
   select(-Expression_levels)
 
@@ -70,29 +70,47 @@ human_joined_aug
 human_joined_aug_wide <- human_joined_aug |> 
   pivot_wider(
     names_from = Treatment,
-    values_from = Log_expression_levels
+    values_from = norm_expression_levels
   )
 
-human_joined_aug_wide
-```
-
-```{r}
-human_joined_aug_wide <- human_joined_aug_wide |>
-  mutate(log2fold = G007.LK / DMSO)
+human_joined_aug_wide <- human_joined_aug_wide |> 
+  mutate(log2DMSO = round(log2(DMSO),2),
+         log2G007.LK = round(log2(G007.LK),2))
 
 human_joined_aug_wide
+  
+
 ```
 
 We want to create a subset where we don't take into account genes with the same expression levels with and without treatment.
 
 ```{r}
-human_diff_expr <- human_joined_aug_wide |>
-  filter(log2fold != 1)
+#|label: not run now, but during analysis
+human_joined_aug_wide <- human_joined_aug_wide |>
+  mutate(log2fc = log2G007.LK - log2DMSO,
+         fc = round(2^(log2fc),2))
 
-human_diff_expr
+human_joined_aug_wide
 ```
 
-From that illustration we can see that there is not a global up regulation or down regulation for all genes.
+```{r}
+human_joined_aug_wide |> 
+  
+  ggplot(mapping = aes(x = log2G007.LK))+
+  geom_freqpoly()
+```
+
+```{r}
+human_joined_aug_wide |> 
+  filter(log2DMSO != -33.92) |>
+  ggplot(mapping = aes(x = log2DMSO))+
+  geom_freqpoly()
+
+human_joined_aug_wide|>
+  filter(log2DMSO != -33.92)|>
+  arrange(log2fc)
+
+```
 
 We can perform several test to assess the statistical analysis of this result
 
@@ -106,82 +124,15 @@ Alternative approaches in order to get rid of the 0s####
 
 But before we do that we have to log transform our data and add a constant (e.g. 1)
 
-```{r}
-#log_transformation +1 to deal with the huge number of zeros
-
-#we do this before the tests
-human_data_transform1<- human_data_transform1 |> 
-  mutate(
-    log2_DMSO = log2(DMSO +1),
-    log2_G007.LK = log2(G007.LK +1)
-  )
-human_data_transform1
-```
-
 This is the distribution of our data before the transformation
-
-```{r}
-human_data_transform1 |> 
-  ggplot(mapping = aes(x = DMSO))+
-  geom_histogram()
-```
-
-```{r}
-human_data_transform1 |> 
-  ggplot(mapping = aes(x = G007.LK))+
-  geom_histogram()
-```
 
 These are the distributions after the transformation
 
-```{r}
-human_data_transform1 |> 
-  ggplot(mapping = aes(x = log2_DMSO))+
-  geom_histogram()
-```
-
 We can see here that we reduced some of the skewness in our data
-
-```{r}
-human_data_transform1 |> 
-  ggplot(mapping = aes(x = log2_G007.LK))+
-  geom_histogram()
-```
 
 \##############################################
 
 Approach 2 We can use an the minimum positive value contained in the dataset as an offset based on the dataset characterisitics.
-
-```{r}
-human_data_trans_long |> 
-  filter(Expression_levels > 0) |> 
-  arrange(Expression_levels) |> 
-  select(treatment, Expression_levels)
-```
-
-```{r}
-#min positive value
-min_pos_value<- min(human_data_trans_long$Expression_levels> 0)# I selected this feature as the one with the min value because I found that 
-
-human_data_transform2<-
-  human_data_trans_long |> 
-  mutate(log2_Expression_levels = log2(Expression_levels + min_pos_value)
-         )
-
-human_data_transform2
-```
-
-```{r}
-human_data_transform2 |> 
-  ggplot(mapping = aes(
-    x = log2_Expression_levels
-  ))+
-  geom_freqpoly()+
-  scale_x_continuous(breaks = seq(-30,15, by = 5))
-  
-  
-
-```
 
 Here we can see that the majority of the observations are gathered between -5 +5.
 
