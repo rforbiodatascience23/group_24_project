@@ -40,6 +40,9 @@ human_joined
 ```
 
 ```{r}
+```
+
+```{r}
 # We also want to create a wide version where the compounds are on different columns
 human_joined_wide <- human_joined |> 
   pivot_wider(
@@ -156,6 +159,19 @@ human_trans_sub |>
   geom_freqpoly()+
   # scale_x_continuous(breaks = seq(-40, 40, by = 5))+
   coord_cartesian(xlim=c(-40,40))
+```
+
+It will be useful for our analysis to also have a subset where the two compounds live in the same variable
+
+```{r}
+human_to_analyze <- human_trans_sub |>
+  select(-c(log2fc,DMSO,G007.LK)) |>
+  pivot_longer(cols = c("log2DMSO", "log2G007.LK"), names_to = c("Treatment"),
+               values_to= "log2_Expression_level") |>
+  mutate(Treatment = case_when(Treatment == "log2DMSO" ~ 0,
+                               Treatment == "log2G007.LK" ~ 1))
+
+human_to_analyze
 ```
 
 We can perform several test to assess the statistical analysis of this result
