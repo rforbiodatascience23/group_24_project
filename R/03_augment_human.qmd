@@ -158,25 +158,6 @@ human_trans_sub |>
   coord_cartesian(xlim=c(-40,40))
 ```
 
-```{r}
-human_trans_sub |> 
-  
-  ggplot(mapping = aes(x = log2DMSO))+
-  geom_freqpoly()
-```
-
-```{r}
-human_trans |> 
-  filter(log2DMSO != -33.92) |>
-  ggplot(mapping = aes(x = log2DMSO))+
-  geom_freqpoly()
-
-human_trans|>
-  filter(log2DMSO != -33.92)|>
-  arrange(log2fc)
-
-```
-
 We can perform several test to assess the statistical analysis of this result
 
 \##########################################
