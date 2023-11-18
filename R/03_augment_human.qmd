@@ -9,53 +9,90 @@ library(tidyverse)
 library(dplyr)
 ```
 
-We are going to merge our clean human datasets
+```{r}
+human_data_clean_long
+```
 
 ```{r}
-human_joined<- human_data_wide |> 
-  left_join(human_suppl_final, join_by(treatment, Cell_line)) 
+# Now we are going to make our data wide making the values of the "Genes" our variables  since we want to see how are they affected by the compound G007.LK
+human_data_clean_wide <- human_data_clean_long |> 
+  pivot_wider(
+    names_from = Gene,
+    values_from = Expression_levels
+  )
+
+human_data_clean_wide
+```
+
+We are going to merge our clean human data sets and select only the variables that we want
+
+```{r}
+human_joined <- human_data_clean_long |> 
+  left_join(human_suppl_clean, join_by(Treatment, Cell_line)) |>
+  select(Gene,
+         Cell_line,
+         Treatment,
+         Expression_levels,
+         Genotype) |>
+  relocate(Genotype, .before = 2)
 
 human_joined
 ```
 
-Thinks to Keep in mind. Our data have been already normalized with the TPM method when the researchers used the sleuth v0.29 in their expreriment.
+Thinkg to Keep in mind. Our data have been already normalized with the TPM method when the researchers used the sleuth v0.29 in their experiment.
 
-There are less genes that are not activated when we add the compound G007.LK
+\##############################################################################
 
-Though we can see again that almost half of our observations have 0 Expression Levels. How can we deal with that?
+### This is were we create the new metrics for our augmented file
 
-#########################Have to check it again################################
+In order to work wit our DMSO and G007.LK values we chose to move on with log transformation.
 
-Estimate the relative expression of the genes (Actually that one is a way to reduce our 0s ):
-
-following the formula
+Because we can't log on zeros we add on all the values the 0.99% of the minimum positive value as an offset
 
 ```{r}
-human_data_transform<-human_data_trans_long |> 
+min_pos_value <- human_joined |>
+  select(Expression_levels) |>
+  filter(Expression_levels != 0) |>
+  summarize(min = min(Expression_levels)) |>
+  pull()
+
+
+human_joined_aug <- human_joined |> 
+  mutate(Log_expression_levels = log(Expression_levels + 0.99*min_pos_value)
+         ) |> 
+  select(-Expression_levels)
+
+human_joined_aug
+```
+
+```{r}
+# We also want to create a wide version where the compounds are on different columns
+human_joined_aug_wide <- human_joined_aug |> 
   pivot_wider(
-    names_from = treatment,
-    values_from = Expression_levels
+    names_from = Treatment,
+    values_from = Log_expression_levels
   )
-human_data_transform
-```
 
-This is the log2fold transformation for the genes between the two compounds
-
-```{r}
-human_data_transform1<- human_data_transform |> 
-  mutate(
-    log2fold_expression = log2(G007.LK/ DMSO)
-  )
-human_data_transform1
+human_joined_aug_wide
 ```
 
 ```{r}
-human_data_transform1 |> 
-  ggplot(mapping = aes(x = log2fold_expression))+
-  geom_freqpoly()
+human_joined_aug_wide <- human_joined_aug_wide |>
+  mutate(log2fold = G007.LK / DMSO)
+
+human_joined_aug_wide
 ```
 
-From that illustration we can see that there is not a global upregulation or down regulation by the gene. This is very common in RNA-seq arrays where most genes are not affected by the usage of a gene.
+We want to create a subset where we don't take into account genes with the same expression levels with and without treatment.
+
+```{r}
+human_diff_expr <- human_joined_aug_wide |>
+  filter(log2fold != 1)
+
+human_diff_expr
+```
+
+From that illustration we can see that there is not a global up regulation or down regulation for all genes.
 
 We can perform several test to assess the statistical analysis of this result
 
@@ -196,3 +233,11 @@ The bulk of t-statistics near 0 suggests that, for most genes, there is little t
 The peak around 0.5 in the tail could indicate that there are some genes with moderate but consistent differences in the expression between the two conditions. We could potentially perform a more thorough analysis in order to identify them. Caution this tail could by caused by biological Heterogeneity.
 
 We are going to perform an extra test using the q-value of our results
+
+```{r}
+human_joined_aug <- human_joined_aug |> 
+  mutate(
+    log2fold_expression = log2(G007.LK/ DMSO)
+  )
+human_data_aug
+```

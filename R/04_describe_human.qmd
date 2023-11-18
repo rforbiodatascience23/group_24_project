@@ -14,16 +14,50 @@ library(patchwork)
 ```
 
 ```{r}
-#load the clean datasets that we created in the clean.qmd file
-human_data_clean$DMSO<- as.numeric(human_data_clean$DMSO)
-human_data_clean$G007.LK<-as.numeric(human_data_clean$G007.LK)
+human_joined$DMSO<- as.numeric(human_joined$DMSO)
+human_joined$G007.LK<-as.numeric(human_joined$G007.LK)
 ```
 
-Categorical variables: gene_id, symbol, Cell_line, Compound, Organism, Genotype, Factor_unit_dose
+Categorical variables: Gene, Cell_line, treatment, Genotype
 
 Numerical variables: Expression_levels (Measured in Transcripts per million)
 
 ### Before performing the descriptive statistics we need to log2 transform the Expression levels in order to reduce the heteroscedasticity and stabilize the variance among the expression levels. ASK THE GUYS IF WE NEED TO DO THIS
+
+view the distribution of our dataset first
+
+```{r}
+human_joined |> 
+  ggplot(mapping = aes(x = Expression_levels))+
+  geom_histogram()
+```
+
+```{r}
+human_joined_aug |>
+  ggplot(mapping = aes(x = Log_expression_levels))+
+  geom_freqpoly()
+```
+
+```{r}
+zero_color = "red"
+
+human_diff_expr |> 
+  sample_n(10) |>
+  ggplot(aes(x = Cell_line, 
+             y = Gene, 
+             fill = log2fold))+
+  geom_tile()+
+  scale_fill_gradientn(colors=c('blue','white','salmon1'))+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1),axis.text=element_text(size=4),axis.title=element_text(size=5))+
+  theme(legend.position = 'bottom',legend.key.size = unit(5, 'mm'),legend.title= element_text(size=5),legend.text=element_text(size=5))+
+  coord_fixed(ratio=0.6)
+```
+
+Here we can see that teh distribution of both of the compounds is 0. This is something that is anticipated since we are dealing with RNA data and not all of the genes are expressed in all cell types.
+
+In order to move on with our analysis we have to log transform our data so we can get some insghts
+
+human_augm,qmd
 
 ```{r}
 human_log_trans<- human_data_clean|> 
