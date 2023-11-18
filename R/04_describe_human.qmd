@@ -39,8 +39,10 @@ human_joined_aug |>
 ```
 
 ```{r}
+zero_color = "red"
+
 human_diff_expr |> 
-  sample_n(100) |>
+  sample_n(10) |>
   ggplot(aes(x = Cell_line, 
              y = Gene, 
              fill = log2fold))+
