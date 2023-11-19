@@ -32,13 +32,13 @@ human_joined
 ```
 
 ```{r}
-# We also want to create a wide version where the compounds are on different columns
-#human_joined_wide <- human_joined |> 
- # pivot_wider(
-  #  names_from = Treatment,
-  #  values_from = Expression_levels
+# #We also want to create a wide version where the compounds are on different columns
+# human_joined_wide <- human_joined |>
+# pivot_wider(
+#  names_from = Treatment,
+#  values_from = Expression_levels
 #  )
-#human_joined_wide
+# human_joined_wide
 ```
 
 Thinkg to Keep in mind. Our data have been already normalized with the TPM method when the researchers used the sleuth v0.29 in their experiment.
