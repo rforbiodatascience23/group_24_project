@@ -7,21 +7,11 @@ editor: visual
 ```{r}
 library(tidyverse)
 library(dplyr)
+library(patchwork)
 ```
 
 ```{r}
 human_data_clean_long
-```
-
-```{r}
-# Now we are going to make our data wide making the values of the "Genes" our variables  since we want to see how are they affected by the compound G007.LK
-human_data_clean_wide <- human_data_clean_long |> 
-  pivot_wider(
-    names_from = Gene,
-    values_from = Expression_levels
-  )
-
-human_data_clean_wide
 ```
 
 We are going to merge our clean human data sets and select only the variables that we want
@@ -29,7 +19,8 @@ We are going to merge our clean human data sets and select only the variables th
 ```{r}
 human_joined <- human_data_clean_long |> 
   left_join(human_suppl_clean, join_by(Treatment, Cell_line)) |>
-  select(Gene,
+  select(gene_id,
+         symbol,
          Cell_line,
          Treatment,
          Expression_levels,
@@ -37,9 +28,6 @@ human_joined <- human_data_clean_long |>
   relocate(Genotype, .before = 2)
 
 human_joined
-```
-
-```{r}
 ```
 
 ```{r}
@@ -59,13 +47,15 @@ Thinkg to Keep in mind. Our data have been already normalized with the TPM metho
 ### This is were we create the new metrics for our augmented file
 
 ```{r}
-###DESC_1
-DMSO_freq <- human_joined_aug_wide |> 
-  ggplot(mapping = aes(x = DMSO))+
+###DESC_1 
+DMSO_freq <- human_joined |> 
+  filter(Treatment == "DMSO") |> 
+  ggplot(mapping = aes(x = Expression_levels)) +
   geom_freqpoly()
 
-G007.LK_freq <- human_joined_aug_wide |> 
-  ggplot(mapping = aes(x = G007.LK))+
+G007.LK_freq <- human_joined |>
+  filter(Treatment == "G007.LK") |> 
+  ggplot(mapping = aes(x = Expression_levels)) +
   geom_freqpoly()
 
 DMSO_freq + G007.LK_freq
@@ -74,10 +64,14 @@ DMSO_freq + G007.LK_freq
 We observe many observation equal to zero, but how many of them are there for each treatment?
 
 ```{r}
-#DESC_2
-human_joined_wide |>
-  summarise(DMSO_0 = sum(DMSO ==0),
-            G007.LK_0 = sum(G007.LK ==0))
+#DESC_2 
+human_joined |> 
+  filter(Treatment == "DMSO") |> 
+  summarise(DMSO_0 = sum(Expression_levels == 0))
+
+human_joined |>
+  filter(Treatment == "G007.LK") |> 
+  summarise(G007.LK_0 = sum(Expression_levels == 0))
 ```
 
 In order to work wit our DMSO and G007.LK values we chose to move on with log transformation in order to reduce the heteroscedasticity and stabilize the variance among the expression levels.
@@ -91,37 +85,62 @@ min_pos_value <- human_joined |>
   summarize(min = min(Expression_levels)) |>
   pull()
 
+human_trans <- human_joined |> 
+  mutate(Expression_levels = (Expression_levels + 0.99 * min_pos_value)) 
 
-human_trans <- human_joined_wide |> 
-  mutate(DMSO = (DMSO + 0.99 * min_pos_value),
-         G007.LK = (G007.LK + 0.99 * min_pos_value)
-         )
 human_trans
 ```
 
 ```{r}
 # We log2 transform the expression levels 
 human_trans <- human_trans |> 
-  mutate(log2DMSO = log2(DMSO),
-         log2G007.LK = log2(G007.LK))
+  mutate(log2_expression_level = log2(Expression_levels)) |>
+  select(-Expression_levels)
 
 human_trans
+```
+
+```{r}
+# # We also want to create a wide version where the compounds are on different columns 
+# human_sep_treat <- human_trans |> 
+#   pivot_wider(names_from = Treatment, 
+#               values_from = log2_expression_level ) )
+# human_sep_treat
+```
+
+Our purpose is to find genes that were either up or down regulated when treating the cells with G007.LK in comparison when we only provide them the solvent DMSO. For that reason we calculated the log2 fold change (by creating the log2foldchange in the augment.qmd file), which is a way of measuring change in expression level of a gene between two different conditions.
+
+It will be useful for our analysis to also have a subset where the two compounds live in the same variable
+
+```{r}
+# human_log2fc <- human_sep_treat |> 
+#   mutate(log2fc = G007.LK - DMSO) 
+# 
+# human_log2fc
+```
+
+```{r}
+human_to_analyze <- human_trans |> 
+  mutate(Treatment = case_when(Treatment == "DMSO" ~ 0,
+                               Treatment == "G007.LK" ~ 1))
+
+human_to_analyze
 ```
 
 ###DESC_3
 
 We check again the distribution
 
-```{r}
-DMSO_freq_log <- human_trans |> 
-  ggplot(mapping = aes(x = log2DMSO))+
-  geom_freqpoly()
-
-G007.LK_freq_log <- human_trans |> 
-  ggplot(mapping = aes(x = log2G007.LK))+
-  geom_freqpoly()
-
-DMSO_freq_log + G007.LK_freq_log
+```{# {r}
+# DMSO_freq_log <- human_trans |> 
+#   ggplot(mapping = aes(x = log2DMSO))+
+#   geom_freqpoly()
+# 
+# G007.LK_freq_log <- human_trans |> 
+#   ggplot(mapping = aes(x = log2G007.LK))+
+#   geom_freqpoly()
+# 
+# DMSO_freq_log + G007.LK_freq_log
 ```
 
 We can see now that the distribution is less skewed but we can still see that the majority of the observations are equal to zero (equal to -33.92 after the log2 transformation).
@@ -146,32 +165,24 @@ We want to create a subset where we don't take into account genes in specific ce
 
 The bulk of zeros suggests that, for many genes in many cell lines, there is no difference in expression between the two groups. This is a common observation, as many genes in different cell lines may not respond strongly to experimental conditions
 
-```{r}
-human_trans_sub <- human_trans |>
-  filter(log2fc != 0)
-
-human_trans_sub
-```
-
-```{r}
-human_trans_sub |>
-  ggplot(aes(x = log2fc))+
-  geom_freqpoly()+
-  # scale_x_continuous(breaks = seq(-40, 40, by = 5))+
-  coord_cartesian(xlim=c(-40,40))
+```{# {r}
+# human_trans_sub <- human_trans |>
+#   filter(log2fc != 0)
+# 
+# human_trans_sub
 ```
 
 It will be useful for our analysis to also have a subset where the two compounds live in the same variable
 
-```{r}
-human_to_analyze <- human_trans_sub |>
-  select(-c(log2fc,DMSO,G007.LK)) |>
-  pivot_longer(cols = c("log2DMSO", "log2G007.LK"), names_to = c("Treatment"),
-               values_to= "log2_Expression_level") |>
-  mutate(Treatment = case_when(Treatment == "log2DMSO" ~ 0,
-                               Treatment == "log2G007.LK" ~ 1))
-
-human_to_analyze
+```{# {r}
+# human_to_analyze <- human_trans_sub |>
+#   select(-c(log2fc,DMSO,G007.LK)) |>
+#   pivot_longer(cols = c("log2DMSO", "log2G007.LK"), names_to = c("Treatment"),
+#                values_to= "log2_Expression_level") |>
+#   mutate(Treatment = case_when(Treatment == "log2DMSO" ~ 0,
+#                                Treatment == "log2G007.LK" ~ 1))
+# 
+# human_to_analyze
 ```
 
 We can perform several test to assess the statistical analysis of this result
