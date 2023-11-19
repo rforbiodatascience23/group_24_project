@@ -1,0 +1,180 @@
+---
+title: "Analysis 1 file - Isolated analysis of the mouse dataset"
+format: html
+editor: visual
+---
+
+```{r}
+#|label: load the packages
+library(tidyverse)
+library(stringr)
+library(dplyr)
+library(tidyr)
+library(broom)
+library(ggrepel)
+```
+
+
+This analysis will see which genes are significantly up and down regulated in the treatment trials
+
+Here we begin by loading the augmented mouse dataset
+```{r}
+Sys.setenv(VROOM_CONNECTION_SIZE = 3062144) # Setting a larger connection buffer to be able to load the data
+# Loading the data
+mouse_df <- read_tsv(file = "../data/04_dat_aug_mouse.tsv.gz")
+```
+First we loose the "Factor Value[compound]" (concentration) column since we don't need it in this analysis
+```{r}
+mouse_df = mouse_df |> 
+  select(-c(`Factor Value[compound]`))
+
+```
+
+
+Now lets do an analysis to see which genes are significantly up and down regulated in the treatment trials.
+
+```{r}
+# select a treatment to test for significant up and down regulations
+treatm = 'G007LK'
+mouse_df_treat = mouse_df |> 
+  filter(treatment == 'DMSO' | treatment == treatm) |> 
+  mutate(Treated = ifelse(treatment == treatm,1,0))
+  
+```
+
+```{r}
+mouse_df_treat_long <- mouse_df_treat |> 
+  pivot_longer(cols = -c(treatment,replicate,Treated), 
+               names_to = 'Gene', 
+               values_to = 'rel_log2_expr_level')
+```
+
+```{r}
+mouse_df_long_nested <- mouse_df_treat_long |>
+  group_by(Gene) |> 
+  nest() |> 
+  ungroup()
+
+
+```
+
+```{r}
+mouse_df_long_nested <- mouse_df_long_nested |> 
+  group_by(Gene) |> 
+  mutate(model_object = 
+           map(.x = data, 
+               .f = ~lm(formula = rel_log2_expr_level ~ Treated, 
+                        data = .x)))
+```
+
+```{r}
+mouse_df_long_nested |>
+  filter(gene == "g1E11") |>
+  pull(model_object)
+```
+
+
+```{r}
+mouse_df_long_nested <- 
+  mouse_df_long_nested |> 
+  mutate(model_object_tidy = 
+           map(.x = model_object, 
+               .f = ~tidy(x = .x, 
+                          conf.int = TRUE,
+                          conf.level = 0.95)))
+```
+
+
+```{r}
+mouse_estimates <- mouse_df_long_nested|> 
+  unnest(model_object_tidy)
+```
+
+
+```{r}
+mouse_estimates <- 
+  mouse_estimates |>
+  filter(term == 'Treated') |>
+  ungroup(Gene)
+```
+
+
+```{r}
+mouse_estimates <- 
+  mouse_estimates |> mutate(q.value = p.adjust(p.value, method = "bonferroni"),
+                            signif = q.value < 0.05)
+```
+
+
+
+```{r}
+mouse_estimates_signif <- 
+  mouse_estimates |> 
+  filter(signif==TRUE)
+```
+
+
+
+
+```{r}
+mouse_estimates_signif |> 
+  filter(estimate > -10 & estimate < 10) |> # We apply this filtering to avoid the genes that only have significant values due to a 0 division in the relative log2 expression transforation.
+  arrange(estimate) |> 
+  mutate(Gene = factor(Gene, levels = unique(Gene))) |> 
+  ggplot(aes(x=estimate,y = Gene)) +
+  geom_point() +
+  geom_errorbar(aes(xmin = conf.low, 
+                    xmax = conf.high),
+                width = 0.2) +
+  labs(title='Genes Associated with treatment of GK007 in mouse', xlab='Estimate (95% CIs)', ylab='Gene')+
+  theme(axis.text.y = element_text(size=6),
+        panel.background = element_rect(fill = "white"),
+        panel.grid.major = element_line(color = "grey", size = 0.1),
+        panel.grid.minor = element_line(color = "lightgrey", size = 0.1),
+        plot.title = element_text(size = 11))+
+  geom_vline(aes(xintercept=0), linetype="solid", color="black")
+```
+
+
+
+
+```{r}
+mouse_estimates |> 
+filter(estimate > -10 & estimate < 10) |> # We apply this filtering to avoid the genes that only have significant values due to a 0 division in the relative log2 expression transforation.
+mutate('neglog10p'= -log10(p.value)) |> 
+arrange(estimate) |> 
+mutate(Gene = factor(Gene, levels = unique(Gene))) |> 
+ggplot(aes(x=estimate,y = neglog10p, color=signif, labels=Gene)) +
+geom_point(alpha=0.1) +
+labs(title='Genes Associated with treatment of GK007 in mouse', 
+     xlab='Estimate (95% CIs)', 
+     ylab='-log10(p)') +
+scale_color_manual(values = c("FALSE" = "red", "TRUE" = "turquoise")) +
+geom_text_repel(aes(label=ifelse(signif, as.character(Gene), "")), 
+                size = 2,             
+                label.size = NA,      
+                max.overlaps = Inf,   
+                box.padding = 0.3,    
+                point.padding = 0.4) +
+theme(plot.title = element_text(size = 11))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+This is not this code, but here we can quickly get the mean across the repetions.
+```{r}
+mouse_df |> # Get the mean across the repetitions
+    group_by(treatment) |> 
+    summarise(across(-c(replicate), mean, na.rm = TRUE))
+  
+```

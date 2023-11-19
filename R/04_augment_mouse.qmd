@@ -41,7 +41,6 @@ DMSO <- mouse_df |>
 
 "Making the relative dataset"
 rel_mouse_df <- mouse_df |> 
-  filter(treatment != 'DMSO') |>     # filtering to the non control baseline values
   left_join(DMSO,                    # Creating baseline columns for each gene with the baseline values for each replicate 
             by = 'replicate', 
             suffix = c("", "_baseline")
@@ -57,41 +56,36 @@ rel_mouse_df <- mouse_df |>
   select(-c(ends_with('baseline')))  # loose the baseline helper columns
 
 
-
 ```
 we then need to handle the inf values (originating from either 0/expression_control ot expression_treatmnet/0) and nan values that originate from 0/0
 ```{r}
 inf_cap_value <- 31
-rel_mouse_df_final <- rel_mouse_df |> 
+rel_mouse_df <- rel_mouse_df |> 
   mutate(across(everything(), 
                 ~ ifelse(is.na(.x), 0,    # Replace NaNs with 0
                          ifelse(is.infinite(.x), inf_cap_value * sign(.x), .x)))) # Cap Inf and -Inf relative expression
   
 ```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ```{r}
-#A function that should not be used now but might come in handy in the analysis to get the mean across the repetitions
-mouse_df |> 
-    group_by(treatment) |> 
-    summarise(across(-c(replicate,`Factor Value[compound]`), mean, na.rm = TRUE))
-  
+write_tsv(x = rel_mouse_df, file = str_c("../data/04_dat_aug_mouse", ".tsv.gz"))
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
