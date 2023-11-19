@@ -61,7 +61,15 @@ human_data_clean_long <- human_data_trans |>
 human_data_clean_long
 ```
 
-`{# {r} # human_data_clean_long <- human_data_clean_long |> #   mutate( #     Gene = str_c(gene_id, symbol, sep = "_") #     ,.before = 1) |>  #   select(-c(gene_id, symbol)) #  # human_data_clean_long`
+The geneid and the symbol columns are different thing. If their added in the same column they represent untidy data
+
+```{r}
+# human_data_clean_long <- human_data_clean_long |>
+#   mutate( #     Gene = str_c(gene_id, symbol, sep = "_") 
+#     ,.before = 1) |>  
+#   select(-c(gene_id, symbol)) #  
+# human_data_clean_long
+```
 
 ### \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--
 
