@@ -9,6 +9,9 @@ library(tidyverse)
 library(dplyr)
 library(patchwork)
 library(ggplot2)
+
+human_clean_long <- read_tsv(file = "../data/02_dat_clean_human.tsv.gz")
+human_suppl_clean <- read_tsv(file = "../data/02_dat_clean_human_suppl.tsv.gz")
 ```
 
 We are going to merge our clean human data sets and select only the variables that we want
@@ -74,6 +77,6 @@ human_aug_log2fc
 ```{r}
 #Write the augmented datasets to two tsv files
 
-write_tsv(human_aug, "../data/03_dat_aug_human.tsv")
-write_tsv(human_aug_log2fc, "../data/03_dat_aug_human_log2fc.tsv")
+write_tsv(human_aug, "../data/03_dat_aug_human.tsv.gz")
+write_tsv(human_aug_log2fc, "../data/03_dat_aug_human_log2fc.tsv.gz")
 ```

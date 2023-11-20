@@ -10,6 +10,9 @@ library(tidyverse)
 library(ggplot2) 
 library(purrr) 
 library(broom)
+
+human_aug <- read_tsv(file = "../data/03_dat_aug_human.tsv.gz")
+human_aug_log2fc <- read_tsv(file = "../data/03_dat_aug_human_log2fc.tsv.gz")
 ```
 
 We want to create a subset where we don't take into account genes in specific cell lines with the same expression levels with and without treatment.

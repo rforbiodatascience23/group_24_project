@@ -10,6 +10,9 @@ library(dplyr)
 library(ggplot2)
 library(tidyr)
 library(patchwork)
+
+human_aug <- read_tsv(file = "../data/03_dat_aug_human.tsv.gz")
+human_aug_log2fc <- read_tsv(file = "../data/03_dat_aug_human_log2fc.tsv.gz")
 ```
 
 Categorical variables: gene_id, cell_line, treatment, genotype
@@ -67,27 +70,18 @@ We can see now that the distribution is less skewed but we can still see that th
 
 The bulk of zeros suggests that, for many genes in many cell lines, there is no difference in expression between the two conditions. This is a common observation, as many genes in different cell lines may not respond strongly to experimental conditions
 
-`{# {r} # human_trans_wide |>  #   sample_n(50)|> #   ggplot(aes(x = cell_line,  #              y = gene_id,  #              fill = log2fc))+ #   geom_tile()+ #   scale_fill_gradientn(colors=c('blue','white','salmon'))+ #   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1),axis.text=element_text(size=4),axis.title=element_text(size=5))+ #   theme(legend.position = 'bottom',legend.key.size = unit(5, 'mm'),legend.title= element_text(size=5),legend.text=element_text(size=5))+ #   coord_fixed(ratio=0.6)`
-
 ```{r}
-human_aug %>% 
-  ggplot(aes(x = genotype , y =log2_expression_levels)) +
+average_expression_treatment <- human_aug |>
+  group_by(cell_line) %>%
+  summarise(average_expression = mean(expression_levels, na.rm = TRUE))
+
+human_aug |> 
+  ggplot(aes(x = genotype , y =expression_levels,color=treatment)) +
   geom_boxplot()
-```
 
-```{r}
-human_joined %>% 
-  ggplot(aes(x = cell_line, y = expression_levels, color = treatment))+
-  geom_boxplot()+
-  coord_flip()
-```
-
-```{r}
-human_aug_log2fc %>% 
-  mutate(cell_line = factor(human_aug_log2fc$cell_line, levels = (c("A375","FemxI", "FemxV", "LOX", "MeWo", "Skmel28", 
-                                                "WM115", "WM1341", "WM1366", "WM1382", "WM239", 
-                                                "WM266", "WM35", "WM45.1", "WM793", "WM852", "WM9", 
-                                                "WM983"))))
+average_expression_treatment |>
+  ggplot(aes(x=cell_line, y=average_expression))+
+  geom_bar(stat="identity",fill='blue')
 ```
 
 ```{r}
@@ -119,5 +113,51 @@ gene_diff %>%
 ```
 
 ```{r}
+library(viridis)
+library(ggridges)
 
+human_aug_log2fc|>
+  filter(log2foldchange!=0)|>
+ggplot(aes(x=log2foldchange,y=cell_line,fill=cell_line))+
+  geom_density_ridges()+
+  labs(x='OTU Count',y='Taxa identified',title='OTU Count Distribution for 5 Taxa Stratified on Site',caption='Data from blah blah')+
+  viridis::scale_fill_viridis(discrete=TRUE,alpha=0.5)+
+  theme(legend.position='bottom')+
+  coord_cartesian(xlim = c(-1, 1))
+
+```
+
+```{r}
+human_aug_log2fc|>
+  select(-genotype)|>
+  filter(cell_line %in% c("LOX","A375"))|>
+  sample_n(50)|>
+ggplot(aes(x=gene_id,y=cell_line,fill=log2foldchange))+
+  geom_tile()+
+  scale_fill_gradient2(low = 'blue', mid = 'pink', high ='red', midpoint= 0)+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1),axis.text=element_text(size=4),axis.title=element_text(size=5))+
+  theme(legend.position = 'bottom',legend.key.size = unit(5, 'mm'),legend.title=element_text(size=5),legend.text=element_text(size=5))+
+  coord_fixed(ratio=0.6)
+```
+
+```{r}
+down <- human_aug_log2fc |>
+  arrange(log2foldchange)|>
+  head(25)
+
+up <- human_aug_log2fc |>
+  arrange(desc(log2foldchange))|>
+  head(25)
+
+up_and_down <- bind_rows(down, up)|>
+  select(-genotype)
+up_and_down
+
+up_and_down|>
+ggplot(aes(x=gene_id,y=cell_line,fill=log2foldchange))+
+  geom_tile()+
+  scale_fill_gradient2(low = 'blue', high ='red', midpoint= 0)+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1),axis.text=element_text(size=4),axis.title=element_text(size=5))+
+  theme(legend.position = 'bottom',legend.key.size = unit(5, 'mm'),legend.title=element_text(size=5),legend.text=element_text(size=5))+
+  coord_fixed(ratio=0.6)
 ```

@@ -11,6 +11,9 @@ library(stringr)
 library(dplyr)
 library(tidyr)
 source("../R/99_proj_func.R")
+
+human_data <- read_tsv(file = "../data/01_dat_load_human.tsv.gz")
+human_suppl_data <- read_tsv(file = "../data/01_dat_load_human_suppl.tsv.gz")
 ```
 
 ```{r}
@@ -129,6 +132,6 @@ human_suppl_clean
 ```{r}
 #Write the two clean datasets to tsv files
 
-write_tsv(human_clean_long, "../data/02_dat_clean_human.tsv")
-write_tsv(human_suppl_clean, "../data/02_dat_clean_human_suppl.tsv")
+write_tsv(human_clean_long, "../data/02_dat_clean_human.tsv.gz")
+write_tsv(human_suppl_clean, "../data/02_dat_clean_human_suppl.tsv.gz")
 ```
