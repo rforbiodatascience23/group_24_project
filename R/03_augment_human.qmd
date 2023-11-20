@@ -11,22 +11,17 @@ library(patchwork)
 library(ggplot2)
 ```
 
-```{r}
-human_clean_long
-```
-
 We are going to merge our clean human data sets and select only the variables that we want
 
 ```{r}
 human_joined <- human_clean_long |> 
   left_join(human_suppl_clean, join_by(treatment, cell_line)) |>
   select(gene_id,
-         symbol,
          cell_line,
          treatment,
          expression_levels,
          genotype) |>
-  relocate(genotype, .before = 2)
+  relocate(genotype, .before = 3)
 
 human_joined
 ```
@@ -44,49 +39,41 @@ min_pos_value <- human_joined |>
   summarize(min = min(expression_levels)) |>
   pull()
 
-human_trans <- human_joined |> 
+human_aug <- human_joined |> 
   mutate(expression_levels = (expression_levels + 0.99 * min_pos_value)) 
 
-human_trans
+human_aug
 ```
 
 ```{r}
-# Now we log2 transform the expression levels 
-human_trans <- human_trans |> 
-  mutate(log2_expression_levels = log2(expression_levels)) |>
-  select(-expression_levels)
+# To be used for the bar plots
+human_aug <- human_aug |> 
+  mutate(log2_expression_levels = log2(expression_levels)) 
 
-human_trans
+human_aug
 ```
 
 ```{r}
- # We also want to create a wide version where the compounds are on different columns 
- human_trans_wide <- human_trans |> 
-   pivot_wider(names_from = treatment, 
-               values_from = log2_expression_levels )
- human_trans_wide
+human_aug_sep_treat <- human_aug |>
+  select(-expression_levels)|>
+  pivot_wider(names_from = "treatment",
+              values_from = "log2_expression_levels")
+
+human_aug_sep_treat
 ```
 
 ```{r}
-#Our purpose is to find genes that were either up or down regulated when treating the cells with G007.LK in comparison when we only provide them the solvent DMSO. For that reason we calculate the log2 fold change, which is a way of measuring change in expression level of a gene between two different conditions.
+# To be used for PCA 
+human_aug_log2fc <- human_aug_sep_treat |>
+  mutate(log2foldchange = G007.LK - DMSO)|>
+  select(-c(DMSO, G007.LK))
 
- human_trans_wide <- human_trans_wide |>
-   mutate(log2fc = G007.LK - DMSO)
-
- human_trans_wide
+human_aug_log2fc
 ```
 
 ```{r}
-# Here we create dummy variables to be used for analysis later on
-human_to_analyze <- human_trans |> 
-  mutate(Treatment = case_when(Treatment == "DMSO" ~ 0,
-                               Treatment == "G007.LK" ~ 1))
+#Write the augmented datasets to two tsv files
 
-human_to_analyze
-```
-
-```{r}
-#Write the augmented dataset to a tsv file
-
-write_tsv(human_data_clean_long, "../data/03_dat_aug_human.tsv")
+write_tsv(human_aug, "../data/03_dat_aug_human.tsv")
+write_tsv(human_aug_log2fc, "../data/03_dat_aug_human_log2fc.tsv")
 ```

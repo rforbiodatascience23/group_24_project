@@ -120,7 +120,8 @@ human_suppl_clean
 ```{r}
 human_suppl_clean <- human_suppl_clean |> 
   select(-c(extract_name,
-            assay_name))
+            assay_name,
+            factor_value_compound))
 
 human_suppl_clean
 ```
