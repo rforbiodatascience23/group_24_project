@@ -184,3 +184,22 @@ histogram_percentage <- zero_counts_genes %>%
 # Plot the histogram
 print(histogram_percentage)
 ```
+
+```{r}
+active_genes_per_cell <- human_clean_long %>%
+  filter(expression_levels > 0) %>%
+  group_by(cell_line) %>%
+  summarise(active_genes = n_distinct(gene_id))
+
+# Plot number of active genes per treatment
+active_genes_plot <- ggplot(active_genes_per_cell, aes(x = cell_line, y = active_genes)) +
+  geom_bar(stat = "identity", fill = "orange") +
+  theme_minimal() +
+  labs(title = "Number of Active Genes per Cell Line", x = "Cell Lines", y = "Number of Active Genes")+
+  theme(
+    axis.text.x = element_text(angle = 45)
+  )+
+  scale_y_continuous(breaks = seq(0,27500, by = 2500))
+
+print(active_genes_plot)
+```
