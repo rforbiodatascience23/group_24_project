@@ -20,15 +20,55 @@ We check the distribution of expression levels
 
 ###DESC_1
 
+```{r}
+###DESC_1 
+DMSO_freq <- human_joined |> 
+  filter(treatment == "DMSO") |> 
+  ggplot(mapping = aes(x = expression_levels)) +
+  geom_freqpoly()
+
+G007.LK_freq <- human_joined |>
+  filter(treatment == "G007.LK") |> 
+  ggplot(mapping = aes(x = expression_levels)) +
+  geom_freqpoly()
+
+DMSO_freq + G007.LK_freq
+```
+
+We observe many observation equal to zero, but how many of them are there for each treatment?
+
 ###DESC_2
+
+```{r}
+#DESC_2 
+human_joined |> 
+  filter(Treatment == "DMSO") |> 
+  summarise(DMSO_0 = sum(Expression_levels == 0))
+
+human_joined |>
+  filter(Treatment == "G007.LK") |> 
+  summarise(G007.LK_0 = sum(Expression_levels == 0))
+```
 
 We then check the distribution of expression levels after log2 transformation
 
 ```{r}
-human_joined_aug |>
-  ggplot(mapping = aes(x = Log_expression_levels))+
-  geom_freqpoly()
+### DESC_3
+ DMSO_freq_log <- human_trans |>
+   ggplot(mapping = aes(x = log2DMSO))+
+   geom_freqpoly() #
+
+ G007.LK_freq_log <- human_trans |>
+   ggplot(mapping = aes(x = log2G007.LK))+
+   geom_freqpoly()
+
+
+ DMSO_freq_log + G007.LK_freq_log
 ```
+
+We can see now that the distribution is less skewed but we can still see that the majority of the observations are equal to zero (equal to -33.92 after the log2 transformation).
+
+The bulk of zeros suggests that, for many genes in many cell lines, there is no difference in expression between the two groups. This is a common observation, as many genes in different cell lines may not respond strongly to experimental conditions
 
 ```{r}
 human_diff_expr |> 

@@ -26,7 +26,7 @@ human_data
 ```
 
 ```{r}
-human_data_trans <-human_data |>
+human_trans <-human_data |>
   rename_with( #we use this function in order to change the name of the columns
     ~case_when( # change the name of the column based on a condition met by str_detect
       #We see that the columns containing the cell lines contain the name of the cell lines and the DMSO or G007.LK compounds separated by a "." 
@@ -42,33 +42,23 @@ human_data_trans <-human_data |>
 
 
 #check how the column names changed
-human_data_trans
+human_trans
 ```
 
 These data are untidy. So we are going to transform them via pivoting
 
 ```{r}
 #Pivot the human dataframe
-human_data_clean_long <- human_data_trans |> 
+human_clean_long <- human_trans |> 
   pivot_longer(
     cols = -(gene_id:symbol),
-    names_to = c("Cell_line", 
-                 "Treatment"),  
-    values_to = "Expression_levels",
+    names_to = c("cell_line", 
+                 "treatment"),  
+    values_to = "expression_levels",
     names_sep = "_"
       ) 
 
-human_data_clean_long
-```
-
-The geneid and the symbol columns are different thing. If their added in the same column they represent untidy data
-
-```{r}
-# human_data_clean_long <- human_data_clean_long |>
-#   mutate( #     Gene = str_c(gene_id, symbol, sep = "_") 
-#     ,.before = 1) |>  
-#   select(-c(gene_id, symbol)) #  
-# human_data_clean_long
+human_clean_long
 ```
 
 ### \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--
@@ -77,19 +67,25 @@ The geneid and the symbol columns are different thing. If their added in the sam
 human_suppl_data
 ```
 
-The name column has the same format as the columns we pivoted before and separated them into Cell_line and Compound columns.
+The source name column has the same format as the columns we pivoted before and separated them into Cell_line and Compound columns.
 
 ```{r}
 # We will use the clean_names function provided by the janitor package in order to make our columns look more appealing
 human_suppl_clean<- human_suppl_data |> 
-  janitor::clean_names()
+  janitor::clean_names() |>
+  rename_with(
+    ~ str_remove(., "characteristics_"), 
+    starts_with("characteristics_")
+  )
+
+human_suppl_clean
 ```
 
 ```{r}
-#We separate the first column
+# We separate the first column
 # We notice an inconsistency with the names of the cell lines which creates some problems when we try to separate the two components of the first column 
 
-human_suppl_clean<-human_suppl_clean |>
+human_suppl_clean <- human_suppl_clean |>
   mutate(source_name = 
   case_when( # change the name of the column based on a condition met by str_detect
       #We see that the column source name contains the name of the cell lines and the compounds separated by a "." 
@@ -99,12 +95,14 @@ human_suppl_clean<-human_suppl_clean |>
      )# Apply case when function in each column
    ) |> 
   separate(source_name, 
-           into = c("Cell_line", "Treatment"),
+           into = c("cell_line", "treatment"),
            sep = "\\_") #rename_wet 
+
+human_suppl_clean
 ```
 
 ```{r}
-human_suppl_clean<- human_suppl_clean |> 
+human_suppl_clean <- human_suppl_clean |> 
   mutate(
     Compound_dose = str_c(factor_value_dose ,unit_dose_unit, sep = " "),
     Compound_dose = case_when(
@@ -115,21 +113,21 @@ human_suppl_clean<- human_suppl_clean |>
   )|> select(
       -c(factor_value_dose,unit_dose_unit)
     )
+
+human_suppl_clean
 ```
 
 ```{r}
 human_suppl_clean <- human_suppl_clean |> 
-  mutate(Genotype = characteristics_genotype) |>
-  select(-c(characteristics_cell_line,
-            extract_name,
+  select(-c(extract_name,
             assay_name))
 
 human_suppl_clean
 ```
 
 ```{r}
-#create the two clean datasets to 02_human_clean.tsv
+#Write the two clean datasets to tsv files
 
-write_tsv(human_data_clean_long, "../data/02_dat_clean_human.tsv")
+write_tsv(human_clean_long, "../data/02_dat_clean_human.tsv")
 write_tsv(human_suppl_clean, "../data/02_dat_clean_human_suppl.tsv")
 ```
