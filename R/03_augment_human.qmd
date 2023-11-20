@@ -21,7 +21,6 @@ We are going to merge our clean human data sets and select only the variables th
 human_joined <- human_clean_long |> 
   left_join(human_suppl_clean, join_by(treatment, cell_line)) |>
   select(gene_id,
-         symbol,
          cell_line,
          treatment,
          expression_levels,
@@ -53,11 +52,27 @@ human_trans
 ```{r}
 # Now we log2 transform the expression levels 
 human_trans <- human_trans |> 
-  mutate(log2_expression_levels = log2(expression_levels)) |>
-  select(-expression_levels)
+  mutate(log2_expression_levels = log2(expression_levels)) 
 
 human_trans
 ```
+
+```{r}
+# Here we create dummy variables to be used for analysis later on
+human_aug <- human_trans |> 
+  mutate(treatment = case_when(treatment == "DMSO" ~ 0,
+                               treatment == "G007.LK" ~ 1))
+
+human_aug
+```
+
+```{r}
+#Write the augmented dataset to a tsv file
+
+write_tsv(human_aug, "../data/03_dat_aug_human.tsv")
+```
+
+IF PCA
 
 ```{r}
  # We also want to create a wide version where the compounds are on different columns 
@@ -74,19 +89,4 @@ human_trans
    mutate(log2fc = G007.LK - DMSO)
 
  human_trans_wide
-```
-
-```{r}
-# Here we create dummy variables to be used for analysis later on
-human_to_analyze <- human_trans |> 
-  mutate(Treatment = case_when(Treatment == "DMSO" ~ 0,
-                               Treatment == "G007.LK" ~ 1))
-
-human_to_analyze
-```
-
-```{r}
-#Write the augmented dataset to a tsv file
-
-write_tsv(human_data_clean_long, "../data/03_dat_aug_human.tsv")
 ```

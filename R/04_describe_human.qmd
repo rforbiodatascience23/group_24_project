@@ -12,23 +12,21 @@ library(tidyr)
 library(patchwork)
 ```
 
-Categorical variables: Gene, Cell_line, Treatment, Genotype
+Categorical variables: gene_id, cell_line, treatment, genotype
 
-Numerical variables: Expression_levels (Measured in transcripts per million)
+Numerical variables: expression_levels, log_expression_levels (Measured in transcripts per million)
 
 We check the distribution of expression levels
 
-###DESC_1
-
 ```{r}
 ###DESC_1 
-DMSO_freq <- human_joined |> 
-  filter(treatment == "DMSO") |> 
+DMSO_freq <- human_aug |> 
+  filter(treatment == 0) |> 
   ggplot(mapping = aes(x = expression_levels)) +
   geom_freqpoly()
 
-G007.LK_freq <- human_joined |>
-  filter(treatment == "G007.LK") |> 
+G007.LK_freq <- human_aug |>
+  filter(treatment == 1) |> 
   ggplot(mapping = aes(x = expression_levels)) +
   geom_freqpoly()
 
@@ -37,29 +35,29 @@ DMSO_freq + G007.LK_freq
 
 We observe many observation equal to zero, but how many of them are there for each treatment?
 
-###DESC_2
-
 ```{r}
 #DESC_2 
-human_joined |> 
-  filter(Treatment == "DMSO") |> 
-  summarise(DMSO_0 = sum(Expression_levels == 0))
+human_aug |> 
+  filter(treatment == 0) |> 
+  summarise(DMSO_0 = sum(expression_levels == 0.99 * min_pos_value))
 
-human_joined |>
-  filter(Treatment == "G007.LK") |> 
-  summarise(G007.LK_0 = sum(Expression_levels == 0))
+human_aug |>
+  filter(treatment == 1) |> 
+  summarise(G007.LK_0 = sum(expression_levels == 0.99 * min_pos_value))
 ```
 
 We then check the distribution of expression levels after log2 transformation
 
 ```{r}
 ### DESC_3
- DMSO_freq_log <- human_trans |>
-   ggplot(mapping = aes(x = log2DMSO))+
+ DMSO_freq_log <- human_aug |>
+   filter(treatment == 0) |>
+   ggplot(mapping = aes(x = log2_expression_levels))+
    geom_freqpoly() #
 
- G007.LK_freq_log <- human_trans |>
-   ggplot(mapping = aes(x = log2G007.LK))+
+ G007.LK_freq_log <- human_aug |>
+   filter(treatment == 1) |>
+   ggplot(mapping = aes(x = log2_expression_levels))+
    geom_freqpoly()
 
 
