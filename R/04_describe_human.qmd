@@ -13,6 +13,7 @@ library(patchwork)
 
 human_aug <- read_tsv(file = "../data/03_dat_aug_human.tsv.gz")
 human_aug_log2fc <- read_tsv(file = "../data/03_dat_aug_human_log2fc.tsv.gz")
+human_clean_long <- read_tsv(file = "../data/02_dat_clean_human.tsv.gz")
 ```
 
 Categorical variables: gene_id, cell_line, treatment, genotype
@@ -160,4 +161,26 @@ ggplot(aes(x=gene_id,y=cell_line,fill=log2foldchange))+
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1),axis.text=element_text(size=4),axis.title=element_text(size=5))+
   theme(legend.position = 'bottom',legend.key.size = unit(5, 'mm'),legend.title=element_text(size=5),legend.text=element_text(size=5))+
   coord_fixed(ratio=0.6)
+```
+
+```{r}
+zero_counts_genes <- human_clean_long %>%
+  group_by(gene_id) %>%
+  summarise(zero_count = sum(expression_levels == 0))
+
+# Determine appropriate bin width
+bin_width <- 1  # Adjust this based on your data
+
+# Create a histogram plot with percentages
+histogram_percentage <- zero_counts_genes %>%
+  ggplot(aes(x = zero_count)) +
+  geom_histogram(aes(y = ..count../sum(..count..)), binwidth = bin_width, fill = "green") +
+  scale_y_continuous(labels = scales::percent_format()) +
+  theme_minimal() +
+  labs(title = "Percentage Histogram of Zero Counts",
+       x = "Zero Counts",
+       y = "Percentage of Genes")
+
+# Plot the histogram
+print(histogram_percentage)
 ```
