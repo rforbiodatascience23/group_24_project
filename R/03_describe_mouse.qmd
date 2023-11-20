@@ -1,0 +1,196 @@
+---
+title: "describe_mouse"
+format: html
+editor: visual
+---
+
+## Description
+
+Before delving into the analysis, we would like to understand the data a bit better.
+
+```{r}
+install.packages("ComplexUpset")
+install.packages("VennDiagram")
+library(VennDiagram)
+library(ComplexUpset)
+library(tidyverse)
+
+mouse_wide <- read_tsv(file = "./data/02_dat_clean_mouse.tsv.gz")
+```
+
+We want to ensure that the data-set is balanced, such that each treatment is repeated the same number of times. We do this by counting the occurences of each treatment and replicate.
+
+```{r}
+treatment_counts <- mouse_wide |>
+  count(treatment)
+replicate_counts <- mouse_wide |>
+  count(replicate)
+treatment_counts
+replicate_counts
+```
+
+We also want to understand each gene a bit better. To do this, we compute some summary statistics and count how many zeroes and nonzeroes there are in each column.
+
+```{r}
+gene_analysis <- mouse_wide %>%
+  pivot_longer( #should be a fucntion
+    cols = -c(treatment, replicate),
+    names_to = "gene",
+    values_to = "activity"
+  ) %>%
+  group_by(gene) %>%
+  summarise(
+    non_zero_count = sum(activity != 0),
+    zero_count = sum(activity == 0),
+    max_value = max(activity),
+    median_value = median(activity),
+    average_value = mean(activity)
+  )
+gene_analysis
+```
+
+We indeed have a lot of genes with no activity under any of the treatments
+
+We can also get a crude look at the average activity of the treatments compare.
+
+```{r}
+
+```
+
+```{r}
+
+genes_only_zeroes
+```
+
+```{r}
+average_activity_treatment <- mouse_wide %>%
+  pivot_longer(
+    cols = -c(treatment, replicate),
+    names_to = "gene",
+    values_to = "activity"
+  ) %>%
+  group_by(treatment) %>%
+  summarise(average_activity = mean(activity, na.rm = TRUE))
+
+# Plot average activity for each treatment
+ggplot(average_activity_treatment, aes(x = treatment, y = average_activity)) +
+  geom_bar(stat = "identity", fill = "blue") +
+  theme_minimal() +
+  labs(title = "Average Gene Activity for Each Treatment", x = "Treatment", y = "Average Activity")
+```
+
+They seem to be roughly the same, with the combined treatment being slightly higher than the rest. Lets look at the replicates within treatments as well.
+
+```{r}
+# Calculate average activity for each treatment and replicate
+average_activity_treatment_replicate <- mouse_wide %>%
+  pivot_longer(
+    cols = -c(treatment, replicate),
+    names_to = "gene",
+    values_to = "activity"
+  ) %>%
+  group_by(treatment, replicate) %>%
+  summarise(average_activity = mean(activity, na.rm = TRUE))
+
+# Plot average activity for each treatment and replicate
+ggplot(average_activity_treatment_replicate, aes(x = treatment, y = average_activity, fill = replicate)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  theme_minimal() +
+  labs(title = "Average Gene Activity by Treatment and Replicate", x = "Treatment", y = "Average Activity")
+
+```
+
+These are also very similar. It would be hard to know the treatment just from the activity. Let's look a bit more into the distribution of zeroes.
+
+```{r}
+library(tidyverse)
+
+# Calculate zero counts for each gene
+zero_counts_genes <- mouse_wide %>%
+  pivot_longer(
+    cols = -c(treatment, replicate),
+    names_to = "gene",
+    values_to = "activity"
+  ) %>%
+  group_by(gene) %>%
+  summarise(zero_count = sum(activity == 0))
+
+# Determine appropriate bin width
+bin_width <- 1  # Adjust this based on your data
+
+# Create a histogram plot with percentages
+histogram_percentage <- zero_counts_genes %>%
+  ggplot(aes(x = zero_count)) +
+  geom_histogram(aes(y = ..count../sum(..count..)), binwidth = bin_width, fill = "green") +
+  scale_y_continuous(labels = scales::percent_format()) +
+  theme_minimal() +
+  labs(title = "Percentage Histogram of Zero Counts",
+       x = "Zero Counts",
+       y = "Percentage of Genes")
+
+# Plot the histogram
+print(histogram_percentage)
+
+
+```
+
+We can see that most genes are either all zeroes(\~33%) or all non-zeroes(40%). Lets also compare number of active genes in each treatment.
+
+```{r}
+
+# Determine active genes (non-zero activity) for each treatment
+active_genes_per_treatment <- mouse_wide %>%
+  pivot_longer(
+    cols = -c(treatment, replicate),
+    names_to = "gene",
+    values_to = "activity"
+  ) %>%
+  filter(activity > 0) %>%
+  group_by(treatment) %>%
+  summarise(active_genes = n_distinct(gene))
+
+# Plot number of active genes per treatment
+active_genes_plot <- ggplot(active_genes_per_treatment, aes(x = treatment, y = active_genes)) +
+  geom_bar(stat = "identity", fill = "orange") +
+  theme_minimal() +
+  labs(title = "Number of Active Genes per Treatment", x = "Treatment", y = "Number of Active Genes")
+
+print(active_genes_plot)
+
+```
+
+Again, we get very similar numbers. Curiously, the combined treatment has lower active genes than G007LK. 
+We can also compare the active an inactive gene sets of the treatments.
+
+```{r}
+
+
+# Prepare the list of active genes for each treatment
+active_genes_sets <- mouse_wide %>%
+  pivot_longer(
+    cols = -c(treatment, replicate),
+    names_to = "gene",
+    values_to = "activity"
+  ) %>%
+  filter(activity > 0) %>%
+  select(treatment, gene) %>%
+  distinct() %>%
+  split(.$treatment) %>%
+  lapply(function(x) unique(x$gene))
+
+# Generate the Venn diagram for a subset of treatments (e.g., the first three)
+selected_treatments <- names(active_genes_sets)[1:]
+venn_data <- active_genes_sets[selected_treatments]
+
+# Create the Venn diagram
+venn_plot <- venn.diagram(
+  x = venn_data,
+  category.names = selected_treatments,
+  filename = NULL
+)
+
+# Plot the Venn diagram
+grid.newpage()
+grid.draw(venn_plot)
+
+```
