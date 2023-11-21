@@ -118,7 +118,7 @@ mouse_estimates_signif <-
 
 ```{r}
 mouse_estimates_signif |> 
-  filter(estimate > -10 & estimate < 10) |> # We apply this filtering to avoid the genes that only have significant values due to a 0 division in the relative log2 expression transforation.
+ # filter(estimate > -10 & estimate < 10) |> # We apply this filtering to avoid the genes that only have significant values due to a 0 division in the relative log2 expression transforation.
   arrange(estimate) |> 
   mutate(Gene = factor(Gene, levels = unique(Gene))) |> 
   ggplot(aes(x=estimate,y = Gene)) +

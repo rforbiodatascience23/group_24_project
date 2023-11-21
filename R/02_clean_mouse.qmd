@@ -48,7 +48,9 @@ head(mouse_data_separated)
 min_non_zero_value <- min(mouse_data_separated$expression_levels[mouse_data_separated$expression_levels > 0])
 #
 mouse_data_separated <- mouse_data_separated |>
-  mutate(expression_levels = log(expression_levels + 0.65*min_non_zero_value, 2))
+  mutate(expression_levels = ifelse(expression_levels == 0,
+                                    log(0.65 * min_non_zero_value, 2),
+                                    log(expression_levels,2)))
 
 ```
 
