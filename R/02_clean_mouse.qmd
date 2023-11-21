@@ -39,6 +39,7 @@ mouse_data_separated <- mouse_data_long %>%
 head(mouse_data_separated)
 
 ```
+
 ```{r}
 #Old code, but I (Oliver) commented it out, to work with relative expression levels, so this is not needed here anymore
 
@@ -52,9 +53,11 @@ head(mouse_data_separated)
 ```
 
 ```{r}
-mouse_data_combined <- mouse_data_separated %>%
-  mutate(gene_id_symbol = paste(gene_id, symbol, sep = "_")) |>
-  select(-gene_id, -symbol)
+#mouse_data_combined <- mouse_data_separated %>%
+#  mutate(gene_id_symbol = paste(gene_id, symbol, sep = "_")) |>
+#  select(-gene_id, -symbol)
+mouse_data_combined <- mouse_data_separated |>
+  select(-symbol)
 
 ```
 
@@ -64,7 +67,6 @@ mouse_wide<-pivot_wider(mouse_data_combined, names_from = gene_id_symbol)
 mouse_wide <- mouse_wide[-13,]
 
 ```
-
 
 ```{r}
 write_tsv(x = mouse_wide, file = str_c("../data/02_dat_clean_mouse", ".tsv.gz"))
