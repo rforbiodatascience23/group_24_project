@@ -62,7 +62,7 @@ mouse_data_combined <- mouse_data_separated |>
 ```
 
 ```{r}
-mouse_wide<-pivot_wider(mouse_data_combined, names_from = gene_id_symbol)
+mouse_wide<-pivot_wider(mouse_data_combined, names_from = gene_id)
 #drop row_id row
 mouse_wide <- mouse_wide[-13,]
 

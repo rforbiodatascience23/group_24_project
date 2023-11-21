@@ -20,19 +20,20 @@ Sys.setenv(VROOM_CONNECTION_SIZE = 3062144) # Setting a larger connection buffer
 mouse_data <- read_tsv(file = "../data/02_dat_clean_mouse.tsv.gz")
 mouse_data_suppl <- read_tsv(file = "../data/02_dat_clean_mouse_suppl.tsv.gz")
 ```
+
 Now we add the metadata to the main data
-```{r} 
+
+```{r}
 #Join main and metadata
 mouse_df <- left_join(mouse_data, mouse_data_suppl, join_by(treatment))
 ```
 
-
-We now create a new df where we lose the control group experiments (DMSO) and instead divide the noin-control values with the DMSO values of each replicate from the other treatment gene expressions, and thereby convert from expression value to relative expressions. We then log2 transofrm the relative expression, such that a 0 means no change between control and treatment, and positive values mean upregulated and negative means down_regulated
-$$
+We now create a new df where we lose the control group experiments (DMSO) and instead divide the noin-control values with the DMSO values of each replicate from the other treatment gene expressions, and thereby convert from expression value to relative expressions. We then log2 transofrm the relative expression, such that a 0 means no change between control and treatment, and positive values mean upregulated and negative means down_regulated $$
 \log(\frac{expression\_control\_trial (DMSO)}{expression\_drugX\_trial})
 $$
 
 This operation will be performed now
+
 ```{r}
 "Make a baseline dataset with the values for the control group"
 DMSO <- mouse_df |> 
@@ -57,7 +58,9 @@ rel_mouse_df <- mouse_df |>
 
 
 ```
+
 we then need to handle the inf values (originating from either 0/expression_control ot expression_treatmnet/0) and nan values that originate from 0/0
+
 ```{r}
 inf_cap_value <- 31
 rel_mouse_df <- rel_mouse_df |> 
@@ -70,24 +73,3 @@ rel_mouse_df <- rel_mouse_df |>
 ```{r}
 write_tsv(x = rel_mouse_df, file = str_c("../data/04_dat_aug_mouse", ".tsv.gz"))
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

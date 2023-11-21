@@ -43,9 +43,6 @@ human_trans <-human_data |>
      )# Apply case when function in each column
    ) #rename_with()
 
-
-#check how the column names changed
-human_trans
 ```
 
 These data are untidy. So we are going to transform them via pivoting
@@ -59,7 +56,8 @@ human_clean_long <- human_trans |>
                  "treatment"),  
     values_to = "expression_levels",
     names_sep = "_"
-      ) 
+      )|>
+  select(-symbol)
 
 human_clean_long
 ```
