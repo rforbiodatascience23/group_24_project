@@ -9,10 +9,8 @@ editor: visual
 Before delving into the analysis, we would like to understand the data a bit better.
 
 ```{r}
-install.packages("ComplexUpset")
 install.packages("VennDiagram")
 library(VennDiagram)
-library(ComplexUpset)
 library(tidyverse)
 
 mouse_wide <- read_tsv(file = "./data/02_dat_clean_mouse.tsv.gz")
