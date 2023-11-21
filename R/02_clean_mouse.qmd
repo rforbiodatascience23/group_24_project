@@ -24,7 +24,7 @@ mouse_data_long <- mouse_data %>%
   pivot_longer(
     cols = -c(gene_id, symbol), # Exclude gene_id and symbol
     names_to = "treatment_replicate",
-    values_to = "value"
+    values_to = "expression_levels"
   )
 
 # Separate the treatment and replicate information
@@ -45,10 +45,10 @@ head(mouse_data_separated)
 
 # Log2 transform the code, but first add a very samll number to all values, in order to avoid log(0). 
 # The number we add is 99% fo the minimum value, so that we can still differentiate the artificial low values with the actual min, if needed.
-#min_non_zero_value <- min(mouse_data_separated$value[mouse_data_separated$value > 0])
+min_non_zero_value <- min(mouse_data_separated$expression_levels[mouse_data_separated$expression_levels > 0])
 #
-#mouse_data_separated <- mouse_data_separated |>
-#  mutate(value = log(value + 0.99*min_non_zero_value, 2))
+mouse_data_separated <- mouse_data_separated |>
+  mutate(expression_levels = log(expression_levels + 0.65*min_non_zero_value, 2))
 
 ```
 
@@ -62,7 +62,8 @@ mouse_data_combined <- mouse_data_separated |>
 ```
 
 ```{r}
-mouse_wide<-pivot_wider(mouse_data_combined, names_from = gene_id)
+mouse_wide <- mouse_data_combined |> 
+  pivot_wider(names_from = gene_id, values_from = expression_levels)
 #drop row_id row
 mouse_wide <- mouse_wide[-13,]
 
