@@ -74,3 +74,61 @@ mouse_wide <- mouse_wide[-13,]
 ```{r}
 write_tsv(x = mouse_wide, file = str_c("../data/02_dat_clean_mouse", ".tsv.gz"))
 ```
+
+```{r}
+#this is very costly to do on the entire dataframe
+#test <- mouse_wide[3:10]
+#test <- mouse_wide[3:]
+zeroes_removed <- test %>% select_if(~ !all(. == 0))
+
+# Replace zeroes with 65% of the minimum non-zero value in each row
+zeroes_replaced <- zeroes_removed %>% 
+  rowwise() %>% 
+  mutate(across(everything(), ~ ifelse(. == 0, 0.65 * min(c_across(where(is.numeric))[c_across(where(is.numeric)) != 0], na.rm = TRUE), .)))
+
+```
+
+```{}
+```
+
+```{r}
+df <- zeroes_replaced
+# Function to calculate pairwise log-ratios
+pairwise_log_ratios <- function(row) {
+  combn(row, 2, function(pair) log(pair[1] / pair[2]))
+}
+
+# Calculate pairwise log-ratios for each row
+log_ratios_list <- apply(df, 1, pairwise_log_ratios)
+
+# Calculate variance for each pair of columns
+num_cols <- ncol(df)
+var_matrix <- matrix(NA, ncol = num_cols, nrow = num_cols)
+combinations <- combn(num_cols, 2)
+
+for (k in 1:ncol(combinations)) {
+  # Extracting each combination
+  i <- combinations[1, k]
+  j <- combinations[2, k]
+
+  # Extracting all log-ratios for the particular combination of columns
+  log_ratios <- sapply(log_ratios_list, function(x) x[k])
+
+  # Calculating variance for this pair of columns
+  var_matrix[i, j] <- var(log_ratios, na.rm = TRUE)
+  var_matrix[j, i] <- var_matrix[i, j]  # Mirror the variance as the matrix is symmetric
+}
+
+# Convert the matrix to a dataframe
+var_df <- as.data.frame(var_matrix)
+colnames(var_df) <- colnames(df)
+rownames(var_df) <- colnames(df)
+
+# Calculate total variation
+totvar <- 1 / (2 * num_cols) * sum(var_matrix, na.rm = TRUE)
+
+# Perturb and Scale DataFrame
+gm <- apply(df, 1, function(row) exp(mean(log(row), na.rm = TRUE)))
+df_perturbed <- sweep(df, 1, gm, "/")
+df_scaled <- df_perturbed ^ (1 / totvar)
+```
