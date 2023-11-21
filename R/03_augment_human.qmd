@@ -43,9 +43,11 @@ min_pos_value <- human_joined |>
   pull()
 
 human_aug <- human_joined |> 
-  mutate(expression_levels = (expression_levels + 0.99 * min_pos_value)) 
+  mutate(expression_levels = (expression_levels + 0.65 * min_pos_value)) 
 
 human_aug
+
+## add it to only zero
 ```
 
 ```{r}
@@ -68,8 +70,8 @@ human_aug_sep_treat
 ```{r}
 # To be used for PCA 
 human_aug_log2fc <- human_aug_sep_treat |>
-  mutate(log2foldchange = G007.LK - DMSO)|>
-  select(-c(DMSO, G007.LK))
+  mutate(log2foldchange = G007LK - DMSO)|>
+  select(-c(DMSO, G007LK))
 
 human_aug_log2fc
 ```

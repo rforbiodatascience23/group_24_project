@@ -12,8 +12,8 @@ Before delving into the analysis, we would like to understand the data a bit bet
 install.packages("VennDiagram")
 library(VennDiagram)
 library(tidyverse)
-
-mouse_wide <- read_tsv(file = "./data/02_dat_clean_mouse.tsv.gz")
+Sys.setenv(VROOM_CONNECTION_SIZE = 3062144)
+mouse_wide <- read_tsv(file = "../data/02_dat_clean_mouse.tsv.gz")
 ```
 
 We want to ensure that the data-set is balanced, such that each treatment is repeated the same number of times. We do this by counting the occurences of each treatment and replicate.
@@ -157,8 +157,7 @@ print(active_genes_plot)
 
 ```
 
-Again, we get very similar numbers. Curiously, the combined treatment has lower active genes than G007LK. 
-We can also compare the active an inactive gene sets of the treatments.
+Again, we get very similar numbers. Curiously, the combined treatment has lower active genes than G007LK. We can also compare the active an inactive gene sets of the treatments.
 
 ```{r}
 

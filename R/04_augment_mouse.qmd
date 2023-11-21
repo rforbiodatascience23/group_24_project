@@ -59,7 +59,6 @@ rel_mouse_df <- mouse_df |>
 
 ```
 
-
 ```{r}
 write_tsv(x = rel_mouse_df, file = str_c("../data/04_dat_aug_mouse", ".tsv.gz"))
 ```

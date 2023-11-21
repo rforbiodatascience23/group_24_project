@@ -28,12 +28,12 @@ DMSO_freq <- human_aug |>
   ggplot(mapping = aes(x = expression_levels)) +
   geom_freqpoly()
 
-G007.LK_freq <- human_aug |>
-  filter(treatment == "G007.LK") |> 
+G007LK_freq <- human_aug |>
+  filter(treatment == "G007LK") |> 
   ggplot(mapping = aes(x = expression_levels)) +
   geom_freqpoly()
 
-DMSO_freq + G007.LK_freq
+DMSO_freq + G007LK_freq
 ```
 
 We observe many observations equal to zero, but how many of them are there for each treatment?
@@ -42,11 +42,11 @@ We observe many observations equal to zero, but how many of them are there for e
 # Here "0.99 * min_pos_value" is equal to zero expression levels before adding the offset 
 human_aug |> 
   filter(treatment == "DMSO") |> 
-  summarise(DMSO_0 = sum(expression_levels == 0.99 * min_pos_value))
+  summarise(DMSO_0 = sum(expression_levels == 0.65 * min_pos_value))
 
 human_aug |>
-  filter(treatment == "G007.LK") |> 
-  summarise(G007.LK_0 = sum(expression_levels == 0.99 * min_pos_value))
+  filter(treatment == "G007LK") |> 
+  summarise(G007LK_0 = sum(expression_levels == 0.65 * min_pos_value))
 ```
 
 We then check the distribution of expression levels after log2 transformation
@@ -58,13 +58,13 @@ We then check the distribution of expression levels after log2 transformation
    ggplot(mapping = aes(x = log2_expression_levels))+
    geom_freqpoly() #
 
- G007.LK_freq_log <- human_aug |>
-   filter(treatment == "G007.LK") |>
+ G007LK_freq_log <- human_aug |>
+   filter(treatment == "G007LK") |>
    ggplot(mapping = aes(x = log2_expression_levels))+
    geom_freqpoly()
 
 
- DMSO_freq_log + G007.LK_freq_log
+ DMSO_freq_log + G007LK_freq_log
 ```
 
 We can see now that the distribution is less skewed but we can still see that the majority of the observations are equal to zero (equal to -33.92 after the log2 transformation).
@@ -73,7 +73,7 @@ The bulk of zeros suggests that, for many genes in many cell lines, there is no 
 
 ```{r}
 average_expression_treatment <- human_aug |>
-  group_by(cell_line) %>%
+  group_by(cell_line) |>
   summarise(average_expression = mean(expression_levels, na.rm = TRUE))
 
 human_aug |> 
@@ -88,8 +88,8 @@ average_expression_treatment |>
 ```{r}
 gene_diff <- human_aug_log2fc %>%
   group_by(gene_id) %>%
-#  mutate(rank =(row_number(desc(abs(round(log2foldchange, 2)))))) %>%
- # filter(rank <= 4) %>% # we take the best 4 log2fchange
+ mutate(rank =(row_number(desc(abs(round(log2foldchange, 2)))))) %>%
+ filter(rank <= 4) %>% # we take the best 4 log2fchange
   ungroup() %>%
   select(gene_id,cell_line, log2foldchange)
 ```
@@ -131,7 +131,7 @@ ggplot(aes(x=log2foldchange,y=cell_line,fill=cell_line))+
 ```{r}
 human_aug_log2fc|>
   select(-genotype)|>
-  filter(cell_line %in% c("LOX","A375"))|>
+  # filter(cell_line %in% c("LOX","A375"))|>
   sample_n(50)|>
 ggplot(aes(x=gene_id,y=cell_line,fill=log2foldchange))+
   geom_tile()+
@@ -144,11 +144,13 @@ ggplot(aes(x=gene_id,y=cell_line,fill=log2foldchange))+
 ```{r}
 down <- human_aug_log2fc |>
   arrange(log2foldchange)|>
-  head(25)
+  filter(cell_line == "A375")|>
+  head(5)
 
 up <- human_aug_log2fc |>
   arrange(desc(log2foldchange))|>
-  head(25)
+  filter(cell_line == "A375")|>
+  head(5)
 
 up_and_down <- bind_rows(down, up)|>
   select(-genotype)

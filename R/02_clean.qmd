@@ -38,7 +38,7 @@ human_trans <-human_data |>
                                              "_DMSO"),
        str_detect(., ".G007.LK") ~ str_replace_all(.,
                                                 ".G007.LK",
-                                                "_G007.LK"),
+                                                "_G007LK"),
        TRUE ~ .  # Keep the original name of the columns if the aforementioned conditions are not met
      )# Apply case when function in each column
    ) #rename_with()
@@ -91,7 +91,7 @@ human_suppl_clean <- human_suppl_clean |>
   case_when( # change the name of the column based on a condition met by str_detect
       #We see that the column source name contains the name of the cell lines and the compounds separated by a "." 
        str_detect(source_name, "\\.DMSO$") ~ str_replace(source_name,"\\.DMSO", "_DMSO"),
-       str_detect(source_name, "\\.G007.LK") ~ str_replace(source_name,"\\.G007.LK", "_G007.LK"),
+       str_detect(source_name, "\\.G007.LK") ~ str_replace(source_name,"\\.G007.LK", "_G007LK"),
        TRUE ~ source_name  # Keep the original name of the columns if the aforementioned conditions are not met
      )# Apply case when function in each column
    ) |> 
