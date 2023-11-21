@@ -14,22 +14,23 @@ library(broom)
 library(ggrepel)
 ```
 
-
 This analysis will see which genes are significantly up and down regulated in the treatment trials
 
 Here we begin by loading the augmented mouse dataset
+
 ```{r}
 Sys.setenv(VROOM_CONNECTION_SIZE = 3062144) # Setting a larger connection buffer to be able to load the data
 # Loading the data
 mouse_df <- read_tsv(file = "../data/04_dat_aug_mouse.tsv.gz")
 ```
-First we loose the "Factor Value[compound]" (concentration) column since we don't need it in this analysis
+
+First we loose the "Factor Value\[compound\]" (concentration) column since we don't need it in this analysis
+
 ```{r}
 mouse_df = mouse_df |> 
   select(-c(`Factor Value[compound]`))
 
 ```
-
 
 Now lets do an analysis to see which genes are significantly up and down regulated in the treatment trials.
 
@@ -69,10 +70,9 @@ mouse_df_long_nested <- mouse_df_long_nested |>
 
 ```{r}
 mouse_df_long_nested |>
-  filter(gene == "g1E11") |>
+  filter(Gene == "g1E11") |>
   pull(model_object)
 ```
-
 
 ```{r}
 mouse_df_long_nested <- 
@@ -84,12 +84,10 @@ mouse_df_long_nested <-
                           conf.level = 0.95)))
 ```
 
-
 ```{r}
 mouse_estimates <- mouse_df_long_nested|> 
   unnest(model_object_tidy)
 ```
-
 
 ```{r}
 mouse_estimates <- 
@@ -98,23 +96,17 @@ mouse_estimates <-
   ungroup(Gene)
 ```
 
-
 ```{r}
 mouse_estimates <- 
   mouse_estimates |> mutate(q.value = p.adjust(p.value, method = "bonferroni"),
                             signif = q.value < 0.05)
 ```
 
-
-
 ```{r}
 mouse_estimates_signif <- 
   mouse_estimates |> 
   filter(signif==TRUE)
 ```
-
-
-
 
 ```{r}
 mouse_estimates_signif |> 
@@ -135,12 +127,9 @@ mouse_estimates_signif |>
   geom_vline(aes(xintercept=0), linetype="solid", color="black")
 ```
 
-
-
-
 ```{r}
 mouse_estimates |> 
-filter(estimate > -10 & estimate < 10) |> # We apply this filtering to avoid the genes that only have significant values due to a 0 division in the relative log2 expression transforation.
+#filter(estimate > -10 & estimate < 10) |> # We apply this filtering to avoid the genes that only have significant values due to a 0 division in the relative log2 expression transforation.
 mutate('neglog10p'= -log10(p.value)) |> 
 arrange(estimate) |> 
 mutate(Gene = factor(Gene, levels = unique(Gene))) |> 
@@ -149,32 +138,15 @@ geom_point(alpha=0.1) +
 labs(title='Genes Associated with treatment of GK007 in mouse', 
      xlab='Estimate (95% CIs)', 
      ylab='-log10(p)') +
-scale_color_manual(values = c("FALSE" = "red", "TRUE" = "turquoise")) +
-geom_text_repel(aes(label=ifelse(signif, as.character(Gene), "")), 
-                size = 2,             
-                label.size = NA,      
-                max.overlaps = Inf,   
-                box.padding = 0.3,    
-                point.padding = 0.4) +
+scale_color_manual(values = c("FALSE" = "red", "TRUE" = "turquoise")) #+
+#geom_text_repel(aes(label=ifelse(signif, as.character(Gene), "")), 
+#                size = 2,             
+#                label.size = NA,      
+#                max.overlaps = Inf,   
+#                box.padding = 0.3,    
+#                point.padding = 0.4) +
 theme(plot.title = element_text(size = 11))
 ```
 
-
-
-
-
-
-
-
-
-
-
-
-
-This is not this code, but here we can quickly get the mean across the repetions.
-```{r}
-mouse_df |> # Get the mean across the repetitions
-    group_by(treatment) |> 
-    summarise(across(-c(replicate), mean, na.rm = TRUE))
-  
+```{}
 ```

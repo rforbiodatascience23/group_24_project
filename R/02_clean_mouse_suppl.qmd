@@ -18,7 +18,8 @@ library(tidyverse)
 df_mouse_supp <- read_tsv(file = "../data/01_dat_load_mouse_suppl.tsv.gz")
 head(df_mouse_supp)
 ```
-Upon inspection of the dataset it is seen that most supplementary data are simply consistent general experiment metadata that do not vary between the individual drug experiments. The concentration of the drugs used is the only column that could pose any valuable information and we there filter the dataset to only retain this value for each compound. 
+
+Upon inspection of the dataset it is seen that most supplementary data are simply consistent general experiment metadata that do not vary between the individual drug experiments. The concentration of the drugs used is the only column that could pose any valuable information and we there filter the dataset to only retain this value for each compound.
 
 DISCLAIMER: This metadata might not be relevant for the analysis, but we mainly do it to display that we know how to joing metadata to main data
 
