@@ -10,62 +10,198 @@ library(dplyr)
 library(ggplot2)
 library(tidyr)
 library(patchwork)
+
+human_aug <- read_tsv(file = "../data/03_dat_aug_human.tsv.gz")
+human_aug_log2fc <- read_tsv(file = "../data/03_dat_aug_human_log2fc.tsv.gz")
+human_clean_long <- read_tsv(file = "../data/02_dat_clean_human.tsv.gz")
 ```
 
-Categorical variables: Gene, Cell_line, Treatment, Genotype
+Categorical variables: gene_id, cell_line, treatment, genotype
 
-Numerical variables: Expression_levels (Measured in transcripts per million)
+Numerical variables: expression_levels, log_expression_levels, log2foldchange
 
 We check the distribution of expression levels
 
-###DESC_1
+```{r}
+DMSO_freq <- human_aug |> 
+  filter(treatment == "DMSO") |> 
+  ggplot(mapping = aes(x = expression_levels)) +
+  geom_freqpoly()
 
-###DESC_2
+G007LK_freq <- human_aug |>
+  filter(treatment == "G007LK") |> 
+  ggplot(mapping = aes(x = expression_levels)) +
+  geom_freqpoly()
+
+DMSO_freq + G007LK_freq
+```
+
+We observe many observations equal to zero, but how many of them are there for each treatment?
+
+```{r}
+# Here "0.99 * min_pos_value" is equal to zero expression levels before adding the offset 
+human_aug |> 
+  filter(treatment == "DMSO") |> 
+  summarise(DMSO_0 = sum(expression_levels == 0.65 * min_pos_value))
+
+human_aug |>
+  filter(treatment == "G007LK") |> 
+  summarise(G007LK_0 = sum(expression_levels == 0.65 * min_pos_value))
+```
 
 We then check the distribution of expression levels after log2 transformation
 
 ```{r}
-human_joined_aug |>
-  ggplot(mapping = aes(x = Log_expression_levels))+
-  geom_freqpoly()
+### DESC_3
+ DMSO_freq_log <- human_aug |>
+   filter(treatment == "DMSO") |>
+   ggplot(mapping = aes(x = log2_expression_levels))+
+   geom_freqpoly() #
+
+ G007LK_freq_log <- human_aug |>
+   filter(treatment == "G007LK") |>
+   ggplot(mapping = aes(x = log2_expression_levels))+
+   geom_freqpoly()
+
+
+ DMSO_freq_log + G007LK_freq_log
+```
+
+We can see now that the distribution is less skewed but we can still see that the majority of the observations are equal to zero (equal to -33.92 after the log2 transformation).
+
+The bulk of zeros suggests that, for many genes in many cell lines, there is no difference in expression between the two conditions. This is a common observation, as many genes in different cell lines may not respond strongly to experimental conditions
+
+```{r}
+average_expression_treatment <- human_aug |>
+  group_by(cell_line) |>
+  summarise(average_expression = mean(expression_levels, na.rm = TRUE))
+
+human_aug |> 
+  ggplot(aes(x = genotype , y =expression_levels,color=treatment)) +
+  geom_boxplot()
+
+average_expression_treatment |>
+  ggplot(aes(x=cell_line, y=average_expression))+
+  geom_bar(stat="identity",fill='blue')
 ```
 
 ```{r}
-human_diff_expr |> 
-  sample_n(100) |>
-  ggplot(aes(x = Cell_line, 
-             y = Gene, 
-             fill = log2fold))+
+gene_diff <- human_aug_log2fc %>%
+  group_by(gene_id) %>%
+ mutate(rank =(row_number(desc(abs(round(log2foldchange, 2)))))) %>%
+ filter(rank <= 4) %>% # we take the best 4 log2fchange
+  ungroup() %>%
+  select(gene_id,cell_line, log2foldchange)
+```
+
+```{r}
+
+gene_diff <- human_aug_log2fc %>%
+  group_by(gene_id) %>%
+  mutate(rank =(row_number(desc(log2foldchange)))) %>%
+  filter(rank <= 4) %>% # we take the best 4 log2fchange
+  ungroup() %>%
+  select(gene_id,cell_line, log2foldchange) 
+
+gene_diff
+```
+
+```{r}
+gene_diff %>% 
+  ggplot(aes(x = cell_line, y = log2foldchange))+
+  geom_boxplot()+
+  coord_flip()
+```
+
+```{r}
+library(viridis)
+library(ggridges)
+
+human_aug_log2fc|>
+  filter(log2foldchange!=0)|>
+ggplot(aes(x=log2foldchange,y=cell_line,fill=cell_line))+
+  geom_density_ridges()+
+  labs(x='OTU Count',y='Taxa identified',title='OTU Count Distribution for 5 Taxa Stratified on Site',caption='Data from blah blah')+
+  viridis::scale_fill_viridis(discrete=TRUE,alpha=0.5)+
+  theme(legend.position='bottom')+
+  coord_cartesian(xlim = c(-1, 1))
+
+```
+
+```{r}
+human_aug_log2fc|>
+  select(-genotype)|>
+  # filter(cell_line %in% c("LOX","A375"))|>
+  sample_n(50)|>
+ggplot(aes(x=gene_id,y=cell_line,fill=log2foldchange))+
   geom_tile()+
-  scale_fill_gradientn(colors=c('blue','white','salmon1'))+
+  scale_fill_gradient2(low = 'blue', mid = 'pink', high ='red', midpoint= 0)+
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1),axis.text=element_text(size=4),axis.title=element_text(size=5))+
-  theme(legend.position = 'bottom',legend.key.size = unit(5, 'mm'),legend.title= element_text(size=5),legend.text=element_text(size=5))+
+  theme(legend.position = 'bottom',legend.key.size = unit(5, 'mm'),legend.title=element_text(size=5),legend.text=element_text(size=5))+
   coord_fixed(ratio=0.6)
 ```
 
-Here we can see that teh distribution of both of the compounds is 0. This is something that is anticipated since we are dealing with RNA data and not all of the genes are expressed in all cell types.
+```{r}
+down <- human_aug_log2fc |>
+  arrange(log2foldchange)|>
+  filter(cell_line == "A375")|>
+  head(5)
 
-In order to move on with our analysis we have to log transform our data so we can get some insghts
+up <- human_aug_log2fc |>
+  arrange(desc(log2foldchange))|>
+  filter(cell_line == "A375")|>
+  head(5)
 
-What happens when we add G007,LK
+up_and_down <- bind_rows(down, up)|>
+  select(-genotype)
+up_and_down
 
-```         
+up_and_down|>
+ggplot(aes(x=gene_id,y=cell_line,fill=log2foldchange))+
+  geom_tile()+
+  scale_fill_gradient2(low = 'blue', high ='red', midpoint= 0)+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1),axis.text=element_text(size=4),axis.title=element_text(size=5))+
+  theme(legend.position = 'bottom',legend.key.size = unit(5, 'mm'),legend.title=element_text(size=5),legend.text=element_text(size=5))+
+  coord_fixed(ratio=0.6)
 ```
 
-These are the genes that are not expressed by the DMSO
+```{r}
+zero_counts_genes <- human_clean_long %>%
+  group_by(gene_id) %>%
+  summarise(zero_count = sum(expression_levels == 0))
 
-From the last two illustrations we can see that half of the genes are not expressed when DMSO is introduced
+# Determine appropriate bin width
+bin_width <- 1  # Adjust this based on your data
 
-We can see that there are less genes that there are 2731 more genes that were expressed when we introduced the G007.LK
+# Create a histogram plot with percentages
+histogram_percentage <- zero_counts_genes %>%
+  ggplot(aes(x = zero_count)) +
+  geom_histogram(aes(y = ..count../sum(..count..)), binwidth = bin_width, fill = "green") +
+  scale_y_continuous(labels = scales::percent_format()) +
+  theme_minimal() +
+  labs(title = "Percentage Histogram of Zero Counts",
+       x = "Zero Counts",
+       y = "Percentage of Genes")
 
-Estimate the difference in gene expression when we add the G007.LK. DESeq analysis..
+# Plot the histogram
+print(histogram_percentage)
+```
 
-Questions to be investigated:
+```{r}
+active_genes_per_cell <- human_clean_long %>%
+  filter(expression_levels > 0) %>%
+  group_by(cell_line) %>%
+  summarise(active_genes = n_distinct(gene_id))
 
-What type of variation occurs within the "Expression_levels Variable"?
+# Plot number of active genes per treatment
+active_genes_plot <- ggplot(active_genes_per_cell, aes(x = cell_line, y = active_genes)) +
+  geom_bar(stat = "identity", fill = "orange") +
+  theme_minimal() +
+  labs(title = "Number of Active Genes per Cell Line", x = "Cell Lines", y = "Number of Active Genes")+
+  theme(
+    axis.text.x = element_text(angle = 45)
+  )+
+  scale_y_continuous(breaks = seq(0,27500, by = 2500))
 
-Covariation between the compound and the Expression Levels?
-
-Is that relationship affected by other variables?
-
-Perform DESeq2 analysis to estimate the differences in expression levels!
+print(active_genes_plot)
+```

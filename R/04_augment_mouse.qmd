@@ -20,19 +20,20 @@ Sys.setenv(VROOM_CONNECTION_SIZE = 3062144) # Setting a larger connection buffer
 mouse_data <- read_tsv(file = "../data/02_dat_clean_mouse.tsv.gz")
 mouse_data_suppl <- read_tsv(file = "../data/02_dat_clean_mouse_suppl.tsv.gz")
 ```
+
 Now we add the metadata to the main data
-```{r} 
+
+```{r}
 #Join main and metadata
 mouse_df <- left_join(mouse_data, mouse_data_suppl, join_by(treatment))
 ```
 
-
-We now create a new df where we lose the control group experiments (DMSO) and instead divide the noin-control values with the DMSO values of each replicate from the other treatment gene expressions, and thereby convert from expression value to relative expressions. We then log2 transofrm the relative expression, such that a 0 means no change between control and treatment, and positive values mean upregulated and negative means down_regulated
-$$
-\log(\frac{expression\_control\_trial (DMSO)}{expression\_drugX\_trial})
+We now create a new df where we lose the control group experiments (DMSO) and instead subtract the noin-control values with the DMSO values of each replicate from the other treatment gene expressions, and thereby convert from expression value to log2 fold relative expressions. Due to the log law below $$
+\log(expression\_treatment) - \log(expression\_control\_trial (DMSO)) = \log(\frac{expression\_treatmentl (DMSO)}{expression\_control\_trial (DMSO)})
 $$
 
 This operation will be performed now
+
 ```{r}
 "Make a baseline dataset with the values for the control group"
 DMSO <- mouse_df |> 
@@ -41,7 +42,6 @@ DMSO <- mouse_df |>
 
 "Making the relative dataset"
 rel_mouse_df <- mouse_df |> 
-  filter(treatment != 'DMSO') |>     # filtering to the non control baseline values
   left_join(DMSO,                    # Creating baseline columns for each gene with the baseline values for each replicate 
             by = 'replicate', 
             suffix = c("", "_baseline")
@@ -51,49 +51,14 @@ rel_mouse_df <- mouse_df |>
                    `Factor Value[compound]`, 
                    ends_with('baseline')
                    ),
-                ~ log(.x / get(paste0(cur_column(), "_baseline")),2)
+                ~ .x - get(paste0(cur_column(), "_baseline"))
                 )
          ) |>         # Replace NaNs with 0 since R returns 0 for log(0/0,2)
   select(-c(ends_with('baseline')))  # loose the baseline helper columns
 
 
-
 ```
-we then need to handle the inf values (originating from either 0/expression_control ot expression_treatmnet/0) and nan values that originate from 0/0
-```{r}
-inf_cap_value <- 31
-rel_mouse_df_final <- rel_mouse_df |> 
-  mutate(across(everything(), 
-                ~ ifelse(is.na(.x), 0,    # Replace NaNs with 0
-                         ifelse(is.infinite(.x), inf_cap_value * sign(.x), .x)))) # Cap Inf and -Inf relative expression
-  
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 ```{r}
-#A function that should not be used now but might come in handy in the analysis to get the mean across the repetitions
-mouse_df |> 
-    group_by(treatment) |> 
-    summarise(across(-c(replicate,`Factor Value[compound]`), mean, na.rm = TRUE))
-  
+write_tsv(x = rel_mouse_df, file = str_c("../data/04_dat_aug_mouse", ".tsv.gz"))
 ```
-
-
-
-
-

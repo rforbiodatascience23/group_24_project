@@ -24,7 +24,7 @@ mouse_data_long <- mouse_data %>%
   pivot_longer(
     cols = -c(gene_id, symbol), # Exclude gene_id and symbol
     names_to = "treatment_replicate",
-    values_to = "value"
+    values_to = "expression_levels"
   )
 
 # Separate the treatment and replicate information
@@ -39,33 +39,69 @@ mouse_data_separated <- mouse_data_long %>%
 head(mouse_data_separated)
 
 ```
+
 ```{r}
 #Old code, but I (Oliver) commented it out, to work with relative expression levels, so this is not needed here anymore
 
 # Log2 transform the code, but first add a very samll number to all values, in order to avoid log(0). 
 # The number we add is 99% fo the minimum value, so that we can still differentiate the artificial low values with the actual min, if needed.
-#min_non_zero_value <- min(mouse_data_separated$value[mouse_data_separated$value > 0])
+min_non_zero_value <- min(mouse_data_separated$expression_levels[mouse_data_separated$expression_levels > 0])
 #
-#mouse_data_separated <- mouse_data_separated |>
-#  mutate(value = log(value + 0.99*min_non_zero_value, 2))
+mouse_data_separated <- mouse_data_separated |>
+  mutate(expression_levels = ifelse(expression_levels == 0,
+                                    0.65 * min_non_zero_value,
+                                    expression_levels))
 
 ```
 
 ```{r}
-mouse_data_combined <- mouse_data_separated %>%
-  mutate(gene_id_symbol = paste(gene_id, symbol, sep = "_")) |>
-  select(-gene_id, -symbol)
+#mouse_data_combined <- mouse_data_separated %>%
+#  mutate(gene_id_symbol = paste(gene_id, symbol, sep = "_")) |>
+#  select(-gene_id, -symbol)
+mouse_data_combined <- mouse_data_separated |>
+  select(-symbol)
 
 ```
 
 ```{r}
-mouse_wide<-pivot_wider(mouse_data_combined, names_from = gene_id_symbol)
+mouse_wide <- mouse_data_combined |> 
+  pivot_wider(names_from = gene_id, values_from = expression_levels)
 #drop row_id row
 mouse_wide <- mouse_wide[-13,]
 
 ```
 
-
 ```{r}
 write_tsv(x = mouse_wide, file = str_c("../data/02_dat_clean_mouse", ".tsv.gz"))
 ```
+
+```{r}
+#this is very costly to do on the entire dataframe
+#test <- mouse_wide[3:10]
+test <- select(mouse_wide, -c(treatment, replicate))
+zeroes_removed <- test %>% select_if(~ !all(. == 0))
+
+```
+
+```{r}
+zeroes_replaced <- zeroes_removed %>% 
+  rowwise() %>% 
+  mutate(across(everything(), ~ ifelse(. == 0, 0.65 * min(c_across(where(is.numeric))[c_across(where(is.numeric)) != 0], na.rm = TRUE), .)))
+
+zeroes_replaced_sums <- zeroes_replaced %>%
+  rowwise() %>%
+  mutate(total_sum = sum(c_across(everything()), na.rm = TRUE))
+n = 1000000
+scaled_data <- zeroes_replaced_sums %>%
+  mutate(scaling_factor = n / total_sum) %>%
+  rowwise() %>%
+  mutate(across(-c(total_sum, scaling_factor), ~ . * scaling_factor)) %>%
+  select(-total_sum, -scaling_factor)
+
+scaled_data %>%
+  rowwise() %>%
+  mutate(row_sums = sum(c_across(everything()), na.rm = TRUE))
+
+```
+
+

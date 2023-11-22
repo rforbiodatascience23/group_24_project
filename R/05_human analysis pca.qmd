@@ -1,0 +1,89 @@
+---
+title: "Untitled"
+format: html
+editor: visual
+---
+
+```{r}
+library(tidyverse) 
+library(dplyr)
+```
+
+```{r}
+human_aug_log2fc
+```
+
+```{r}
+human_log2fc<- human_aug_log2fc |> 
+  select(gene_id,cell_line, log2foldchange )
+```
+
+```{r}
+human_log2fc_wide<- human_log2fc |> 
+  pivot_wider( names_from = gene_id, values_from = log2foldchange ) 
+
+human_log2fc_wide
+```
+
+```{r}
+library(tidyverse) 
+library(broom) # devtools::install_github("tidymodels/broom") 
+library(cowplot) 
+library(purrr)
+```
+
+```{r}
+#we have to identify which of the values are constant and creates a logical vector indicating which columns are constant 
+constant_cols<- human_log2fc_wide |> 
+  summarise_all(~ length(unique(.)) == 1) |>
+  unlist() |> 
+  as.logical()
+```
+
+```{r}
+#| cache: TRUE 
+filtered_data<- human_log2fc_wide |> 
+  select(-which(constant_cols))
+
+pca_result<- filtered_data |> 
+  select_if(is.numeric) |>
+  scale() |> 
+  prcomp()
+```
+
+```{r}
+{r} pca_result %>% augment(human_log2fc_wide) %>%
+  # add original dataset back in 
+  ggplot(aes(.fittedPC1, .fittedPC2, color = Cell_line)) +
+  geom_point(size = 2) + 
+  theme_half_open(12) + 
+  background_grid()
+```
+
+```{r}
+#Rotation matrix
+
+pca_result %>% 
+    tidy(matrix = "rotation")
+```
+
+```{r}
+pca_result %>% 
+  tidy(matrix = "eigenvalues")
+```
+
+```{r}
+pca_result %>% 
+  tidy(matrix = "eigenvalues") %>%  
+  ggplot(aes(PC, percent)) + 
+  geom_col(fill = "#56B4E9", alpha = 0.😎 + 
+             scale_x_continuous(breaks = 1:9) +
+             scale_y_continuous( labels = scales::percent_format(), 
+                                 expand = expansion(mult = c(0, 0.01)) ) + theme_minimal_hgrid(12) %>%
+             tidy(matrix = "eigenvalues") %>% 
+             ggplot(aes(PC, percent)) + 
+             geom_col(fill = "#56B4E9", alpha = 0.😎 +
+                        scale_x_continuous(breaks = 1:9) +
+                        scale_y_continuous( labels = scales::percent_format(), expand = expansion(mult = c(0, 0.01)) ) + 
+                        theme_minimal_hgrid(12)
+```

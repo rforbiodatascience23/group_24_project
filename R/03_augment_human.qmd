@@ -7,250 +7,78 @@ editor: visual
 ```{r}
 library(tidyverse)
 library(dplyr)
-```
+library(patchwork)
+library(ggplot2)
 
-```{r}
-human_data_clean_long
-```
-
-```{r}
-# Now we are going to make our data wide making the values of the "Genes" our variables  since we want to see how are they affected by the compound G007.LK
-human_data_clean_wide <- human_data_clean_long |> 
-  pivot_wider(
-    names_from = Gene,
-    values_from = Expression_levels
-  )
-
-human_data_clean_wide
+human_clean_long <- read_tsv(file = "../data/02_dat_clean_human.tsv.gz")
+human_suppl_clean <- read_tsv(file = "../data/02_dat_clean_human_suppl.tsv.gz")
 ```
 
 We are going to merge our clean human data sets and select only the variables that we want
 
 ```{r}
-human_joined <- human_data_clean_long |> 
-  left_join(human_suppl_clean, join_by(Treatment, Cell_line)) |>
-  select(Gene,
-         Cell_line,
-         Treatment,
-         Expression_levels,
-         Genotype) |>
-  relocate(Genotype, .before = 2)
+human_joined <- human_clean_long |> 
+  left_join(human_suppl_clean, join_by(treatment, cell_line)) |>
+  select(gene_id,
+         cell_line,
+         treatment,
+         expression_levels,
+         genotype) |>
+  relocate(genotype, .before = 3)
 
 human_joined
 ```
 
-```{r}
-```
-
-```{r}
-# We also want to create a wide version where the compounds are on different columns
-human_joined_wide <- human_joined |> 
-  pivot_wider(
-    names_from = Treatment,
-    values_from = Expression_levels
-  )
-human_joined_wide
-```
-
-Thinkg to Keep in mind. Our data have been already normalized with the TPM method when the researchers used the sleuth v0.29 in their experiment.
-
-\##############################################################################
-
 ### This is were we create the new metrics for our augmented file
 
-```{r}
-###DESC_1
-DMSO_freq <- human_joined_aug_wide |> 
-  ggplot(mapping = aes(x = DMSO))+
-  geom_freqpoly()
+In order to work with the DMSO and G007.LK values we chose to move on with log transformation in order to reduce the heteroscedasticity and stabilize the variance among the expression levels.
 
-G007.LK_freq <- human_joined_aug_wide |> 
-  ggplot(mapping = aes(x = G007.LK))+
-  geom_freqpoly()
-
-DMSO_freq + G007.LK_freq
-```
-
-We observe many observation equal to zero, but how many of them are there for each treatment?
-
-```{r}
-#DESC_2
-human_joined_wide |>
-  summarise(DMSO_0 = sum(DMSO ==0),
-            G007.LK_0 = sum(G007.LK ==0))
-```
-
-In order to work wit our DMSO and G007.LK values we chose to move on with log transformation in order to reduce the heteroscedasticity and stabilize the variance among the expression levels.
-
-Because we can't log on zeros we add on all the values the 0.99% of the minimum positive value as an offset
+Because we can't log on zeros we add on all the values the 0.99% of the minimum positive values of the Expression levels feature as an offset
 
 ```{r}
 min_pos_value <- human_joined |>
-  select(Expression_levels) |>
-  filter(Expression_levels != 0) |>
-  summarize(min = min(Expression_levels)) |>
+  select(expression_levels) |>
+  filter(expression_levels != 0) |>
+  summarize(min = min(expression_levels)) |>
   pull()
 
+human_aug <- human_joined |> 
+  mutate(expression_levels = (expression_levels + 0.65 * min_pos_value)) 
 
-human_trans <- human_joined_wide |> 
-  mutate(DMSO = (DMSO + 0.99 * min_pos_value),
-         G007.LK = (G007.LK + 0.99 * min_pos_value)
-         )
-human_trans
+human_aug
+
+## add it to only zero
 ```
 
 ```{r}
-# We log2 transform the expression levels 
-human_trans <- human_trans |> 
-  mutate(log2DMSO = log2(DMSO),
-         log2G007.LK = log2(G007.LK))
+# To be used for the bar plots
+human_aug <- human_aug |> 
+  mutate(log2_expression_levels = log2(expression_levels)) 
 
-human_trans
-```
-
-###DESC_3
-
-We check again the distribution
-
-```{r}
-DMSO_freq_log <- human_trans |> 
-  ggplot(mapping = aes(x = log2DMSO))+
-  geom_freqpoly()
-
-G007.LK_freq_log <- human_trans |> 
-  ggplot(mapping = aes(x = log2G007.LK))+
-  geom_freqpoly()
-
-DMSO_freq_log + G007.LK_freq_log
-```
-
-We can see now that the distribution is less skewed but we can still see that the majority of the observations are equal to zero (equal to -33.92 after the log2 transformation).
-
-Our purpose is to find genes that were either up or down regulated when treating the cells with G007.LK in comparison when we only provide them the solvent DMSO. For that reason we can calculate the log2 fold change, which is a way of measuring change in expression level of a gene between two different conditions.
-
-```{r}
-#|label: not run now, but during analysis
-human_trans <- human_trans |>
-  mutate(log2fc = log2G007.LK - log2DMSO)
-
-human_trans
+human_aug
 ```
 
 ```{r}
-human_trans |>
-  ggplot(aes(x = log2fc))+
-  geom_freqpoly()
-```
+human_aug_sep_treat <- human_aug |>
+  select(-expression_levels)|>
+  pivot_wider(names_from = "treatment",
+              values_from = "log2_expression_levels")
 
-We want to create a subset where we don't take into account genes in specific cell lines with the same expression levels with and without treatment.
-
-The bulk of zeros suggests that, for many genes in many cell lines, there is no difference in expression between the two groups. This is a common observation, as many genes in different cell lines may not respond strongly to experimental conditions
-
-```{r}
-human_trans_sub <- human_trans |>
-  filter(log2fc != 0)
-
-human_trans_sub
+human_aug_sep_treat
 ```
 
 ```{r}
-human_trans_sub |>
-  ggplot(aes(x = log2fc))+
-  geom_freqpoly()+
-  # scale_x_continuous(breaks = seq(-40, 40, by = 5))+
-  coord_cartesian(xlim=c(-40,40))
+# To be used for PCA 
+human_aug_log2fc <- human_aug_sep_treat |>
+  mutate(log2foldchange = G007LK - DMSO)|>
+  select(-c(DMSO, G007LK))
+
+human_aug_log2fc
 ```
 
-It will be useful for our analysis to also have a subset where the two compounds live in the same variable
-
 ```{r}
-human_to_analyze <- human_trans_sub |>
-  select(-c(log2fc,DMSO,G007.LK)) |>
-  pivot_longer(cols = c("log2DMSO", "log2G007.LK"), names_to = c("Treatment"),
-               values_to= "log2_Expression_level") |>
-  mutate(Treatment = case_when(Treatment == "log2DMSO" ~ 0,
-                               Treatment == "log2G007.LK" ~ 1))
+#Write the augmented datasets to two tsv files
 
-human_to_analyze
-```
-
-We can perform several test to assess the statistical analysis of this result
-
-\##########################################
-
-Alternative approaches in order to get rid of the 0s####
-
-\############################################
-
-1st approach: The most naive one
-
-But before we do that we have to log transform our data and add a constant (e.g. 1)
-
-This is the distribution of our data before the transformation
-
-These are the distributions after the transformation
-
-We can see here that we reduced some of the skewness in our data
-
-\##############################################
-
-Approach 2 We can use an the minimum positive value contained in the dataset as an offset based on the dataset characterisitics.
-
-Here we can see that the majority of the observations are gathered between -5 +5.
-
-Which reveals may indicate a binomial distribution. We have to look more into it.
-
-\##############################################################################################################
-
-## Do not pay attention to what is written below. These are just tests
-
-\########################################################################################################
-
-We are going to perform some tests in order to evaluate the significance of the experiment;s results
-
-t-test : T- test is a type of statistical anaylsis used in order to compare the averages of two groups and determine whether differences between them are significant or not.
-
-So we are going to use this test in order to assess the significancy of the results of the experiment.
-
-The null hypothesis is that there are no differentially expressed genes. So we are going to perform some tests in order to see if we can reject it or not.
-
-The first test is a paired t-test ince we want to estimate the p-values of the p-values before and after the treatment simultaneously
-
-```{r}
-human_data_transform1_tests<- human_data_transform1 |> 
-  rowwise() |> #we use this function because we want to apply t.test to every one of our observations and get the p.value of each observation
-  mutate(p_values = 
-    t.test(c(log2_G007.LK, log2_DMSO, paired = TRUE))$p.value, #this extracts the pvalues of the ttest (t.test(c(treatment, control))$p.value) those are the raw p_values
-    q_values = p.adjust(p_values))
-human_data_transform1_tests
-```
-
-\###############################################
-
-We are going to estimate the p-value of the t-statis
-
-```{r}
-human_data_transform1_tests |> 
-  ggplot(mapping = aes(x = p_values)) +
-  geom_freqpoly()
-```
-
-We know that the q-value is a better estimate to calculate multiple
-
-DeSeq2
-
-This distribution of the t-statistic suggests that on average there is not a strong global effect between the two compounds.
-
-The bulk of t-statistics near 0 suggests that, for most genes, there is little to no difference in expression between the two groups. This is a common observation, as many genes are not expected to respond strongly to experimental conditionsHowever we can witness a second peak close to 0.5 is interesting and may indicate some meaningful biological phenomena
-
-The peak around 0.5 in the tail could indicate that there are some genes with moderate but consistent differences in the expression between the two conditions. We could potentially perform a more thorough analysis in order to identify them. Caution this tail could by caused by biological Heterogeneity.
-
-We are going to perform an extra test using the q-value of our results
-
-```{r}
-human_joined_aug <- human_joined_aug |> 
-  mutate(
-    log2fold_expression = log2(G007.LK/ DMSO)
-  )
-human_data_aug
+write_tsv(human_aug, "../data/03_dat_aug_human.tsv.gz")
+write_tsv(human_aug_log2fc, "../data/03_dat_aug_human_log2fc.tsv.gz")
 ```
