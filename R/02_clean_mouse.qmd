@@ -4,7 +4,7 @@ format: html
 editor: visual
 ---
 
-## Quarto
+## 
 
 This document cleanes the mouse data
 
@@ -103,5 +103,3 @@ scaled_data %>%
   mutate(row_sums = sum(c_across(everything()), na.rm = TRUE))
 
 ```
-
-

@@ -1,8 +1,10 @@
 ---
-title: "Clean file"
+title: "02_clean"
 format: html
 editor: visual
 ---
+
+First we need to read the necessary files and the libraries
 
 ```{r}
 #|label: load the packages
@@ -12,27 +14,163 @@ library(dplyr)
 library(tidyr)
 source("../R/99_proj_func.R")
 
+
+#mouse datasets
+mouse_data <- read_tsv(file = "../data/01_dat_load_mouse.tsv.gz")
+mouse_suppl_data <- read_tsv(file = "../data/01_dat_load_mouse_suppl.tsv.gz")
+
+#human_datasets
 human_data <- read_tsv(file = "../data/01_dat_load_human.tsv.gz")
 human_suppl_data <- read_tsv(file = "../data/01_dat_load_human_suppl.tsv.gz")
 ```
 
+First we need how the data are represented
+
 ```{r}
-walk(data_list, nas_present)
+mouse_data
 ```
-
-This data set contains a column of the gene id, a column of the common gene name and the rest of the columns are composed of the cell lines that were used for the experiment.
-
-We will rename the column names as untreated and treated based on DMSO (vehicle solvent for the drug) and G007-LK (drug), respectively. We observe that there are many variables in column names, so we need to separate them.
 
 ```{r}
 human_data
 ```
 
 ```{r}
+walk(data_list, nas_present)
+```
+
+First of all we can see that there are no Nas presented in neither of the 4 datasets we chose. Lets take a closer look though:
+
+Mouse dataset:
+
+Looking at this dataset we can see that it contains the compounds that were used during the experiment as variables and the genes abbreviation in the assembly and their common name as rows and the values contained in every cell are the expression levels of each gene of the B16-F10 cell line. We can perform a tidy procedure here to make the most out of this dataset.
+
+Human dataset:
+
+This data set contains a column of the gene id, a column of the common gene name and the rest of the columns are composed of the cell lines that were used for the experiment.
+
+We will rename the column names as untreated and treated based on DMSO (vehicle solvent for the drug) and G007-LK (drug), respectively. We observe that there are many variables in column names, so we need to separate them.
+
+## First we are going to deal with the mouse dataset
+
+```{r}
+mouse_data
+```
+
+```{r}
+# Convert to long format and set create the treament_replicate and expression_levels
+
+mouse_data_long <- mouse_data |>
+  pivot_longer(
+    cols = -c(gene_id, symbol), # Exclude gene_id and symbol
+    names_to = "treatment_replicate",
+    values_to = "expression_levels"
+  )
+
+# now we are going to Separate the treatment and replicate information
+mouse_data_separated_repl <- mouse_data_long |>
+  separate(
+    col = treatment_replicate,
+    into = c("treatment", "replicate"),
+    sep = "-"
+  )
+
+```
+
+```{r}
+mouse_clean <- mouse_data_separated_repl |>
+  #the symbol variable does not provide us with addtional information so we are going to drop it
+  select(-symbol) |>
+  pivot_wider(names_from = gene_id, 
+              values_from = expression_levels)
+
+mouse_clean
+```
+
+After cleaning we end up with this form were we have the different treatments as rows with replicate number and gene_ids as variables.
+
+Now we are going to clean the mouse supplementary file. Upon inspection of the dataset it is seen that most supplementary data are simply consistent general experiment metadata that do not vary between the individual drug experiments. The concentration of the drugs used is the only column that could pose any valuable information and we there filter the dataset to only retain this value for each compound.
+
+```{r}
+mouse_suppl_data
+```
+
+```{r}
+#firstly we want to clean the column names a bit
+
+mouse_suppl_clean <-mouse_suppl_data |>
+  janitor::clean_names() |>
+  rename_with(
+    ~ str_remove(., "characteristics_"),
+    starts_with("characteristics_"),
+  ) |>
+  rename_with(
+       ~str_remove(., "comment_"),
+    starts_with("comment_")
+  )
+
+```
+
+```{r}
+#Some extra cleaning with the variable factor_value_compound
+
+mouse_suppl_clean<- mouse_suppl_clean |>
+  mutate(
+    factor_value_compound= case_when(
+      factor_value_compound == "dimethyl sulfoxide (0.1 percent)" ~ "0.1%",
+      factor_value_compound == "G007LK (1 micromolar)" ~ "1μM",
+      factor_value_compound == "WNT3a (0.5 microgram per milliliter)" ~ "0.5mg/ml ",
+      factor_value_compound == "WNT3a (0.5 microgram per milliliter); G007LK (1 micromolar)" ~ "0.5mg/ml; 1μΜ",
+      TRUE ~ factor_value_compound) # keep the original value of the compound_dose column if the conditions are not met
+    )|>
+  rename(compound_dose = factor_value_compound) |>
+  #get rid of the redundant columns
+  select(-c(extract_name, assay_name)) #those two columns contain the same information as the source_name
+
+```
+
+Now we are done with the cleaning procedure of the mouse data and supplementary data
+
+```{r}
+# Filtering the columns to the Factor Value and the compound
+mouse_suppl_clean_final <- mouse_suppl_clean |>
+  select(c("source_name",
+           "compound_dose"))
+
+```
+
+```{r}
+# splitting the compound and grouping the dataset on compound
+mouse_suppl_clean_final <- mouse_suppl_clean_final |>
+  separate(
+    col = source_name,
+    into = c("treatment", "replicate"),
+    sep = "-") |>
+  distinct(treatment, compound_dose)
+ 
+mouse_suppl_clean_final
+```
+
+```{r}
+#Save the files containing the mouse data
+write_tsv(x = mouse_clean, 
+          file = ("../data/02_dat_clean_mouse.tsv.gz"))
+write_tsv(x = mouse_suppl_clean,
+          file = ("../data/02_dat_clean_mouse_suppl.tsv.gz"))
+```
+
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--
+
+## Now we are going to deal with the human datasets
+
+These data are untidy. So we are going to transform them via pivoting longer. But before we do that we can definetely see that the column names contain two pieces of information. The Cell line and compound used in each experiment. So we have to split these two.
+
+Here is how we did it :
+
+```{r}
 human_trans <-human_data |>
   rename_with( #we use this function in order to change the name of the columns
     ~case_when( # change the name of the column based on a condition met by str_detect
-      #We see that the columns containing the cell lines contain the name of the cell lines and the DMSO or G007.LK compounds separated by a "." 
+      #We see that the columns containing the cell lines contain the name of the cell lines and the DMSO or G007.LK compounds separated by a "."
        str_detect(., ".DMSO") ~ str_replace_all(.,
                                              ".DMSO",
                                              "_DMSO"),
@@ -45,24 +183,35 @@ human_trans <-human_data |>
 
 ```
 
-These data are untidy. So we are going to transform them via pivoting
-
 ```{r}
 #Pivot the human dataframe
-human_clean_long <- human_trans |> 
+human_clean_long <- human_trans |>
   pivot_longer(
     cols = -(gene_id:symbol),
-    names_to = c("cell_line", 
+    names_to = c("cell_line",
                  "treatment"),  
     values_to = "expression_levels",
     names_sep = "_"
       )|>
-  select(-symbol)
+  select(-symbol) # we exclude the symbol for the same reason we did when we were cleaning the mouse dataset
 
-human_clean_long
+
 ```
 
-### \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--
+This is much better. Now we are going to finish our cleaning process by getting back to wide format
+
+```{r}
+human_clean <- human_clean_long |>
+  pivot_wider(
+    names_from = gene_id,
+    values_from = expression_levels
+  )
+human_clean
+```
+
+After cleaning we have a dataset with the gene_ids as variables and cell line and treatment as rows.
+
+### Now we are going to clean the human supplementary dataset
 
 ```{r}
 human_suppl_data
@@ -72,38 +221,41 @@ The source name column has the same format as the columns we pivoted before and 
 
 ```{r}
 # We will use the clean_names function provided by the janitor package in order to make our columns look more appealing
-human_suppl_clean<- human_suppl_data |> 
+human_suppl_clean <- human_suppl_data |>
   janitor::clean_names() |>
   rename_with(
-    ~ str_remove(., "characteristics_"), 
+    ~ str_remove(., "characteristics_"),
     starts_with("characteristics_")
-  )
-
-human_suppl_clean
+  ) |>
+   rename_with(
+       ~str_remove(., "comment_"),
+    starts_with("comment_"))
 ```
 
 ```{r}
 # We separate the first column
-# We notice an inconsistency with the names of the cell lines which creates some problems when we try to separate the two components of the first column 
+# We notice an inconsistency with the names of the cell lines which creates some problems when we try to separate the two components of the first column
 
-human_suppl_clean <- human_suppl_clean |>
-  mutate(source_name = 
+human_suppl_clean_change_treat <- human_suppl_clean |>
+  mutate(source_name =
   case_when( # change the name of the column based on a condition met by str_detect
-      #We see that the column source name contains the name of the cell lines and the compounds separated by a "." 
-       str_detect(source_name, "\\.DMSO$") ~ str_replace(source_name,"\\.DMSO", "_DMSO"),
-       str_detect(source_name, "\\.G007.LK") ~ str_replace(source_name,"\\.G007.LK", "_G007LK"),
+      #We see that the column source name contains the name of the cell lines and the compounds separated by a "."
+       str_detect(source_name, "\\.DMSO$") ~ str_replace(source_name,
+                                                         "\\.DMSO",
+                                                         "_DMSO"),
+       str_detect(source_name, "\\.G007.LK") ~ str_replace(source_name,
+                                                           "\\.G007.LK",
+                                                           "_G007LK"),
        TRUE ~ source_name  # Keep the original name of the columns if the aforementioned conditions are not met
      )# Apply case when function in each column
-   ) |> 
-  separate(source_name, 
+   ) |>
+  separate(source_name,
            into = c("cell_line", "treatment"),
-           sep = "\\_") #rename_wet 
-
-human_suppl_clean
+           sep = "\\_") #rename_with
 ```
 
 ```{r}
-human_suppl_clean <- human_suppl_clean |> 
+human_suppl_comp_dose <- human_suppl_clean_change_treat |>
   mutate(
     Compound_dose = str_c(factor_value_dose ,unit_dose_unit, sep = " "),
     Compound_dose = case_when(
@@ -114,22 +266,22 @@ human_suppl_clean <- human_suppl_clean |>
   )|> select(
       -c(factor_value_dose,unit_dose_unit)
     )
-
-human_suppl_clean
 ```
 
 ```{r}
-human_suppl_clean <- human_suppl_clean |> 
+human_suppl_clean_final <- human_suppl_comp_dose |>
   select(-c(extract_name,
             assay_name,
             factor_value_compound))
 
-human_suppl_clean
+human_suppl_clean_final
 ```
 
 ```{r}
 #Write the two clean datasets to tsv files
 
-write_tsv(human_clean_long, "../data/02_dat_clean_human.tsv.gz")
-write_tsv(human_suppl_clean, "../data/02_dat_clean_human_suppl.tsv.gz")
+write_tsv(x = human_clean,
+          file = "../data/02_dat_clean_human.tsv.gz")
+write_tsv(x = human_suppl_clean_final,
+          file = "../data/02_dat_clean_human_suppl.tsv.gz")
 ```
