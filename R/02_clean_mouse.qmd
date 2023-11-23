@@ -68,7 +68,6 @@ mouse_wide <- mouse_data_combined |>
   pivot_wider(names_from = gene_id, values_from = expression_levels)
 #drop row_id row
 mouse_wide <- mouse_wide[-13,]
-
 ```
 
 ```{r}
@@ -80,7 +79,6 @@ write_tsv(x = mouse_wide, file = str_c("../data/02_dat_clean_mouse", ".tsv.gz"))
 #test <- mouse_wide[3:10]
 test <- select(mouse_wide, -c(treatment, replicate))
 zeroes_removed <- test %>% select_if(~ !all(. == 0))
-
 ```
 
 ```{r}

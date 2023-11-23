@@ -4,7 +4,7 @@ format: html
 editor: visual
 ---
 
-Now we are going to proceed with the augmentation of the mouse and human datasets
+Now we are going to proceed with the augmentation of the mouse and human data sets
 
 ```{r}
 library(tidyverse)
@@ -119,7 +119,7 @@ rel_mouse_df <- rel_mouse_df |>
 
 ```
 
-## We are going now to perform an augmentation on the human dataframe
+## Human data set augmentation
 
 ```{r}
 human_clean
@@ -147,7 +147,7 @@ human_to_augment <-human_joined |>
 
 In order to work with the DMSO and G007.LK values we chose to move on with log transformation in order to reduce the heteroscedasticity and stabilize the variance among the expression levels.
 
-Because we can't log on zeros we add on all the values the 0.65% of the minimum positive values of the Expression levels feature as an offset
+Because we can't log on zeros we add on all the values the 0.65% of the minimum positive values of the expression levels feature as an offset
 
 ```{r}
 min_pos_value <- human_to_augment |>
@@ -160,8 +160,8 @@ human_aug<- human_to_augment |>
   mutate(
     expression_levels = if_else(expression_levels == 0,
                                 expression_levels + 0.65 * min_pos_value,
-                                expression_levels))
-
+                                expression_levels)
+    )
 ```
 
 We can use it for the first PCA analysis based on the relative expressions of the gene expressions among the 18 cell lines in the two different conditions . We are going to exclude here the column genotype because we are not going to use it
@@ -174,7 +174,7 @@ human_aug_log <- human_aug |>
             genotype))
 ```
 
-This is going to be the dataframe format used for the PCA analysis with the relative expression levels
+This is going to be the data frame format used for the PCA analysis with the relative expression levels
 
 ```{r}
 human_log_expression<- human_aug_log |>
@@ -204,16 +204,15 @@ human_aug_log2fc <- human_aug_sep_treat |>
 human_log2fc_wide<- human_aug_log2fc |>
   pivot_wider(names_from = gene_id,
               values_from =log2foldchange)
+
 human_log2fc_wide
 ```
 
 # !!!We have to check the rel_mouse_df!!!
 
 ```{r}
-#Write the augmented datasets for the two human files
-
 write_tsv(x = rel_mouse_df, file = str_c("../data/04_dat_aug_mouse", ".tsv.gz"))
 
-write_tsv(human_log_expression, "../data/03_dat_aug_human.tsv.gz")
+write_tsv(human_log_expression, "../data/03_dat_aug_human_log.tsv.gz")
 write_tsv(human_log2fc_wide, "../data/03_dat_aug_human_log2fc.tsv.gz")
 ```

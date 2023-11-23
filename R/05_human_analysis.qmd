@@ -11,7 +11,7 @@ library(ggplot2)
 library(purrr) 
 library(broom)
 
-human_aug <- read_tsv(file = "../data/03_dat_aug_human.tsv.gz")
+human_aug <- read_tsv(file = "../data/03_dat_aug_human_log.tsv.gz")
 human_aug_log2fc <- read_tsv(file = "../data/03_dat_aug_human_log2fc.tsv.gz")
 ```
 
@@ -22,11 +22,9 @@ The bulk of zeros suggests that, for many genes in many cell lines, there is no 
 We here omit observations that didn't present any difference in expression when treated and untreated and then exclude the variable.
 
 ```{r}
-# human_sub <- human_log2fc |> 
-# filter(log2fc != 0) |>
-# select(-log2fc)
-
-#human_sub
+human_sub <- human_log2fc |>
+filter(log2fc != 0) |>
+select(-log2fc)
 ```
 
 We then return to a longer format

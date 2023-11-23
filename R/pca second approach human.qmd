@@ -4,69 +4,82 @@ format: html
 editor: visual
 ---
 
----
-title: "Untitled"
-format: html
-editor: visual
----
-
 PCA analysis using the LOG2goFOLD
 
-{r} library(tidyverse) library(dplyr)
+```{r}
+library(tidyverse) 
+library(broom) 
+library(dplyr) 
+library(cowplot) 
+library(purrr)
 
-{r} human_joined_tran\<- human_joined \|\> select(gene_id, Cell_line, Treatment, Compound_dose, Expression_levels)
+human_log2fc <- read_tsv(file = "../data/03_dat_aug_human_log.tsv.gz")
+```
 
-human_joined_tran
+```{r}
+human_log2fc
+```
 
-{r} min_pos_value \<- human_joined_tran \|\> select(Expression_levels) \|\> filter(Expression_levels != 0) \|\> summarize(min = min(Expression_levels)) \|\> pull()
+```{r}
+# We have to identify which of the values are constant and creates a logical vector indicating which columns are constant
 
-{r} human_joined_log \<- human_joined_tran \|\> mutate(Expression_levels = log2( Expression_levels + 0.99 \* min_pos_value))
+constant_cols<- human_log2fc |> 
+  summarise_all(~ length(unique(.)) == 1) |> #identify columns that have constant values across all rows 
+  unlist() |> 
+  as.logical() #converts the resulting vector of true and false values into a logical vector
+```
 
-human_joined_log
+```{r}
+#| cache: TRUE
+filtered_data <- human_log2fc|> 
+  select(-which(constant_cols))# exclude the constant columns
+```
 
-{r} human_joined_wide_treat\<- human_joined_log \|\> group_by(Treatment) \|\> pivot_wider(names_from = Treatment, values_from =Expression_levels)
+```{r}
+#|cache: TRUE 
+pca_result <- filtered_data |> 
+  select_if(is.numeric) |> #selects the columns that are numeric 
+  scale() |> #scales the columns 
+  prcomp()
+```
 
-human_joined_wide
+This is the plot corresponding the differences in expression between the different conditions
 
-{r} human_joined_wide_treat \<- human_joined_wide \|\> mutate(log2fchange = G007.LK - DMSO)
-
-human_joined_wide_treat
-
-{r}
-
-human_log2fc\<- human_joined_wide_treat \|\> select(gene_id,Cell_line, log2fchange)
-
-#this is the wide format of the log2fc dataset for the human dataset
-
-{r} human_log2fc_wide\<- human_log2fc \|\> pivot_wider( names_from = gene_id, values_from =log2fchange)
-
-human_log2fc_wide
-
-PCA
-
-{r} library(tidyverse) library(broom) \# devtools::install_github("tidymodels/broom")
-
-library(cowplot) library(purrr)
-
-{r} #we have to identify which of the values are constant and creates a logical vector indicating which columns are constant
-
-constant_cols\<- human_log2fc_wide \|\> summarise_all(\~ length(unique(.)) == 1) \|\> unlist() \|\> as.logical()
-
-{r} #\| cache: TRUE filtered_data\<- human_log2fc_wide \|\> select(-which(constant_cols))
-
-{r} #\|cache: TRUE pca_result\<- filtered_data \|\> select_if(is.numeric) \|\> scale() \|\> prcomp()
-
-{r} #this is the plot corresponding the differences in exoression between the dis=fferent conditions
-
-{r} #this is the plot corresponding the differences in exoression between the dis=fferent conditions
-
-{r} pca_result \|\> augment(data = human_log2fc_wide) \|\> \# add original dataset back in ggplot(aes(.fittedPC1, .fittedPC2, color = Cell_line)) + geom_point(size = 1.5) + theme_half_open(12) +\
-background_grid() + labs( x = "PC1(11.9%)", y = "PC2(7.7%)", title = "PCA plot defining the association of the Cell line Log2foldchange when using the G007.LK", color= "Cell lines")
+```{r}
+pca_result |> 
+  augment(data = human_log2fc) |> # add original dataset back in 
+  ggplot(aes(.fittedPC1, 
+             .fittedPC2, 
+             color = cell_line)) + 
+  geom_point(size = 1.5) + 
+  geom_text_repel(mapping = aes(label = cell_line)) +
+  theme_half_open(12) +
+  background_grid() + 
+  labs(x = "PC1(11.9%)", 
+       y = "PC2(7.7%)", 
+       title = "PCA plot defining the association of the Cell line Log2foldchange when using the G007.LK", 
+       color= "Cell lines")
+```
 
 Rotation matrix
 
-{r} pca_result \|\> tidy(matrix = "rotation")
+```{r}
+pca_result |> 
+  tidy(matrix = "rotation")
+```
 
-{r} pca_result \|\> tidy(matrix = "eigenvalues")
+```{r}
+pca_result |> 
+  tidy(matrix = "eigenvalues")
+```
 
-{r} pca_result %\>% tidy(matrix = "eigenvalues") %\>% ggplot(aes(PC, percent)) + geom_col(fill = "#56B4E9", alpha = 0.8) + scale_x_continuous(breaks = 1:9) + scale_y_continuous( labels = scales::percent_format(), expand = expansion(mult = c(0, 0.01)) ) + theme_minimal_hgrid(12)
+```{r}
+pca_result |> 
+  tidy(matrix = "eigenvalues") |>
+  ggplot(aes(PC, percent)) + 
+  geom_col(fill = "#56B4E9", alpha = 0.8) +
+  scale_x_continuous(breaks = 1:9) + 
+  scale_y_continuous(labels = scales::percent_format(), 
+                     expand = expansion(mult = c(0, 0.01))) +
+  theme_minimal_hgrid(12)
+```
