@@ -99,8 +99,8 @@ We can also get a crude look at the average activity of the treatments.
             fill = "blue") + 
    theme_minimal() +
    labs(title = "Average Gene Expression for Each Treatment",
-       x = "Treatment", 
-       y = "Average Expression Levels")
+        x = "Treatment", 
+        y = "Average Expression Levels")
 ```
 
 They seem to be roughly the same, with the combined treatment being slightly higher than the rest. Let's look at the replicates within treatments as well.
@@ -128,7 +128,7 @@ zero_counts_genes |>
        y = "Percentage of Genes")
 ```
 
-We can see that most genes are either all zeroes (\~33%) or all non-zeroes( 40%). Let's also compare the number of active genes in each treatment.
+We can see that most genes are either all zeroes (\~40%) or all non-zeroes( 33%). Let's also compare the number of active genes in each treatment.
 
 ```{r}
 #Determine active genes (non-zero activity) for each treatment
@@ -242,6 +242,8 @@ ggplot(mapping = aes(x = cell_line,
   theme(axis.text.x = element_text(angle = 45), 
         axis.text = element_text(vjust = 0.5, 
                                  size = 6))
+
+
 ```
 
 ```{r}
@@ -262,8 +264,7 @@ active_genes_plot <- ggplot(data = active_genes_per_cell,
        x = "Cell Lines", 
        y = "Number of Active Genes")+ 
   theme(axis.text.x = element_text(angle = 45) )+ 
-  scale_y_continuous(breaks = seq(0,27500, 
-                                  by = 2500))
+  scale_y_continuous(breaks = seq(0,27500, by = 2500))
 
 print(active_genes_plot)
 ```
@@ -271,14 +272,28 @@ print(active_genes_plot)
 We then check the distribution of expression levels after log2 transformation
 
 ```{r}
- ### DESC_3
+# DESC_3
 human_aug_log |> 
   ggplot(mapping = aes(x = log2_expression_levels))+ 
   geom_freqpoly()+ 
   facet_wrap(~treatment)
 ```
 
-We can see now that the distribution is less skewed but we can still see that the majority of the observations are equal to zero (equal to -33.92 after the log2 transformation).
+We can see now that the distribution is less skewed but we can still see that the majority of the observations are equal to zero (equal to -34.52 after the log2 transformation).
+
+```{r}
+#An other approach of the same dataset 
+
+human_aug_log |> 
+  ggplot(mapping = aes(x = cell_line,
+                       y = log2_expression_levels,
+                       color = treatment))+
+  geom_boxplot()+
+   theme(axis.text.x = element_text(angle = 45), 
+        axis.text = element_text(vjust = 0.5, 
+                                 size = 6))+
+  facet_wrap(~treatment)
+```
 
 The bulk of zeros suggests that, for many genes in many cell lines, there is no difference in expression between the two conditions. This is a common observation, as many genes in different cell lines may not respond strongly to experimental conditions.
 
@@ -305,8 +320,41 @@ ggplot(aes(x = gene,
            y = cell_line,
            fill = log2_fold_change))+
   geom_tile()+
-  scale_fill_gradient2(low = 'blue', high ='red', midpoint= 0)+
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1),axis.text=element_text(size=4),axis.title=element_text(size=5))+
-  theme(legend.position = 'bottom',legend.key.size = unit(5, 'mm'),legend.title=element_text(size=5),legend.text=element_text(size=5))+
+  scale_fill_gradient2(low = 'blue',
+                       high ='red', 
+                       midpoint= 0)+
+  theme(axis.text.x = element_text(angle = 45, 
+                                   vjust = 1, 
+                                   hjust=1),
+        axis.text=element_text(size=4),
+        axis.title=element_text(size=5))+
+  theme(legend.position = 'bottom',
+        legend.key.size = unit(5, 'mm'),
+        legend.title=element_text(size=5),
+        legend.text=element_text(size=5))+
   coord_fixed(ratio=0.6)
+```
+
+```{r}
+human_aug_sep_treat |> 
+  filter(DMSO != log2(0.65*min_pos_value) & G007LK != log2(0.65*min_pos_value)) |>
+  mutate(log2fc =round(G007LK - DMSO,2)) |>
+  filter(abs(log2fc)>1.5) |> 
+  ggplot(mapping = aes(x = DMSO,
+                       y = G007LK))+
+  geom_point(mapping = aes(color = cell_line))+
+   theme(axis.text.x = element_text(angle = 45), 
+        axis.text = element_text(vjust = 0.5, 
+                                 size = 6))+
+  facet_wrap(~cell_line,ncol =5 )+
+  geom_smooth(method = "loess")
+
+#distribution in each cell line, patterns of up and down regulation,WM35 50% more up than down genes, FenxI the opposite
+human_aug_sep_treat |> 
+  filter(DMSO != log2(0.65*min_pos_value) & G007LK != log2(0.65*min_pos_value)) |>
+  mutate(log2fc =round(G007LK - DMSO,2)) |>
+  filter(abs(log2fc)>1.5) |> 
+  ggplot(mapping = aes(x = log2fc))+
+  geom_freqpoly()+
+  facet_wrap(~cell_line)
 ```
