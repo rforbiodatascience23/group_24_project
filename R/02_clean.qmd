@@ -204,7 +204,7 @@ human_clean
 ```{r}
 #this is very costly to do on the entire dataframe
 #test <- human_clean[3:10]
-test <- select(human_wide, -c(treatment, replicate))
+test <- select(human_clean, -c(treatment, replicate))
 zeroes_removed_human <- test %>% select_if(~ !all(. == 0))
 
 ```
