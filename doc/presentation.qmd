@@ -1,0 +1,46 @@
+---
+title: "Investegation of treatments in mice and humans"
+author: "Group - 24"
+format: revealjs
+---
+
+# Introduction
+## Dataset and 
+
+- What we wanted to do and why we chose that dataset
+
+## Purpose of analysis
+
+- Idea for analysis
+- hi
+
+# Methods
+## Cleaning
+
+- How we cleaned
+- We ddi a b and c
+
+## Augmentation
+
+- How we processed or data to prepare it for analysis 
+- Realitive log2 fold expressions
+
+# Results
+## Mouse significantly regulated genes
+- significantly up and down regulated genes
+- volcano plots
+
+## Correlations in regulated genes between treatments
+- Significantly regulated genes in each treatment
+
+# Discussion
+
+- Hmmmm...
+
+
+
+
+
+
+
+
