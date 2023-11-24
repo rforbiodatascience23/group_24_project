@@ -354,7 +354,7 @@ We then check the distribution of expression levels after log2 transformation
 ```{r}
 # DESC_3
 human_aug_log |> 
-  ggplot(mapping = aes(x = log2_expression_levels))+ 
+  ggplot(mapping = aes(x = log2_scaled_expression_levels))+ 
   geom_freqpoly()+ 
   facet_wrap(~treatment)
 ```
@@ -366,7 +366,7 @@ We can see now that the distribution is less skewed but we can still see that th
 
 human_aug_log |> 
   ggplot(mapping = aes(x = cell_line,
-                       y = log2_expression_levels,
+                       y = log2_scaled_expression_levels,
                        color = treatment))+
   geom_boxplot()+
    theme(axis.text.x = element_text(angle = 45), 
