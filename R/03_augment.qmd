@@ -1,0 +1,218 @@
+---
+title: "03_augment"
+format: html
+editor: visual
+---
+
+Now we are going to proceed with the augmentation of the mouse and human data sets
+
+```{r}
+library(tidyverse)
+library(dplyr)
+library(stringr)
+library(tidyr)
+
+Sys.setenv(VROOM_CONNECTION_SIZE = 3062144) # Setting a larger connection buffer to be able to load the data
+
+# Loading the clean data for the mouse and human datasets
+mouse_clean <- read_tsv(file = "../data/02_dat_clean_mouse.tsv.gz")
+mouse_data_suppl <- read_tsv(file = "../data/02_dat_clean_mouse_suppl.tsv.gz")
+human_clean <- read_tsv(file = "../data/02_dat_clean_human.tsv.gz")
+human_suppl_clean <- read_tsv(file = "../data/02_dat_clean_human_suppl.tsv.gz")
+```
+
+```{r}
+mouse_clean
+```
+
+We now create a new df where we lose the control group experiments (DMSO) and instead divide the non-control values with the DMSO values of each replicate from the other treatment gene expressions, and thereby convert from expression value to relative expressions. We then log2 transform the relative expression, such that a 0 means no change between control and treatment, positive values mean upregulated and negative means down_regulated.
+
+```{r}
+mouse_to_augment <- mouse_clean |>
+  pivot_longer(
+    cols = starts_with("ENSMUSG"),
+    names_to = "gene_id",
+    values_to = "expression_levels") |>
+  relocate(gene_id, 1)
+```
+
+It could be also used the local minimum for more precise tranformation of each expreriment
+
+```{r}
+min_pos_value <- mouse_to_augment |>
+  select(expression_levels) |>
+  filter(expression_levels != 0) |>
+  summarize(min = min(expression_levels)) |>
+  pull()  
+
+mouse_aug <- mouse_to_augment |>
+  mutate(
+    expression_levels = if_else(expression_levels == 0,
+                                expression_levels + 0.65 * min_pos_value,
+                                expression_levels))
+
+```
+
+```{r}
+mouse_trans_wide <- mouse_aug |>
+  pivot_wider(
+    names_from = gene_id,
+    values_from = expression_levels
+  )
+
+mouse_trans_wide
+```
+
+```{r}
+mouse_joined <- left_join(mouse_trans_wide,
+                          mouse_data_suppl,
+                          join_by("treatment" == "source_name"))
+mouse_joined
+```
+
+We now create a new dataframe where we lose the control group experiments (DMSO) and instead divide the non-control values with the DMSO values of each replicate from the other treatment gene expressions, and thereby convert from expression value to relative expressions. We then log2 transform the relative expression, such that a 0 means no change between control and treatment, and positive values mean upregulated and negative means down_regulated \$\$
+
+\\log
+
+(\\frac{expression\\\_control\\\_trial (DMSO)}{expression\\\_drugX\\\_trial})
+
+We now create a new df where we lose the control group experiments (DMSO) and instead subtract the noin-control values with the DMSO values of each replicate from the other treatment gene expressions, and thereby convert from expression value to log2 fold relative expressions. Due to the log law below \$\$
+
+\\log(expression\\\_treatment) - \\log(expression\\\_control\\\_trial (DMSO)) = \\log(\\frac{expression\\\_treatmentl (DMSO)}{expression\\\_control\\\_trial (DMSO)})
+
+```{r}
+# There are some issues here
+
+
+#so basically here we still have 0s
+#"Make a baseline dataset with the values for the control group"
+DMSO <- mouse_joined |>
+  filter(treatment=='DMSO') |>
+  select(-c(treatment))
+
+#"Making the relative dataset"
+rel_mouse_df <- mouse_joined |>
+   # Creating baseline columns for each gene with the baseline values for each replicate
+  left_join(DMSO,                   
+            by = 'replicate',
+            suffix = c("", "_baseline")
+            ) |>
+  # Subtracting baseline values from the original gene columns
+  mutate(across(-c("treatment",
+                   "replicate",
+                   ends_with('baseline')),
+                ~ .x - get(paste0(cur_column(), "_baseline"))
+                )
+         ) |> 
+  select(-c(ends_with('baseline')))  # remove the baseline helper columns
+```
+
+we then need to handle the inf values (originating from either 0/expression_control ot expression_treatmnet/0) and nan values that originate from 0/0
+
+```{r}
+inf_cap_value <- 31
+rel_mouse_df <- rel_mouse_df |>
+  mutate(across(everything(),
+                ~ ifelse(is.na(.x), 0,    # Replace NaNs with 0
+                         ifelse(is.infinite(.x), inf_cap_value * sign(.x), .x)))) 
+# Cap Inf and -Inf relative expression
+
+```
+
+## Human data set augmentation
+
+```{r}
+human_clean
+```
+
+```{r}
+human_joined<- human_clean |>
+  left_join(human_suppl_clean, 
+            join_by(treatment,cell_line))
+```
+
+```{r}
+human_to_augment <-human_joined |>
+  pivot_longer(
+    cols = starts_with("ENSG0"),
+    names_to = "gene_id" ,
+    values_to = "expression_levels"
+      ) |>
+    select(gene_id,
+         cell_line,
+         genotype,
+         treatment,
+         expression_levels)
+```
+
+In order to work with the DMSO and G007.LK values we chose to move on with log transformation in order to reduce the heteroscedasticity and stabilize the variance among the expression levels.
+
+Because we can't log on zeros we add on all the values the 0.65% of the minimum positive values of the expression levels feature as an offset
+
+```{r}
+min_pos_value <- human_to_augment |>
+  select(expression_levels) |>
+  filter(expression_levels != 0) |>
+  summarize(min = min(expression_levels)) |>
+  pull()
+
+human_aug<- human_to_augment |>
+  mutate(
+    expression_levels = if_else(expression_levels == 0,
+                                expression_levels + 0.65 * min_pos_value,
+                                expression_levels)
+    )
+```
+
+We can use it for the first PCA analysis based on the relative expressions of the gene expressions among the 18 cell lines in the two different conditions . We are going to exclude here the column genotype because we are not going to use it
+
+```{r}
+human_aug_log <- human_aug |>
+  mutate(log2_expression_levels = log2(expression_levels)) |>
+  relocate(gene_id,1) |>
+  select(-c(expression_levels,
+            genotype))
+```
+
+This is going to be the data frame format used for the PCA analysis with the relative expression levels
+
+```{r}
+human_log_expression<- human_aug_log |>
+  pivot_wider( names_from = gene_id,
+               values_from =log2_expression_levels)
+
+human_log_expression
+```
+
+Now we are going to create the format for the PCA using the log2fc as a value for the gene columns
+
+```{r}
+human_aug_sep_treat <- human_aug_log |>
+  pivot_wider(names_from = "treatment",
+              values_from = "log2_expression_levels")
+```
+
+\# To be used for PCA when we use the log2fchange as a measure for the gene expression.
+
+```{r}
+human_aug_log2fc <- human_aug_sep_treat |>
+  mutate(log2foldchange = G007LK - DMSO)|>
+  select(-c(DMSO, G007LK))
+```
+
+```{r}
+human_log2fc_wide<- human_aug_log2fc |>
+  pivot_wider(names_from = gene_id,
+              values_from =log2foldchange)
+
+human_log2fc_wide
+```
+
+# !!!We have to check the rel_mouse_df!!!
+
+```{r}
+write_tsv(x = rel_mouse_df, file = str_c("../data/04_dat_aug_mouse", ".tsv.gz"))
+
+write_tsv(human_log_expression, "../data/03_dat_aug_human_log.tsv.gz")
+write_tsv(human_log2fc_wide, "../data/03_dat_aug_human_log2fc.tsv.gz")
+```

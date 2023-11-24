@@ -1,0 +1,360 @@
+---
+title: "04_describe"
+format: html
+editor: visual
+message: false
+---
+
+```{r}
+install.packages("VennDiagram")
+library(VennDiagram)
+library(tidyverse)
+library(purrr) 
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(patchwork)
+library(viridis)
+library(ggridges)
+```
+
+```{r}
+Sys.setenv(VROOM_CONNECTION_SIZE = 3062144)
+
+human_aug <- read_tsv(file = "../data/03_dat_aug_human_log.tsv.gz") 
+human_aug_log2fc <- read_tsv(file = "../data/03_dat_aug_human_log2fc.tsv.gz") 
+human_clean <- read_tsv(file = "../data/02_dat_clean_human.tsv.gz")
+mouse_wide <- read_tsv(file = "../data/02_dat_clean_mouse.tsv.gz")
+```
+
+Before delving into the analysis, we would like to understand the data a bit better.
+
+First we investigate the mouse data set.
+
+We want to ensure that the data set is balanced, such that each treatment is repeated the same number of times. We do this by counting the occurrences of each treatment and replicate.
+
+```{r}
+treatment_counts <- mouse_wide |> 
+  count(treatment) 
+replicate_counts <- mouse_wide |>
+  count(replicate) 
+
+treatment_counts 
+replicate_counts
+```
+
+We also want to understand each gene a bit better. To do this, we compute some summary statistics and count how many zeroes and non-zeroes there are in each column.
+
+```{r}
+mouse_analysis <- mouse_wide |>
+  #should be a fucntion 
+  pivot_longer(cols = -c(treatment, replicate),
+               names_to = "gene",
+               values_to = "expression_levels" )
+```
+
+First we want to see the distribution of the expression levels
+
+```{r}
+mouse_analysis |>
+  ggplot( mapping = aes (x = expression_levels))+
+  geom_freqpoly()+ 
+  facet_wrap(~treatment)
+```
+
+After log transformation EEEEEEEEEEEEEEEEEEE
+
+```{r}
+mouse_analysis |> 
+  ggplot( mapping = aes (x = expression_levels))+
+  geom_freqpoly()+ 
+  facet_wrap(~treatment)
+```
+
+```{r}
+mouse_statistics <- mouse_analysis |> 
+  group_by(gene) |> 
+  summarise(non_zero_count = sum(expression_levels != 0), 
+            zero_count = sum(expression_levels == 0),
+            max_value = max(expression_levels),
+            median_value = median(expression_levels),
+            average_value = mean(expression_levels) 
+            )
+
+mouse_statistics
+```
+
+We indeed have a lot of genes with no activity under any of the treatments
+
+We can also get a crude look at the average activity of the treatments.
+
+```{r}
+ mouse_analysis |> 
+   group_by(treatment) |> 
+   summarise(average_expression_levels = mean(expression_levels,
+                                              na.rm = TRUE)) |>
+   ggplot(mapping = aes(x = treatment, 
+                        y = average_expression_levels)) +
+   geom_bar(stat = "identity",
+            fill = "blue") + 
+   theme_minimal() +
+   labs(title = "Average Gene Expression for Each Treatment",
+        x = "Treatment", 
+        y = "Average Expression Levels")
+```
+
+They seem to be roughly the same, with the combined treatment being slightly higher than the rest. Let's look at the replicates within treatments as well.
+
+`{# {r} # # Calculate average activity for each treatment and replicate # gene_analysis |>  #   group_by(treatment,  #            replicate) |>  #   summarise(average_expression_levels = mean(expression_levels, #                                              na.rm = TRUE)) |> # # Plot average activity for each treatment and replicate #  #   ggplot(mapping = aes(x = treatment,  #                      y = average_expression_levels,  #                      fill = replicate)) +  #   geom_bar(stat = "identity",  #            position = position_dodge(width = 0.8)) +  #   theme_minimal() +  #   labs(title = "Average Gene Activity by Treatment and Replicate",  #        x = "Treatment",  #        y = "Average Activity")`
+
+These are also very similar. It would be hard to know the treatment just from the activity. Let's look a bit more into the distribution of zeroes.
+
+```{r}
+#Calculate zero counts for each gene
+zero_counts_genes <- mouse_analysis |>
+  group_by(gene) |> 
+  summarise(zero_count = sum(expression_levels == 0))
+
+#Create a histogram plot with percentages
+zero_counts_genes |> 
+  ggplot(aes(x = zero_count)) + 
+  geom_histogram(mapping = aes(y = ..count../sum(..count..)), 
+                 binwidth = 1, 
+                 fill = "green") + 
+  scale_y_continuous(labels = scales::percent_format()) + 
+  theme_minimal() + 
+  labs(title = "Inactive Gene Percentage per Replicate", 
+       x = "Number of Sample", 
+       y = "Percentage of Genes")
+```
+
+We can see that most genes are either all zeroes (\~40%) or all non-zeroes( 33%). Let's also compare the number of active genes in each treatment.
+
+```{r}
+#Determine active genes (non-zero activity) for each treatment
+
+active_genes_per_treatment <- mouse_analysis |>
+  filter(expression_levels > 0) |> 
+  group_by(treatment) |> 
+  summarise(active_genes = n_distinct(gene))
+
+#Plot number of active genes per treatment
+
+active_genes_plot <- active_genes_per_treatment |> 
+  ggplot(mapping = aes(x = treatment, 
+                       y = active_genes)) + 
+  geom_bar(stat = "identity", 
+           fill = "orange") + 
+  theme_minimal() + 
+  labs(title = "Number of Active Genes per Treatment", 
+       x = "Treatment", 
+       y = "Number of Active Genes")
+
+active_genes_plot
+```
+
+Again, we get very similar numbers. Curiously, the combined treatment has lower active genes than G007LK. We can also compare the active and inactive gene sets of the treatments.
+
+`{# {r} # #Prepare the list of active genes for each treatment #  # active_genes_sets <- gene_analysis |>  #   filter(expression_levels > 0) |>  #   select(treatment, gene) |>  #   distinct() |>  #   group_split(treatment) |>  #   map(~unique(.x$gene)) #iterate the group_split operation across every gene #  # #Generate the Venn diagram for a subset of treatments (e.g., the first three) #  # selected_treatments <- names(active_genes_sets)[-1]  # venn_data <- active_genes_sets |>  #   select(all_of(selected_treatments)) #  # #Create the Venn diagram #  # venn_plot <- venn.diagram( x = venn_data, #                            category.names = selected_treatments,  #                            filename = NULL ) #  # plot_venn <- function(venn_data, selected_treatments){  #   venn_plot<- venn.diagram( x = venn_data,  #                             category.names = selected_treatments,  #                             filename = NULL )  #   # Plot the Venn diagram  #   grid.newpage()  #   grid.draw(venn_plot)  # }  #  # venn_plot<- venn_data |>  #   plot_venn(selected_treatments)`
+
+We now investigate the human data set.
+
+We check the distribution of expression levels
+
+```{r}
+human_analysis <- human_clean |>
+  pivot_longer(cols = -c(cell_line,treatment),
+               names_to = "gene",
+               values_to = "expression_levels" )|>
+  relocate(gene, .before = 1)
+```
+
+```{r}
+human_analysis |> 
+  ggplot(mapping = aes (x = expression_levels))+ 
+  geom_freqpoly()+ 
+  facet_wrap(~treatment)
+```
+
+```{r}
+human_statistics <- human_analysis |> 
+  group_by(gene) |> 
+  summarise(non_zero_count = sum(expression_levels != 0), 
+            zero_count = sum(expression_levels == 0),
+            max_value = max(expression_levels),
+            median_value = median(expression_levels),
+            average_value = mean(expression_levels) 
+            )
+
+human_statistics
+```
+
+We observe many observations equal to zero, but how many of them are there for each cell line?
+
+We have to check it
+
+```{r}
+human_analysis |> 
+  filter(treatment == "DMSO") |> 
+  summarise(DMSO_0 = sum(expression_levels == 0))
+
+human_analysis |> 
+  filter(treatment == "G007LK") |> 
+  summarise(G007LK_0 = sum(expression_levels == 0))
+```
+
+```{r}
+zero_counts_genes <- human_analysis |>
+  group_by(gene) |> 
+  summarise(zero_count = sum(expression_levels == 0))
+
+#Create a histogram plot with percentages
+
+zero_counts_genes |> 
+  ggplot(mapping = aes(x = zero_count)) +
+  geom_histogram(mapping = aes(y = ..count../sum(..count..)), 
+                 binwidth = 1, 
+                 fill = "green") + 
+  scale_y_continuous(labels = scales::percent_format()) + 
+  theme_minimal() + 
+  labs(title = "Inactive Gene Percentage per Sample", 
+       x = "Number of Samples", 
+       y = "Percentage of Genes")
+```
+
+```{r}
+human_analysis |> 
+  group_by(treatment, cell_line) |> 
+  summarise(average_expression_levels = mean(expression_levels, na.rm = TRUE)) |>
+
+#Plot average activity for each treatment and replicate
+
+ggplot(mapping = aes(x = cell_line, 
+                     y = average_expression_levels, 
+                     fill = treatment)) + 
+  geom_bar(stat = "identity", 
+           position = position_dodge(width = 0.8)) + 
+  theme_minimal() + 
+  labs(title = "Average Gene Activity by Treatment and Cell line", 
+       x = "Cell lines", 
+       y = "Average Expression levels")+ 
+  scale_fill_discrete(name = "treatment")+ 
+  theme(axis.text.x = element_text(angle = 45), 
+        axis.text = element_text(vjust = 0.5, 
+                                 size = 6))
+
+
+```
+
+```{r}
+active_genes_per_cell <- human_analysis |> 
+  filter(expression_levels > 0) |> 
+  group_by(cell_line) |> 
+  summarise(active_genes = n_distinct(gene))
+
+#Plot number of active genes per treatment
+
+active_genes_plot <- ggplot(data = active_genes_per_cell, 
+                            mapping =aes(x = cell_line, 
+                                         y = active_genes)) + 
+  geom_bar(stat = "identity", 
+           fill = "orange") + 
+  theme_minimal() + 
+  labs(title = "Number of Active Genes per Cell Line", 
+       x = "Cell Lines", 
+       y = "Number of Active Genes")+ 
+  theme(axis.text.x = element_text(angle = 45) )+ 
+  scale_y_continuous(breaks = seq(0,27500, by = 2500))
+
+print(active_genes_plot)
+```
+
+We then check the distribution of expression levels after log2 transformation
+
+```{r}
+# DESC_3
+human_aug_log |> 
+  ggplot(mapping = aes(x = log2_expression_levels))+ 
+  geom_freqpoly()+ 
+  facet_wrap(~treatment)
+```
+
+We can see now that the distribution is less skewed but we can still see that the majority of the observations are equal to zero (equal to -34.52 after the log2 transformation).
+
+```{r}
+#An other approach of the same dataset 
+
+human_aug_log |> 
+  ggplot(mapping = aes(x = cell_line,
+                       y = log2_expression_levels,
+                       color = treatment))+
+  geom_boxplot()+
+   theme(axis.text.x = element_text(angle = 45), 
+        axis.text = element_text(vjust = 0.5, 
+                                 size = 6))+
+  facet_wrap(~treatment)
+```
+
+The bulk of zeros suggests that, for many genes in many cell lines, there is no difference in expression between the two conditions. This is a common observation, as many genes in different cell lines may not respond strongly to experimental conditions.
+
+```{r}
+human_log2fc_long <- human_aug_log2fc |>
+  pivot_longer(cols = starts_with("ENSG"),
+               names_to = "gene",
+               values_to = "log2_fold_change")
+
+down <- human_log2fc_long |>
+  arrange(log2_fold_change)|>
+  head(25)
+
+up <- human_log2fc_long |>
+  arrange(desc(log2_fold_change))|>
+  head(25)
+
+up_and_down <- bind_rows(down, up)
+
+up_and_down
+
+up_and_down|>
+ggplot(aes(x = gene,
+           y = cell_line,
+           fill = log2_fold_change))+
+  geom_tile()+
+  scale_fill_gradient2(low = 'blue',
+                       high ='red', 
+                       midpoint= 0)+
+  theme(axis.text.x = element_text(angle = 45, 
+                                   vjust = 1, 
+                                   hjust=1),
+        axis.text=element_text(size=4),
+        axis.title=element_text(size=5))+
+  theme(legend.position = 'bottom',
+        legend.key.size = unit(5, 'mm'),
+        legend.title=element_text(size=5),
+        legend.text=element_text(size=5))+
+  coord_fixed(ratio=0.6)
+```
+
+```{r}
+human_aug_sep_treat |> 
+  filter(DMSO != log2(0.65*min_pos_value) & G007LK != log2(0.65*min_pos_value)) |>
+  mutate(log2fc =round(G007LK - DMSO,2)) |>
+  filter(abs(log2fc)>1.5) |> 
+  ggplot(mapping = aes(x = DMSO,
+                       y = G007LK))+
+  geom_point(mapping = aes(color = cell_line))+
+   theme(axis.text.x = element_text(angle = 45), 
+        axis.text = element_text(vjust = 0.5, 
+                                 size = 6))+
+  facet_wrap(~cell_line,ncol =5 )+
+  geom_smooth(method = "loess")
+
+#distribution in each cell line, patterns of up and down regulation,WM35 50% more up than down genes, FenxI the opposite
+human_aug_sep_treat |> 
+  filter(DMSO != log2(0.65*min_pos_value) & G007LK != log2(0.65*min_pos_value)) |>
+  mutate(log2fc =round(G007LK - DMSO,2)) |>
+  filter(abs(log2fc)>1.5) |> 
+  ggplot(mapping = aes(x = log2fc))+
+  geom_freqpoly()+
+  facet_wrap(~cell_line)
+```
