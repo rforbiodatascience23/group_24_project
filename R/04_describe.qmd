@@ -22,9 +22,9 @@ library(ggridges)
 ```{r}
 Sys.setenv(VROOM_CONNECTION_SIZE = 3062144)
 
-human_aug <- read_tsv(file = "../data/03_dat_aug_human_log.tsv.gz") 
-human_aug_log2fc <- read_tsv(file = "../data/03_dat_aug_human_log2fc.tsv.gz")
-human_aug_log <- read_tsv(file = "../data/03_dat_aug_human_loc.tsv.gz")
+human_aug <- read_tsv(file = "../data/03_dat_aug_human.tsv.gz") 
+human_aug_log2fc_wide <- read_tsv(file = "../data/03_dat_aug_human_log2fc_wide.tsv.gz")
+human_aug_wide_gene <- read_tsv(file = "../data/03_dat_aug_human_wide_gene.tsv.gz")
 human_clean <- read_tsv(file = "../data/02_dat_clean_human.tsv.gz")
 mouse_wide <- read_tsv(file = "../data/02_dat_clean_mouse.tsv.gz")
 mouse_aug <- read_tsv(file = "../data/03_dat_aug_mouse.tsv.gz")
@@ -109,25 +109,35 @@ We can also get a crude look at the average activity of the treatments.
 They seem to be roughly the same, with the combined treatment being slightly higher than the rest. Let's look at the replicates within treatments as well.
 
 ```{r}
-## Calculate average activity for each treatment and replicate
-#average_activity_treatment_replicate <- mouse_wide |>
-#  pivot_longer(
-#    cols = -c(treatment, replicate),
-#    names_to = "gene",
-#    values_to = "activity"
-#  ) |>
-#  group_by(treatment, replicate) |>
-#  summarise(average_activity = mean(activity, na.rm = TRUE))
-#
-## Plot average activity for each treatment and replicate
-#ggplot(average_activity_treatment_replicate, aes(x = replicate(),
-#                                                 y = average_activity,
-#                                                fill = treatment)) +
-#  geom_bar(stat = "identity", position = position_dodge()) +
-#  theme_minimal() +
-#  labs(title = "Average Gene Activity by Treatment and Replicate", 
-#       x = "Treatment", 
-#       y = "Average Activity")
+# Calculate average activity for each treatment and replicate
+average_activity_treatment_replicate <- mouse_wide %>%
+  pivot_longer(
+    cols = -c(treatment, replicate),
+    names_to = "gene",
+    values_to = "activity"
+  ) %>%
+  group_by(treatment, replicate) %>%
+  summarise(average_activity = mean(activity,
+                                    na.rm = TRUE),
+            .groups = "drop")  # Added .groups = "drop"
+
+# Create a combined treatment and replicate label
+average_activity_treatment_replicate <- average_activity_treatment_replicate %>%
+  mutate(treatment_replicate = paste(treatment, replicate, sep = " - "))
+
+# Plot average activity for each treatment and replicate as a grouped bar plot with color by treatment
+ggplot(average_activity_treatment_replicate, aes(x = treatment_replicate,
+                                                 y = average_activity,
+                                                 fill = treatment)) +
+  geom_bar(stat = "identity", 
+           position = position_dodge(width = 0.8)) +
+  theme_minimal() +
+  theme(text = element_text(size = 10),  # Reducing the text size
+        axis.text.x = element_text(angle = 45,
+                                   hjust = 1)) +  # Rotate x-axis labels for better readability
+  labs(title = "Average Gene Activity by Treatment and Replicate",
+       x = "Treatment and Replicate",
+       y = "Average Activity")
 ```
 
 These are also very similar. It would be hard to know the treatment just from the activity. Let's look a bit more into the distribution of zeroes.
@@ -210,38 +220,6 @@ grid.newpage()
 grid.draw(venn_plot)
 ```
 
-```{r}
-# Calculate average activity for each treatment and replicate
-average_activity_treatment_replicate <- mouse_wide %>%
-  pivot_longer(
-    cols = -c(treatment, replicate),
-    names_to = "gene",
-    values_to = "activity"
-  ) %>%
-  group_by(treatment, replicate) %>%
-  summarise(average_activity = mean(activity,
-                                    na.rm = TRUE),
-            .groups = "drop")  # Added .groups = "drop"
-
-# Create a combined treatment and replicate label
-average_activity_treatment_replicate <- average_activity_treatment_replicate %>%
-  mutate(treatment_replicate = paste(treatment, replicate, sep = " - "))
-
-# Plot average activity for each treatment and replicate as a grouped bar plot with color by treatment
-ggplot(average_activity_treatment_replicate, aes(x = treatment_replicate,
-                                                 y = average_activity,
-                                                 fill = treatment)) +
-  geom_bar(stat = "identity", 
-           position = position_dodge(width = 0.8)) +
-  theme_minimal() +
-  theme(text = element_text(size = 10),  # Reducing the text size
-        axis.text.x = element_text(angle = 45,
-                                   hjust = 1)) +  # Rotate x-axis labels for better readability
-  labs(title = "Average Gene Activity by Treatment and Replicate",
-       x = "Treatment and Replicate",
-       y = "Average Activity")
-```
-
 We now investigate the human data set.
 
 We check the distribution of expression levels
@@ -261,6 +239,15 @@ human_analysis |>
   facet_wrap(~treatment)
 ```
 
+We then check the distribution of expression levels after log2 transformation
+
+```{r}
+human_aug |>
+  ggplot(mapping = aes(x = log2_expression_levels))+ 
+  geom_freqpoly()+ 
+  facet_wrap(~treatment)
+```
+
 ```{r}
 human_statistics <- human_analysis |> 
   group_by(gene) |> 
@@ -273,6 +260,8 @@ human_statistics <- human_analysis |>
 
 human_statistics
 ```
+
+The bulk of zeros suggests that, for many genes in many cell lines, there is no difference in expression between the two conditions. This is a common observation, as many genes in different cell lines may not respond strongly to experimental conditions.
 
 We observe many observations equal to zero, but how many of them are there for each cell line?
 
@@ -353,24 +342,12 @@ active_genes_plot <- ggplot(data = active_genes_per_cell,
 print(active_genes_plot)
 ```
 
-We then check the distribution of expression levels after log2 transformation
-
-```{r}
-# DESC_3
-human_aug_log |> 
-  ggplot(mapping = aes(x = log2_scaled_expression_levels))+ 
-  geom_freqpoly()+ 
-  facet_wrap(~treatment)
-```
-
 We can see now that the distribution is less skewed but we can still see that the majority of the observations are equal to zero (equal to -34.52 after the log2 transformation).
 
 ```{r}
-#An other approach of the same dataset 
-
-human_aug_log |> 
+human_aug |> 
   ggplot(mapping = aes(x = cell_line,
-                       y = log2_scaled_expression_levels,
+                       y = log2_expression_levels,
                        color = treatment))+
   geom_boxplot()+
    theme(axis.text.x = element_text(angle = 45), 
@@ -379,19 +356,17 @@ human_aug_log |>
   facet_wrap(~treatment)
 ```
 
-The bulk of zeros suggests that, for many genes in many cell lines, there is no difference in expression between the two conditions. This is a common observation, as many genes in different cell lines may not respond strongly to experimental conditions.
-
 ```{r}
-human_log2fc_long <- human_aug_log2fc |>
+human_aug_log2fc_long <- human_aug_log2fc_wide |>
   pivot_longer(cols = starts_with("ENSG"),
                names_to = "gene",
                values_to = "log2_fold_change")
 
-down <- human_log2fc_long |>
+down <- human_aug_log2fc_long |>
   arrange(log2_fold_change)|>
   head(25)
 
-up <- human_log2fc_long |>
+up <- human_aug_log2fc_long |>
   arrange(desc(log2_fold_change))|>
   head(25)
 
@@ -417,28 +392,4 @@ ggplot(aes(x = gene,
         legend.title=element_text(size=5),
         legend.text=element_text(size=5))+
   coord_fixed(ratio=0.6)
-```
-
-```{r}
-human_aug_sep_treat |> 
-  filter(DMSO != log2(0.65*min_pos_value) & G007LK != log2(0.65*min_pos_value)) |>
-  mutate(log2fc =round(G007LK - DMSO,2)) |>
-  filter(abs(log2fc)>1.5) |> 
-  ggplot(mapping = aes(x = DMSO,
-                       y = G007LK))+
-  geom_point(mapping = aes(color = cell_line))+
-   theme(axis.text.x = element_text(angle = 45), 
-        axis.text = element_text(vjust = 0.5, 
-                                 size = 6))+
-  facet_wrap(~cell_line,ncol =5 )+
-  geom_smooth(method = "loess")
-
-#distribution in each cell line, patterns of up and down regulation,WM35 50% more up than down genes, FenxI the opposite
-human_aug_sep_treat |> 
-  filter(DMSO != log2(0.65*min_pos_value) & G007LK != log2(0.65*min_pos_value)) |>
-  mutate(log2fc =round(G007LK - DMSO,2)) |>
-  filter(abs(log2fc)>1.5) |> 
-  ggplot(mapping = aes(x = log2fc))+
-  geom_freqpoly()+
-  facet_wrap(~cell_line)
 ```

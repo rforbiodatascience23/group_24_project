@@ -143,57 +143,65 @@ human_aug <- joined_human |>
   pivot_longer(
     cols = starts_with("ENSG"),
     names_to = "gene_id",
-    values_to = "scaled_expression_levels"
+    values_to = "expression_levels"
   )
 human_aug
 ```
 
-We can use it for the first PCA analysis based on the relative expressions of the gene expressions among the 18 cell lines in the two different conditions . We are going to exclude here the column genotype because we are not going to use it
+We can use it for the first PCA analysis based on the relative expressions of the gene expressions among the 18 cell lines in the two different conditions .
 
 ```{r}
-human_aug_log <- human_aug |>
-  mutate(log2_scaled_expression_levels = log2(scaled_expression_levels)) |>
-  select(-scaled_expression_levels)
+human_aug <- human_aug |>
+  mutate(log2_expression_levels = log2(expression_levels)) |>
+  select(-expression_levels)
+
+human_aug
 ```
 
-This is going to be the data frame format used for the PCA analysis with the relative expression levels
+The next data frame is going to be the data frame format used for the PCA analysis with the relative expression levels
 
 ```{r}
-human_log_expression <- human_aug_log |>
+human_aug_wide_gene <- human_aug |>
   pivot_wider(names_from = gene_id,
-              values_from =log2_scaled_expression_levels)
+              values_from =log2_expression_levels)
 
-human_log_expression
+human_aug_wide_gene
 ```
 
 Now we are going to create the format for the PCA using the log2fc as a value for the gene columns
 
 ```{r}
-human_aug_sep_treat <- human_aug_log |>
+human_aug_wide_treat <- human_aug |>
   pivot_wider(names_from = "treatment",
-              values_from = "log2_scaled_expression_levels")
+              values_from = "log2_expression_levels")
+
+human_aug_wide_treat
 ```
 
 \# To be used for PCA when we use the log2foldchange as a measure for the gene expression.
 
 ```{r}
-human_aug_log2fc <- human_aug_sep_treat |>
+human_aug_log2fc <- human_aug_wide_treat |>
   mutate(log2foldchange = G007LK - DMSO)|>
   select(-c(DMSO, G007LK))
+
+human_aug_log2fc
 ```
 
 ```{r}
-human_log2fc_wide<- human_aug_log2fc |>
+human_aug_log2fc_wide<- human_aug_log2fc |>
   pivot_wider(names_from = gene_id,
               values_from =log2foldchange)
 
-human_log2fc_wide
+human_aug_log2fc_wide
 ```
+
+We proceed without joining the human supplementary data set with the main one because it doesn't convey any useful information.
 
 ```{r}
 write_tsv(x = rel_mouse_df, file = str_c("../data/03_dat_aug_mouse", ".tsv.gz"))
 
-# write_tsv(human_aug_log, "../data/03_dat_aug_human_log.tsv.gz")
-write_tsv(human_log_expression, "../data/03_dat_aug_human_log.tsv.gz")
-write_tsv(human_log2fc_wide, "../data/03_dat_aug_human_log2fc.tsv.gz")
+write_tsv(human_aug, "../data/03_dat_aug_human.tsv.gz")
+write_tsv(human_aug_wide_gene, "../data/03_dat_aug_human_wide_gene.tsv.gz")
+write_tsv(human_aug_log2fc_wide, "../data/03_dat_aug_human_log2fc_wide.tsv.gz")
 ```
