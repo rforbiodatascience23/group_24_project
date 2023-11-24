@@ -178,6 +178,30 @@ Again, we get very similar numbers. Curiously, the combined treatment has lower 
 
 `{# {r} # #Prepare the list of active genes for each treatment #  # active_genes_sets <- gene_analysis |>  #   filter(expression_levels > 0) |>  #   select(treatment, gene) |>  #   distinct() |>  #   group_split(treatment) |>  #   map(~unique(.x$gene)) #iterate the group_split operation across every gene #  # #Generate the Venn diagram for a subset of treatments (e.g., the first three) #  # selected_treatments <- names(active_genes_sets)[-1]  # venn_data <- active_genes_sets |>  #   select(all_of(selected_treatments)) #  # #Create the Venn diagram #  # venn_plot <- venn.diagram( x = venn_data, #                            category.names = selected_treatments,  #                            filename = NULL ) #  # plot_venn <- function(venn_data, selected_treatments){  #   venn_plot<- venn.diagram( x = venn_data,  #                             category.names = selected_treatments,  #                             filename = NULL )  #   # Plot the Venn diagram  #   grid.newpage()  #   grid.draw(venn_plot)  # }  #  # venn_plot<- venn_data |>  #   plot_venn(selected_treatments)`
 
+```{r}
+# Calculate average activity for each treatment and replicate
+average_activity_treatment_replicate <- mouse_wide %>%
+  pivot_longer(
+    cols = -c(treatment, replicate),
+    names_to = "gene",
+    values_to = "activity"
+  ) %>%
+  group_by(treatment, replicate) %>%
+  summarise(average_activity = mean(activity, na.rm = TRUE), .groups = "drop")  # Added .groups = "drop"
+
+# Create a combined treatment and replicate label
+average_activity_treatment_replicate <- average_activity_treatment_replicate %>%
+  mutate(treatment_replicate = paste(treatment, replicate, sep = " - "))
+
+# Plot average activity for each treatment and replicate as a grouped bar plot with color by treatment
+ggplot(average_activity_treatment_replicate, aes(x = treatment_replicate, y = average_activity, fill = treatment)) +
+  geom_bar(stat = "identity", position = position_dodge(width = 0.8)) +
+  theme_minimal() +
+  theme(text = element_text(size = 10),  # Reducing the text size
+        axis.text.x = element_text(angle = 45, hjust = 1)) +  # Rotate x-axis labels for better readability
+  labs(title = "Average Gene Activity by Treatment and Replicate", x = "Treatment and Replicate", y = "Average Activity")
+```
+
 We now investigate the human data set.
 
 We check the distribution of expression levels
