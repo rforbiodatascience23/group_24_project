@@ -1,0 +1,26 @@
+---
+title: "00_all"
+format: html
+editor: visual
+message: false
+---
+
+```{r message = FALSE}
+library(tidyverse)
+library(readr)
+library(stringr)
+library(dplyr)
+library(tidyr)
+library(VennDiagram)
+library(purrr) 
+library(dplyr)
+library(ggplot2)
+library(patchwork)
+library(viridis)
+library(ggridges)
+library(cowplot) 
+library(ggrepel)
+library(scales)
+library(broom)
+source("../R/99_proj_func.R")
+```
