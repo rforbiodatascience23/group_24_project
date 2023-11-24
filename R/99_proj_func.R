@@ -106,7 +106,7 @@ generate_lm_genes <- function(df, treatm){
 
 ###############################################################################
 signif_genes_error_bars <- function(df){
-  df %>% 
+  p <- df %>% 
   filter(signif==TRUE) %>% 
   arrange(estimate) |> 
     mutate(Gene = factor(Gene, levels = unique(Gene))) |> 
@@ -122,27 +122,31 @@ signif_genes_error_bars <- function(df){
           panel.grid.minor = element_line(color = "lightgrey", size = 0.1),
           plot.title = element_text(size = 11))+
     geom_vline(aes(xintercept=0), linetype="solid", color="black")
+  print(p)
 }
 
 ###############################################################################
-volcano_plot <- function(df){
-  df %>% 
-  mutate('neglog10p'= -log10(p.value)) |> 
-  arrange(estimate) |> 
-  mutate(Gene = factor(Gene, levels = unique(Gene))) |> 
-  ggplot(aes(x=estimate,y = neglog10p, color=signif, labels=Gene)) +
-    geom_point(alpha=0.1) +
-    labs(title='Genes Associated with treatment of GK007 in mouse', 
-         xlab='Estimate (95% CIs)', 
-         ylab='-log10(p)') +
-    scale_color_manual(values = c("FALSE" = "red", "TRUE" = "turquoise")) #+
+volcano_plot <- function(df) {
+  p <- df %>% 
+    mutate(neglog10p = -log10(p.value)) %>%
+    arrange(estimate) %>%
+    mutate(Gene = factor(Gene, levels = unique(Gene))) %>%
+    ggplot(aes(x = estimate, y = neglog10p, color = signif, label = Gene)) +
+    geom_point(alpha = 0.1) +
+    labs(title = 'Volcano Plot',
+         xlab = 'Log2 Fold Change',
+         ylab = '-log10(p-value)') +
+    scale_color_manual(values = c(`FALSE` = "blue", `TRUE` = "red")) +
+    theme_minimal() +
+    theme(plot.title = element_text(size = 11))
+    #+
     #geom_text_repel(aes(label=ifelse(signif, as.character(Gene), "")), 
     #                size = 2,             
     #                label.size = NA,      
     #                max.overlaps = Inf,   
     #                box.padding = 0.3,    
     #                point.padding = 0.4) +
-    theme(plot.title = element_text(size = 11))
+  print(p)
 }
 
 

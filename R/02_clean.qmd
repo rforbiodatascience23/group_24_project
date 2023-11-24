@@ -83,8 +83,6 @@ mouse_clean <- mouse_data_separated_repl |>
 mouse_clean
 ```
 
-
-
 After cleaning we end up with this format were we have the different treatments as rows with replicate number and gene_ids as variables.
 
 Now we are going to clean the mouse supplementary file. Upon inspection of the data set it is seen that most supplementary data are simply consistent general experiment metadata that do not vary between the individual drug experiments. The concentration of the drugs used is the only column that could pose any valuable information and we there filter the data set to only retain this value for each compound.
@@ -102,7 +100,6 @@ mouse_suppl_clean <-mouse_suppl_data |>
        ~str_remove(., "comment_"),
     starts_with("comment_")
   )
-
 ```
 
 ```{r}
@@ -125,25 +122,6 @@ mouse_suppl_clean
 ```
 
 Now we are done with the cleaning procedure of the mouse data and supplementary data
-
-```{r}
-# # Filtering the columns to the Factor Value and the compound
-# mouse_suppl_clean_final <- mouse_suppl_clean |>
-#   select(c("source_name",
-#            "compound_dose"))
-```
-
-```{r}
-# # splitting the compound and grouping the dataset on compound
-# mouse_suppl_clean_final <- mouse_suppl_clean_final |>
-#   separate(
-#     col = source_name,
-#     into = c("treatment", "replicate"),
-#     sep = "-") |>
-#   distinct(treatment, compound_dose)
-#  
-# mouse_suppl_clean_final
-```
 
 ```{r}
 #Save the files containing the mouse data
@@ -201,44 +179,8 @@ human_clean <- human_clean_long |>
 
 human_clean
 ```
-```{r}
-#this is very costly to do on the entire dataframe
-#test <- human_clean[3:10]
-test <- select(human_clean, -c(treatment, replicate))
-zeroes_removed_human <- test %>% select_if(~ !all(. == 0))
 
-```
-
-```{r}
-zeroes_replaced_human <- zeroes_removed_human %>% 
-  rowwise() %>% 
-  mutate(across(everything(), ~ ifelse(. == 0, 0.65 * min(c_across(where(is.numeric))[c_across(where(is.numeric)) != 0], na.rm = TRUE), .)))
-
-zeroes_replaced_sums_human <- zeroes_replaced_human %>%
-  rowwise() %>%
-  mutate(total_sum = sum(c_across(everything()), na.rm = TRUE))
-n = 1000000
-scaled_data_human <- zeroes_replaced_sums_human %>%
-  mutate(scaling_factor = n / total_sum) %>%
-  rowwise() %>%
-  mutate(across(-c(total_sum, scaling_factor), ~ . * scaling_factor)) %>%
-  select(-total_sum, -scaling_factor)
-
-scaled_data_human %>%
-  rowwise() %>%
-  mutate(row_sums = sum(c_across(everything()), na.rm = TRUE))
-
-joined_human <- bind_cols(human_wide[1:2],scaled_data_human)
-
-scaled_human_long <- joined_human %>%
-  pivot_longer(
-    cols = -c(treatment, cell_line), # Select all columns except 'treatment' and 'cell_line'
-    names_to = "gene_id",            # This will be the new column for the gene IDs
-    values_to = "expression_levels"  # This will be the new column for the expression levels
-  )
-
-```
-After cleaning we have a data set with the gene_ids as variables and cell line and treatment as rows.
+After cleaning we have a data set with the genes as variables and cell line and treatment as rows.
 
 Now we are going to clean the supplementary human file.
 
