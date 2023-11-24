@@ -6,6 +6,8 @@ editor: visual
 
 ```{r}
 #|label: load the packages
+#|install.packages("VennDiagram")
+library(VennDiagram)
 library(tidyverse)
 library(stringr)
 library(dplyr)
@@ -66,32 +68,33 @@ volcano_plot(mouse_WNTG007LK_lm)
 ```
 
 ```{r}
-combined_df <- bind_rows(
-  mouse_WNT_lm,
-  mouse_WNTG007LK_lm,
-  mouse_G007LK_lm
-)
-
-significant_genes_df <- combined_df %>%
+genes_G007LK <- mouse_G007LK_lm %>% 
   filter(signif) %>%
-  select(Gene, estimate, Treatment)
+  pull(Gene)
 
-significant_genes_df %>% 
-  ggplot(aes(x = Treatment,
-           y = Gene,
-           fill = estimate))+
-    geom_tile()+
-    scale_fill_gradient2(low = 'blue',
-                         high ='red', 
-                         midpoint= 0)+
-    theme(axis.text.x = element_text(angle = 45, 
-                                     vjust = 1, 
-                                     hjust=1),
-          axis.text=element_text(size=4),
-          axis.title=element_text(size=5))+
-    theme(legend.position = 'bottom',
-          legend.key.size = unit(5, 'mm'),
-          legend.title=element_text(size=5),
-          legend.text=element_text(size=5))+
-    coord_fixed(ratio=0.6)
+genes_WNTG007LK <- significant_genes_df %>% 
+  filter(Treatment) %>% 
+  pull(Gene)
+
+genes_WNT <- significant_genes_df %>% 
+  filter(Treatment) %>% 
+  pull(Gene)
+
+gene_lists <- list(G007LK = genes_G007LK, WNTG007LK = genes_WNTG007LK, WNT = genes_WNT)
+
 ```
+
+```{r}
+full_path <- paste(getwd(), "/results/mouse_venn_diagram.png", sep="")
+venn.diagram(
+  x = gene_lists,
+  category.names = c("G007LK", "WNTG007LK", "WNT"),
+  filename = full_path,
+  output = TRUE
+)
+```
+
+```{}
+```
+
+\
