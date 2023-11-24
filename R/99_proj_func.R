@@ -105,7 +105,7 @@ generate_lm_genes <- function(df, treatm){
 }
 
 ###############################################################################
-signif_genes_error_bars <- function(df){
+signif_genes_error_bars <- function(df, gene_title){
   p <- df %>% 
   filter(signif==TRUE) %>% 
   arrange(estimate) |> 
@@ -115,7 +115,11 @@ signif_genes_error_bars <- function(df){
     geom_errorbar(aes(xmin = conf.low, 
                       xmax = conf.high),
                   width = 0.2) +
-    labs(title='Genes Associated with treatment of GK007 in mouse', xlab='Estimate (95% CIs)', ylab='Gene')+
+    labs(title=paste0('Genes Associated with treatment of', 
+                      paste(gene_title),
+                      'in mouse'), 
+         xlab='Estimate (95% CIs)', 
+         ylab='Gene')+
     theme(axis.text.y = element_text(size=6),
           panel.background = element_rect(fill = "white"),
           panel.grid.major = element_line(color = "grey", size = 0.1),
@@ -123,30 +127,31 @@ signif_genes_error_bars <- function(df){
           plot.title = element_text(size = 11))+
     geom_vline(aes(xintercept=0), linetype="solid", color="black")
   print(p)
+  
+  filename <- paste0("../results/signif_genes_", gene_title, ".png")
+  ggsave(filename, plot = p, path = getwd(), width = 10, height = 10, units = "in")
 }
 
 ###############################################################################
-volcano_plot <- function(df) {
+volcano_plot <- function(df, gene_title) {
   p <- df %>% 
     mutate(neglog10p = -log10(p.value)) %>%
     arrange(estimate) %>%
     mutate(Gene = factor(Gene, levels = unique(Gene))) %>%
     ggplot(aes(x = estimate, y = neglog10p, color = signif, label = Gene)) +
     geom_point(alpha = 0.1) +
-    labs(title = 'Volcano Plot',
+    labs(title=paste0('Genes plotted by lof2fold change and q-value from treatment of', 
+                      paste(gene_title),
+                      'in mouse'),
          xlab = 'Log2 Fold Change',
          ylab = '-log10(p-value)') +
     scale_color_manual(values = c(`FALSE` = "blue", `TRUE` = "red")) +
     theme_minimal() +
     theme(plot.title = element_text(size = 11))
-    #+
-    #geom_text_repel(aes(label=ifelse(signif, as.character(Gene), "")), 
-    #                size = 2,             
-    #                label.size = NA,      
-    #                max.overlaps = Inf,   
-    #                box.padding = 0.3,    
-    #                point.padding = 0.4) +
   print(p)
+  
+  filename <- paste0("../results/volcano_", gene_title, ".png")
+  ggsave(filename, plot = p, path = getwd(), width = 10, height = 10, units = "in")
 }
 
 

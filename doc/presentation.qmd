@@ -1,7 +1,9 @@
 ---
 title: "Investegation of treatments in mice and humans"
 author: "Group - 24"
-format: revealjs
+format: 
+  revealjs:
+    theme: moon
 ---
 
 # Introduction
@@ -23,20 +25,48 @@ format: revealjs
 ## Augmentation
 
 - How we processed or data to prepare it for analysis 
-- Realitive log2 fold expressions
+- Relative log2 fold expressions
 
 # Results
-## Mouse significantly regulated genes
+## Mouse gene expression analysis
 - significantly up and down regulated genes
 - volcano plots
 
-## Correlations in regulated genes between treatments
+
+
+
+<table>
+<tr>
+  <td style="width: 50%; text-align: center;">
+    <strong>Significant Genes</strong><br>
+    <img src='../results/signif_genes_GK007LK.png"' alt='Significant Genes Plot' style='width: 90%;'/>
+  </td>
+  <td style="width: 50%; text-align: center;">
+    <strong>Volcano Plot</strong><br>
+    <img src='../results/signif_genes_GK007LK' alt='Volcano Plot' style='width: 90%;'/>
+  </td>
+</tr>
+</table>
+
+## Overlaps in regulated genes between treatments
 - Significantly regulated genes in each treatment
+
+- The venn diagram shows that there are quite a small overlap
+
+
+<div style="display: flex; justify-content: space-around; align-items: center;">
+  <img src="results/mouse_G007LK_signif.png" style="width: 45%;" />
+  <img src="results/volcano_G007LK.png" style="width: 45%;" />
+</div>
+
+
 
 # Discussion
 
 - Hmmmm...
 
+## test image
+![](../results/test.jpg)
 
 
 

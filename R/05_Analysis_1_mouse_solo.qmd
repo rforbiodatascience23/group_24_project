@@ -14,6 +14,7 @@ library(dplyr)
 library(tidyr)
 library(broom)
 library(ggrepel)
+library(RColorBrewer)
 source("../R/99_proj_func.R")
 ```
 
@@ -39,27 +40,26 @@ Now lets do an analysis to see which genes are significantly up and down regulat
 
 ```{r}
 mouse_G007LK_lm <- generate_lm_genes(mouse_df, 'G007LK')
-signif_genes_error_bars(mouse_G007LK_lm)
-
+signif_genes_error_bars(mouse_G007LK_lm, 'G007LK')
 ```
 
 ```{r}
-volcano_plot(mouse_G007LK_lm)
+volcano_plot(mouse_G007LK_lm, 'G007LK')
 ```
 
 ```{r}
 mouse_WNT_lm <- generate_lm_genes(mouse_df, 'WNT')
-signif_genes_error_bars(mouse_WNT_lm)
+signif_genes_error_bars(mouse_WNT_lm, 'WNT')
 
 ```
 
 ```{r}
-volcano_plot(mouse_WNT_lm)
+volcano_plot(mouse_WNT_lm, 'WNT')
 ```
 
 ```{r}
 mouse_WNTG007LK_lm <- generate_lm_genes(mouse_df, 'WNT_G007LK')
-signif_genes_error_bars(mouse_WNTG007LK_lm)
+signif_genes_error_bars(mouse_WNTG007LK_lm, 'WNT_G007LK')
 
 ```
 
@@ -72,12 +72,12 @@ genes_G007LK <- mouse_G007LK_lm %>%
   filter(signif) %>%
   pull(Gene)
 
-genes_WNTG007LK <- significant_genes_df %>% 
-  filter(Treatment) %>% 
+genes_WNTG007LK <- mouse_WNTG007LK_lm %>% 
+  filter(signif) %>% 
   pull(Gene)
 
-genes_WNT <- significant_genes_df %>% 
-  filter(Treatment) %>% 
+genes_WNT <- mouse_WNT_lm %>% 
+  filter(signif) %>% 
   pull(Gene)
 
 gene_lists <- list(G007LK = genes_G007LK, WNTG007LK = genes_WNTG007LK, WNT = genes_WNT)
@@ -85,16 +85,43 @@ gene_lists <- list(G007LK = genes_G007LK, WNTG007LK = genes_WNTG007LK, WNT = gen
 ```
 
 ```{r}
-full_path <- paste(getwd(), "/results/mouse_venn_diagram.png", sep="")
+
 venn.diagram(
   x = gene_lists,
   category.names = c("G007LK", "WNTG007LK", "WNT"),
-  filename = full_path,
+  filename = "../results/mouse_venn_diagram.png",
   output = TRUE
+
+    # Output features
+  imagetype="png" ,
+  height = 480 , 
+  width = 480 , 
+  resolution = 300,
+  compression = "lzw",
+
+  # Circles
+  lwd = 2,
+  lty = 'blank',
+  fill = myCol,
+  
+  # Numbers
+  cex = .6,
+  fontface = "bold",
+  fontfamily = "sans",
+  
+  # Set names
+  cat.cex = 0.6,
+  cat.fontface = "bold",
+  cat.default.pos = "outer",
+  cat.pos = c(-27, 27, 135),
+  cat.dist = c(0.055, 0.055, 0.085),
+  cat.fontfamily = "sans",
+  rotation = 1
 )
+#source: https://r-graph-gallery.com/14-venn-diagramm
 ```
 
-```{}
+```         
 ```
 
 \
