@@ -38,19 +38,6 @@ We now create a new df where we lose the control group experiments (DMSO) and in
 
 It could be also used the local minimum for more precise tranformation of each expreriment
 
-```{r}
-#this is very costly to do on the entire dataframe
-#test <- mouse_clean |> 
-#  select(3:10)
-
-
-test <- mouse_clean |> 
-  select(-c(treatment, replicate))
-
-# filter out the zeros from the initial dataset
-mouse_zeroes_removed <- test %>%
-  filter(rowSums(.) != 0)
-```
 
 ```{r}
 #this is very costly to do on the entire dataframe
@@ -162,14 +149,6 @@ rel_mouse_df
 human_clean
 ```
 
-```{r}
-test_human <- human_clean |> 
-  select(3:10)
-
-# filter out the zeros from the initial dataset
-human_zeroes_removed <- test_human |> 
-  filter_all(any_vars(. != 0))
-```
 
 ```{r}
 #human_to_augment <-human_joined |>
