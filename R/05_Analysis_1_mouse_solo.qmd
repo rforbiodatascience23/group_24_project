@@ -37,41 +37,44 @@ Now lets do an analysis to see which genes are significantly up and down regulat
 ```{r}
 # select a treatment to test for significant up and down regulations
 treatm = 'G007LK'
+
 mouse_df_treat = mouse_df |> 
   filter(treatment == 'DMSO' | treatment == treatm) |> 
-  mutate(Treated = ifelse(treatment == treatm,1,0))
-  
-```
-
-```{r}
-mouse_df_treat_long <- mouse_df_treat |> 
+  mutate(Treated = ifelse(treatment == treatm,1,0))|> 
   pivot_longer(cols = -c(treatment,replicate,Treated), 
                names_to = 'Gene', 
-               values_to = 'rel_log2_expr_level')
+               values_to = 'rel_log2_expr_level') %>% 
+  group_by(Gene) |> 
+  nest() %>% 
+  mutate(model_object = 
+           map(.x = data, 
+               .f = ~lm(formula = rel_log2_expr_level ~ Treated, 
+                        data = .x))) %>% 
+  unnest(model_object_tidy) %>% 
+  filter(term == 'Treated') |>
+  ungroup(Gene) %>% 
+  mutate(q.value = p.adjust(p.value, method = "bonferroni"),
+                            signif = q.value < 0.05) %>% 
+  filter(signif==TRUE)
+  
+  
 ```
 
 ```{r}
 mouse_df_long_nested <- mouse_df_treat_long |>
   group_by(Gene) |> 
-  nest() |> 
-  ungroup()
+  nest()
 
 
 ```
 
 ```{r}
 mouse_df_long_nested <- mouse_df_long_nested |> 
-  group_by(Gene) |> 
+#  group_by(Gene) |> 
   mutate(model_object = 
            map(.x = data, 
                .f = ~lm(formula = rel_log2_expr_level ~ Treated, 
                         data = .x)))
-```
-
-```{r}
-mouse_df_long_nested |>
-  filter(Gene == "g1E11") |>
-  pull(model_object)
 ```
 
 ```{r}
@@ -129,7 +132,6 @@ mouse_estimates_signif |>
 
 ```{r}
 mouse_estimates |> 
-#filter(estimate > -10 & estimate < 10) |> # We apply this filtering to avoid the genes that only have significant values due to a 0 division in the relative log2 expression transforation.
 mutate('neglog10p'= -log10(p.value)) |> 
 arrange(estimate) |> 
 mutate(Gene = factor(Gene, levels = unique(Gene))) |> 
@@ -148,5 +150,5 @@ scale_color_manual(values = c("FALSE" = "red", "TRUE" = "turquoise")) #+
 theme(plot.title = element_text(size = 11))
 ```
 
-```{}
+```         
 ```

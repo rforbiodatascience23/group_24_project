@@ -80,3 +80,30 @@ nas_present <- function(alist){
   }
 }
 
+
+###############################################################################
+
+generate_lm_genes <- function(df, treatm){
+  df |> 
+    filter(treatment == 'DMSO' | treatment == treatm) |> 
+    mutate(Treated = ifelse(treatment == treatm,1,0))|> 
+    pivot_longer(cols = -c(treatment,replicate,Treated), 
+                 names_to = 'Gene', 
+                 values_to = 'rel_log2_expr_level') %>% 
+    group_by(Gene) |> 
+    nest() %>% 
+    mutate(model_object = 
+             map(.x = data, 
+                 .f = ~lm(formula = rel_log2_expr_level ~ Treated, 
+                          data = .x))) %>% 
+    unnest(model_object_tidy) %>% 
+    filter(term == 'Treated') |>
+    ungroup() %>% 
+    mutate(q.value = p.adjust(p.value, method = "bonferroni"),
+           signif = q.value < 0.05) %>% 
+    filter(signif==TRUE)
+}
+
+
+
+
