@@ -6,7 +6,6 @@ message: false
 ---
 
 ```{r}
-install.packages("VennDiagram")
 library(VennDiagram)
 library(tidyverse)
 library(purrr) 
