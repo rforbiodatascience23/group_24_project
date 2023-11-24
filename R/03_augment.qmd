@@ -69,9 +69,6 @@ $$
 This operation will be performed now
 
 ```{r}
-# There are some issues here
-
-#so basically here we still have 0s
 #"Make a baseline dataset with the values for the control group"
 DMSO <- joined_mouse |>
   filter(treatment=='DMSO') |>
@@ -88,7 +85,7 @@ rel_mouse_df <- joined_mouse |>
   mutate(across(-c("treatment",
                    "replicate",
                    ends_with('baseline')),
-                ~ log(.x / get(paste0(cur_column(), "_baseline")),2)
+                ~ log(.x / get(str_c(cur_column(), "_baseline")),2)
                 )
          ) |> 
   select(-c(ends_with('baseline')))  # remove the baseline helper columns
@@ -177,7 +174,7 @@ human_aug_sep_treat <- human_aug_log |>
               values_from = "log2_scaled_expression_levels")
 ```
 
-\# To be used for PCA when we use the log2fchange as a measure for the gene expression.
+\# To be used for PCA when we use the log2foldchange as a measure for the gene expression.
 
 ```{r}
 human_aug_log2fc <- human_aug_sep_treat |>
@@ -196,7 +193,7 @@ human_log2fc_wide
 ```{r}
 write_tsv(x = rel_mouse_df, file = str_c("../data/03_dat_aug_mouse", ".tsv.gz"))
 
-write_tsv(human_aug_log, "../data/03_dat_aug_human_log.tsv.gz")
+# write_tsv(human_aug_log, "../data/03_dat_aug_human_log.tsv.gz")
 write_tsv(human_log_expression, "../data/03_dat_aug_human_log.tsv.gz")
 write_tsv(human_log2fc_wide, "../data/03_dat_aug_human_log2fc.tsv.gz")
 ```
