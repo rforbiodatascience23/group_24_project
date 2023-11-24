@@ -51,8 +51,7 @@ pca_augmented |>
   background_grid() + 
   labs(x = "PC1(10%)", 
        y = "PC2(8.2%)", 
-       color = "Treatment",
-       title = "Association of the relative expression of the Cell lines when using the G007.LK")
+       title = "PCA Plot Depicting the Cell Responses to G007.LK")
   
 ```
 
