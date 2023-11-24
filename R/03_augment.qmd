@@ -53,42 +53,45 @@ mouse_zeroes_removed <- test |>
 ```
 
 ```{r}
-#lets replace the zero values in numeric columns with 0.65 * minimum positive value in every particular row
-zeroes_replaced <- mouse_zeroes_removed |>  
-  rowwise() |> #perform this in every row 
-  mutate(
-    across(
-      everything(),
-      ~ ifelse(. == 0, 0.65 * min(
-        c_across(
-          where(
-            is.numeric))[c_across(where(is.numeric)) != 0], 
-        na.rm = TRUE), .)))
+#this is very costly to do on the entire dataframe
+#test <- mouse_clean[3:10]
+test <- select(mouse_clean, -c(treatment, replicate))
+zeroes_removed_mouse <- test %>%
+     select(where(~ !all(.x == 0)))
 
-zeroes_replaced <- mouse_zeroes_removed %>% 
-  rowwise() %>% 
-  mutate(across(everything(), ~ ifelse(. == 0, 0.65 * min(c_across(where(is.numeric))[c_across(where(is.numeric)) != 0], na.rm = TRUE), .)))
+```
 
-zeroes_replaced_sums <- zeroes_replaced %>%
+```{r}
+zeroes_replaced_mouse <- zeroes_removed_mouse %>%
+  rowwise() %>%
+  mutate(min_non_zero = min(c_across(where(is.numeric))[c_across(where(is.numeric)) != 0], na.rm = TRUE)) %>%
+  ungroup() %>%
+  mutate(across(where(is.numeric), ~ ifelse(. == 0, 0.65 * min_non_zero, .))) %>%
+  select(-min_non_zero)
+
+zeroes_replaced_sums_mouse <- zeroes_replaced_mouse %>%
   rowwise() %>%
   mutate(total_sum = sum(c_across(everything()), na.rm = TRUE))
-
 n = 1000000
-
-scaled_data <- zeroes_replaced_sums %>%
+scaled_data_mouse <- zeroes_replaced_sums_mouse %>%
   mutate(scaling_factor = n / total_sum) %>%
   rowwise() %>%
   mutate(across(-c(total_sum, scaling_factor), ~ . * scaling_factor)) %>%
   select(-total_sum, -scaling_factor)
 
-scaled_data %>%
+scaled_data_mouse %>%
   rowwise() %>%
   mutate(row_sums = sum(c_across(everything()), na.rm = TRUE))
 
-```
+joined_mouse <- bind_cols(mouse_wide[1:2],scaled_data_mouse)
 
-```{r}
-mouse_scaled_joined <-bind_cols(mouse_clean[1:2], scaled_data)
+scaled_mouse_long <- joined_mouse %>%
+  pivot_longer(
+    cols = -c(treatment, replicate), # Select all columns except 'treatment' and 'cell_line'
+    names_to = "gene_id",            # This will be the new column for the gene IDs
+    values_to = "expression_levels"  # This will be the new column for the expression levels
+  )
+
 ```
 
 ```{r}
@@ -186,44 +189,48 @@ In order to work with the DMSO and G007.LK values we chose to move on with log t
 
 Because we can't log on zeros we add on all the values the 0.65% of the minimum positive values of the expression levels feature as an offset
 
+
+
 ```{r}
-human_zeroes_replaced <- human_zeroes_removed |>  
-  rowwise() |> #perform this in every row 
-  mutate(
-    across(
-      everything(),
-      ~ ifelse(. == 0, 0.65 * min(
-        c_across(
-          where(
-            is.numeric))[c_across(where(is.numeric)) != 0], 
-        na.rm = TRUE), .)))
+#this is very costly to do on the entire dataframe
+#test <- human_clean[3:10]
+test <- select(human_clean, -c(treatment, cell_line))
+zeroes_removed_human <- test %>%
+     select(where(~ !all(.x == 0)))
 
-human_zeroes_replaced <- human_zeroes_removed %>% 
-  rowwise() %>% 
-  mutate(across(everything(), ~ ifelse(. == 0, 0.65 * min(c_across(where(is.numeric))[c_across(where(is.numeric)) != 0], na.rm = TRUE), .)))
+```
 
-human_zeroes_replaced_sums <- human_zeroes_replaced %>%
+```{r}
+zeroes_replaced_human <- zeroes_removed_human %>%
+  rowwise() %>%
+  mutate(min_non_zero = min(c_across(where(is.numeric))[c_across(where(is.numeric)) != 0], na.rm = TRUE)) %>%
+  ungroup() %>%
+  mutate(across(where(is.numeric), ~ ifelse(. == 0, 0.65 * min_non_zero, .))) %>%
+  select(-min_non_zero)
+
+zeroes_replaced_sums_human <- zeroes_replaced_human %>%
   rowwise() %>%
   mutate(total_sum = sum(c_across(everything()), na.rm = TRUE))
-
-#Why one million
 n = 1000000
-
-
-human_scaled_data <- human_zeroes_replaced_sums %>%
+scaled_data_human <- zeroes_replaced_sums_human %>%
   mutate(scaling_factor = n / total_sum) %>%
   rowwise() %>%
   mutate(across(-c(total_sum, scaling_factor), ~ . * scaling_factor)) %>%
   select(-total_sum, -scaling_factor)
 
-human_scaled_data %>%
+scaled_data_human %>%
   rowwise() %>%
   mutate(row_sums = sum(c_across(everything()), na.rm = TRUE))
 
+joined_human <- bind_cols(human_wide[1:2],scaled_data_human)
 
-human_scaled_joined <- human_clean %>%
-  select(1:2) %>%
-  bind_cols(select(human_clean, 1:2), human_scaled_data)
+scaled_human_long <- joined_human %>%
+  pivot_longer(
+    cols = -c(treatment, cell_line), # Select all columns except 'treatment' and 'cell_line'
+    names_to = "gene_id",            # This will be the new column for the gene IDs
+    values_to = "expression_levels"  # This will be the new column for the expression levels
+  )
+
 ```
 
 ```{r}
