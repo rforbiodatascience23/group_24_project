@@ -27,39 +27,33 @@ format:
 - How we processed or data to prepare it for analysis 
 - Relative log2 fold expressions
 
+<table>
+<tr>
+  <td style="width: 50%; text-align: center;">
+    <strong>Significant Genes</strong><br>
+    <img src='../results/signif_genes_GK007LK.png' alt='Significant Genes Plot' style='width: 90%;'/>
+  </td>
+  <td style="width: 50%; text-align: center;">
+    <strong>Volcano Plot</strong><br>
+    <img src='../results/volcano_GK007LK.png' alt='Volcano Plot' style='width: 90%;'/>
+  </td>
+</tr>
+</table>
+
 # Results
 ## Mouse gene expression analysis
 - significantly up and down regulated genes
 - volcano plots
 
 
-
-
-<table>
-<tr>
-  <td style="width: 50%; text-align: center;">
-    <strong>Significant Genes</strong><br>
-    <img src='../results/signif_genes_GK007LK.png"' alt='Significant Genes Plot' style='width: 90%;'/>
-  </td>
-  <td style="width: 50%; text-align: center;">
-    <strong>Volcano Plot</strong><br>
-    <img src='../results/signif_genes_GK007LK' alt='Volcano Plot' style='width: 90%;'/>
-  </td>
-</tr>
-</table>
+![](../results/signif_genes_GK007LK.png)![](../results/volcano_GK007LK.png)
 
 ## Overlaps in regulated genes between treatments
 - Significantly regulated genes in each treatment
 
 - The venn diagram shows that there are quite a small overlap
 
-
-<div style="display: flex; justify-content: space-around; align-items: center;">
-  <img src="results/mouse_G007LK_signif.png" style="width: 45%;" />
-  <img src="results/volcano_G007LK.png" style="width: 45%;" />
-</div>
-
-
+![](../results/mouse_venn_diagram.png)
 
 # Discussion
 
@@ -67,6 +61,8 @@ format:
 
 ## test image
 ![](../results/test.jpg)
+
+## References
 
 
 
