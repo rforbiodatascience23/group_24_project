@@ -20,20 +20,12 @@ source("../R/99_proj_func.R")
 
 This analysis will see which genes are significantly up and down regulated in the treatment trials
 
-Here we begin by loading the augmented mouse dataset
+Here we begin by loading the augmented mouse dat aset
 
 ```{r}
 Sys.setenv(VROOM_CONNECTION_SIZE = 3062144) # Setting a larger connection buffer to be able to load the data
 # Loading the data
-mouse_df <- read_tsv(file = "../data/04_dat_aug_mouse.tsv.gz")
-```
-
-First we loose the "Factor Value\[compound\]" (concentration) column since we don't need it in this analysis
-
-```{r}
-mouse_df = mouse_df |> 
-  select(-c(`Factor Value[compound]`))
-
+mouse_df <- read_tsv(file = "../data/03_dat_aug_mouse.tsv.gz")
 ```
 
 Now lets do an analysis to see which genes are significantly up and down regulated in each of the treatment trials.
