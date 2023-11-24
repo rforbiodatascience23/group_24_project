@@ -28,29 +28,67 @@ mouse_clean
 We now create a new df where we lose the control group experiments (DMSO) and instead divide the non-control values with the DMSO values of each replicate from the other treatment gene expressions, and thereby convert from expression value to relative expressions. We then log2 transform the relative expression, such that a 0 means no change between control and treatment, positive values mean upregulated and negative means down_regulated.
 
 ```{r}
-mouse_to_augment <- mouse_clean |>
-  pivot_longer(
-    cols = starts_with("ENSMUSG"),
-    names_to = "gene_id",
-    values_to = "expression_levels") |>
-  relocate(gene_id, 1)
+#mouse_to_augment <- mouse_clean |>
+ # pivot_longer(
+  #  cols = starts_with("ENSMUSG"),
+   # names_to = "gene_id",
+  #  values_to = "expression_levels") |>
+  #relocate(gene_id, 1)
 ```
 
 It could be also used the local minimum for more precise tranformation of each expreriment
 
 ```{r}
-min_pos_value <- mouse_to_augment |>
-  select(expression_levels) |>
-  filter(expression_levels != 0) |>
-  summarize(min = min(expression_levels)) |>
-  pull()  
+#this is very costly to do on the entire dataframe
+#test <- mouse_clean |> 
+#  select(3:10)
 
-mouse_aug <- mouse_to_augment |>
+
+test <- mouse_clean |> 
+  select(-c(treatment, replicate))
+
+# filter out the zeros from the initial dataset
+mouse_zeroes_removed <- test |> 
+  filter_all(any_vars(. != 0))
+```
+
+```{r}
+#lets replace the zero values in numeric columns with 0.65 * minimum positive value in every particular row
+zeroes_replaced <- mouse_zeroes_removed |>  
+  rowwise() |> #perform this in every row 
   mutate(
-    expression_levels = if_else(expression_levels == 0,
-                                expression_levels + 0.65 * min_pos_value,
-                                expression_levels))
+    across(
+      everything(),
+      ~ ifelse(. == 0, 0.65 * min(
+        c_across(
+          where(
+            is.numeric))[c_across(where(is.numeric)) != 0], 
+        na.rm = TRUE), .)))
 
+zeroes_replaced <- mouse_zeroes_removed %>% 
+  rowwise() %>% 
+  mutate(across(everything(), ~ ifelse(. == 0, 0.65 * min(c_across(where(is.numeric))[c_across(where(is.numeric)) != 0], na.rm = TRUE), .)))
+
+zeroes_replaced_sums <- zeroes_replaced %>%
+  rowwise() %>%
+  mutate(total_sum = sum(c_across(everything()), na.rm = TRUE))
+
+n = 1000000
+
+scaled_data <- zeroes_replaced_sums %>%
+  mutate(scaling_factor = n / total_sum) %>%
+  rowwise() %>%
+  mutate(across(-c(total_sum, scaling_factor), ~ . * scaling_factor)) %>%
+  select(-total_sum, -scaling_factor)
+
+scaled_data %>%
+  rowwise() %>%
+  mutate(row_sums = sum(c_across(everything()), na.rm = TRUE))
+
+```
+
+```{r}
+mouse_scaled_joined <-bind_cols(mouse_clean[1:2], scaled_data)
 ```
 
 ```{r}
@@ -70,15 +108,19 @@ mouse_joined <- left_join(mouse_trans_wide,
 mouse_joined
 ```
 
-We now create a new dataframe where we lose the control group experiments (DMSO) and instead divide the non-control values with the DMSO values of each replicate from the other treatment gene expressions, and thereby convert from expression value to relative expressions. We then log2 transform the relative expression, such that a 0 means no change between control and treatment, and positive values mean upregulated and negative means down_regulated \$\$
+We now create a new dataframe where we lose the control group experiments (DMSO) and instead divide the non-control values with the DMSO values of each replicate from the other treatment gene expressions, and thereby convert from expression value to relative expressions. We then log2 transform the relative expression, such that a 0 means no change between control and treatment, and positive values mean upregulated and negative means down_regulated
 
-\\log
+\$\$ \\log
 
-(\\frac{expression\\\_control\\\_trial (DMSO)}{expression\\\_drugX\\\_trial})
+(\\frac{expression\\\_control\\\_trial (DMSO)}{expression\\\_drugX\\\_trial}) \$\$
 
-We now create a new df where we lose the control group experiments (DMSO) and instead subtract the noin-control values with the DMSO values of each replicate from the other treatment gene expressions, and thereby convert from expression value to log2 fold relative expressions. Due to the log law below \$\$
+We now create a new df where we lose the control group experiments (DMSO) and instead subtract the noin-control values with the DMSO values of each replicate from the other treatment gene expressions, and thereby convert from expression value to log2 fold relative expressions. Due to the log law below
+
+\$\$
 
 \\log(expression\\\_treatment) - \\log(expression\\\_control\\\_trial (DMSO)) = \\log(\\frac{expression\\\_treatmentl (DMSO)}{expression\\\_control\\\_trial (DMSO)})
+
+\$\$
 
 ```{r}
 # There are some issues here
@@ -86,12 +128,12 @@ We now create a new df where we lose the control group experiments (DMSO) and in
 
 #so basically here we still have 0s
 #"Make a baseline dataset with the values for the control group"
-DMSO <- mouse_joined |>
+DMSO <- mouse_scaled_joined |>
   filter(treatment=='DMSO') |>
   select(-c(treatment))
 
 #"Making the relative dataset"
-rel_mouse_df <- mouse_joined |>
+rel_mouse_df <- mouse_scaled_joined |>
    # Creating baseline columns for each gene with the baseline values for each replicate
   left_join(DMSO,                   
             by = 'replicate',
@@ -101,22 +143,14 @@ rel_mouse_df <- mouse_joined |>
   mutate(across(-c("treatment",
                    "replicate",
                    ends_with('baseline')),
-                ~ .x - get(paste0(cur_column(), "_baseline"))
+                ~ log(.x / get(paste0(cur_column(), "_baseline")),2)
                 )
          ) |> 
   select(-c(ends_with('baseline')))  # remove the baseline helper columns
 ```
 
-we then need to handle the inf values (originating from either 0/expression_control ot expression_treatmnet/0) and nan values that originate from 0/0
-
 ```{r}
-inf_cap_value <- 31
-rel_mouse_df <- rel_mouse_df |>
-  mutate(across(everything(),
-                ~ ifelse(is.na(.x), 0,    # Replace NaNs with 0
-                         ifelse(is.infinite(.x), inf_cap_value * sign(.x), .x)))) 
-# Cap Inf and -Inf relative expression
-
+rel_mouse_df
 ```
 
 ## Human data set augmentation
@@ -126,28 +160,99 @@ human_clean
 ```
 
 ```{r}
-human_joined<- human_clean |>
-  left_join(human_suppl_clean, 
-            join_by(treatment,cell_line))
+test_human <- human_clean |> 
+  select(3:10)
+
+# filter out the zeros from the initial dataset
+human_zeroes_removed <- test_human |> 
+  filter_all(any_vars(. != 0))
 ```
 
 ```{r}
-human_to_augment <-human_joined |>
-  pivot_longer(
-    cols = starts_with("ENSG0"),
-    names_to = "gene_id" ,
-    values_to = "expression_levels"
-      ) |>
-    select(gene_id,
-         cell_line,
-         genotype,
-         treatment,
-         expression_levels)
+#human_to_augment <-human_joined |>
+ # pivot_longer(
+  #  cols = starts_with("ENSG0"),
+  #  names_to = "gene_id" ,
+   # values_to = "expression_levels"
+  #    ) |>
+   # select(gene_id,
+    #     cell_line,
+     #    genotype,
+      #   treatment,
+       #  expression_levels)
 ```
 
 In order to work with the DMSO and G007.LK values we chose to move on with log transformation in order to reduce the heteroscedasticity and stabilize the variance among the expression levels.
 
 Because we can't log on zeros we add on all the values the 0.65% of the minimum positive values of the expression levels feature as an offset
+
+```{r}
+human_zeroes_replaced <- human_zeroes_removed |>  
+  rowwise() |> #perform this in every row 
+  mutate(
+    across(
+      everything(),
+      ~ ifelse(. == 0, 0.65 * min(
+        c_across(
+          where(
+            is.numeric))[c_across(where(is.numeric)) != 0], 
+        na.rm = TRUE), .)))
+
+human_zeroes_replaced <- human_zeroes_removed %>% 
+  rowwise() %>% 
+  mutate(across(everything(), ~ ifelse(. == 0, 0.65 * min(c_across(where(is.numeric))[c_across(where(is.numeric)) != 0], na.rm = TRUE), .)))
+
+human_zeroes_replaced_sums <- human_zeroes_replaced %>%
+  rowwise() %>%
+  mutate(total_sum = sum(c_across(everything()), na.rm = TRUE))
+
+#Why one million
+n = 1000000
+
+
+human_scaled_data <- human_zeroes_replaced_sums %>%
+  mutate(scaling_factor = n / total_sum) %>%
+  rowwise() %>%
+  mutate(across(-c(total_sum, scaling_factor), ~ . * scaling_factor)) %>%
+  select(-total_sum, -scaling_factor)
+
+human_scaled_data %>%
+  rowwise() %>%
+  mutate(row_sums = sum(c_across(everything()), na.rm = TRUE))
+
+
+human_scaled_joined <- human_clean %>%
+  select(1:2) %>%
+  bind_cols(select(human_clean, 1:2), human_scaled_data)
+```
+
+```{r}
+human_scaled_data_long <- human_scaled_data |> 
+  pivot_longer(
+    cols = starts_with("ENSG"),
+    names_to = "gene_id",
+    values_to = "scaled_expression_levels"
+  )
+human_scaled_data_long
+
+```
+
+```{r}
+human_clean_step2<- human_clean |> 
+  pivot_longer(
+    cols = starts_with("ENSG"),
+    names_to = "gene_id" ,
+    values_to = "expression_levels"
+      )
+
+human_clean_step2
+```
+
+```{r}
+human_data_joined<- human_clean_step2 |> 
+  left_join(
+  human_scaled_data_long, join_by(gene_id))
+```
 
 ```{r}
 min_pos_value <- human_to_augment |>
