@@ -1,8 +1,10 @@
 ---
 title: "04_describe"
-format: html
 editor: visual
 message: false
+format: 
+  html:
+    embed-resources: true
 ---
 
 ```{r}
@@ -106,25 +108,25 @@ We can also get a crude look at the average activity of the treatments.
 They seem to be roughly the same, with the combined treatment being slightly higher than the rest. Let's look at the replicates within treatments as well.
 
 ```{r}
-# Calculate average activity for each treatment and replicate
-average_activity_treatment_replicate <- mouse_wide |>
-  pivot_longer(
-    cols = -c(treatment, replicate),
-    names_to = "gene",
-    values_to = "activity"
-  ) |>
-  group_by(treatment, replicate) |>
-  summarise(average_activity = mean(activity, na.rm = TRUE))
-
-# Plot average activity for each treatment and replicate
-ggplot(average_activity_treatment_replicate, aes(x = replicate(),
-                                                 y = average_activity,
-                                                 fill = treatment)) +
-  geom_bar(stat = "identity", position = position_dodge()) +
-  theme_minimal() +
-  labs(title = "Average Gene Activity by Treatment and Replicate", 
-       x = "Treatment", 
-       y = "Average Activity")
+## Calculate average activity for each treatment and replicate
+#average_activity_treatment_replicate <- mouse_wide |>
+#  pivot_longer(
+#    cols = -c(treatment, replicate),
+#    names_to = "gene",
+#    values_to = "activity"
+#  ) |>
+#  group_by(treatment, replicate) |>
+#  summarise(average_activity = mean(activity, na.rm = TRUE))
+#
+## Plot average activity for each treatment and replicate
+#ggplot(average_activity_treatment_replicate, aes(x = replicate(),
+#                                                 y = average_activity,
+#                                                fill = treatment)) +
+#  geom_bar(stat = "identity", position = position_dodge()) +
+#  theme_minimal() +
+#  labs(title = "Average Gene Activity by Treatment and Replicate", 
+#       x = "Treatment", 
+#       y = "Average Activity")
 ```
 
 These are also very similar. It would be hard to know the treatment just from the activity. Let's look a bit more into the distribution of zeroes.
