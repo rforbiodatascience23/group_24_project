@@ -1,0 +1,79 @@
+---
+title: "Untitled"
+format: html
+editor: visual
+---
+
+```{r}
+library(tidyverse) 
+library(broom) 
+library(dplyr) 
+library(cowplot) 
+library(purrr)
+
+human_log_expression <- read_tsv(file = "../data/03_dat_aug_human_log.tsv.gz")
+```
+
+Now we are going to perform a PCA analysis on the Cell relative expression on different conditions
+
+```{r}
+human_log_expression
+```
+
+```{r}
+#|cache: TRUE 
+pca_result <- human_log_expression |> 
+  select_if(is.numeric) |> #selects the columns that are numeric 
+  scale() |> #scales the columns 
+  prcomp()
+```
+
+This is the plot corresponding the differences in expression between the different conditions
+
+```{r}
+pca_augmented <- pca_result |>
+  augment(data = human_log_expression) 
+# add original dataset back in 
+treated_cells<- pca_augmented |> 
+  filter(treatment == "G007LK")
+
+pca_augmented |> 
+  ggplot(aes(.fittedPC1, 
+             .fittedPC2, 
+             color = treatment,
+             shape = treatment)) + 
+    geom_point(size = 3) + 
+  scale_color_manual(values  = c("G007LK" = "blue", "DMSO" ="red"))+
+  theme_half_open(12) +
+  geom_text_repel(data = treated_cells, 
+                  mapping = aes(label = cell_line)) +
+  theme_half_open(12) +
+  background_grid() + 
+  labs(x = "PC1(10%)", 
+       y = "PC2(8.2%)", 
+       title = "PCA Plot Depicting the Cell Responses to G007.LK")
+  
+```
+
+Rotation matrix
+
+```{r}
+pca_result |> 
+  tidy(matrix = "rotation")
+```
+
+```{r}
+pca_result |> 
+  tidy(matrix = "eigenvalues")
+```
+
+```{r}
+pca_result |> 
+  tidy(matrix = "eigenvalues") |>
+  ggplot(aes(PC, percent)) + 
+  geom_col(fill = "#56B4E9", alpha = 0.8) +
+  scale_x_continuous(breaks = 1:9) + 
+  scale_y_continuous(labels = scales::percent_format(), 
+                     expand = expansion(mult = c(0, 0.01))) +
+  theme_minimal_hgrid(12)
+```

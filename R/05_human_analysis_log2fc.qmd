@@ -4,7 +4,7 @@ format: html
 editor: visual
 ---
 
-PCA analysis using the LOG2 expression
+PCA analysis using the LOG2fold change in the 18 human Cell lines
 
 ```{r}
 library(tidyverse) 
@@ -16,38 +16,40 @@ library(purrr)
 library(scales)
 library(ggrepel)
 
-human_log_expression <- read_tsv(file = "../data/03_dat_aug_human_log2fc.tsv.gz")
+human_log2fold <- read_tsv(file = "../data/03_dat_aug_human_log2fc.tsv.gz")
 ```
 
 ```{r}
-human_log_expression
+human_log2fold
 ```
 
-PCA with relative expressions with the different compounds
+PCA model
 
 ```{r}
 #| cache: true
-pca_result<- human_log_expression |> 
+pca_result<- human_log2fold |> 
   select_if(is.numeric) |> 
   scale() |> 
   prcomp()
 ```
 
-This is the plot corresponding the differences in expression between the different conditions
+This is the plot corresponding the Log2fold change of the cell lines
 
 ```{r}
 pca_augmented <- pca_result |>
-  augment(data = human_log_expression) 
+  augment(data = human_log2fold) 
   
 pca_augmented |>   
   ggplot(mapping = aes(x =.fittedPC1, 
              y = .fittedPC2, 
              color = cell_line))+
-  geom_point() +
+  geom_point(size =2.5) +
+    geom_text_repel( 
+                  mapping = aes(label = cell_line))
   background_grid() + 
   labs( x = "PC1(12,7%)", 
         y = "PC2(7.5%)", 
-        title = "PCA plot defining the association of the relative expression of the Cell lines when using the G007.LK")
+        title = "Association of the Cell line Log2foldchange when using the G007.LK")
 ```
 
 Rotation matrix
