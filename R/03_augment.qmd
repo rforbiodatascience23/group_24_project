@@ -48,8 +48,8 @@ test <- mouse_clean |>
   select(-c(treatment, replicate))
 
 # filter out the zeros from the initial dataset
-mouse_zeroes_removed <- test |> 
-  filter_all(any_vars(. != 0))
+mouse_zeroes_removed <- test %>%
+  filter(rowSums(.) != 0)
 ```
 
 ```{r}
