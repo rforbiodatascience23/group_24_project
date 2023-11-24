@@ -65,10 +65,16 @@ mouse_analysis |>
 After log transformation EEEEEEEEEEEEEEEEEEE
 
 ```{r}
-mouse_analysis |> 
+plot1 <- mouse_analysis |> 
   ggplot( mapping = aes (x = expression_levels))+
   geom_freqpoly()+ 
   facet_wrap(~treatment)
+```
+
+```{r}
+ggsave("../results/04key_plots1.png",plot1)
+plot1
+
 ```
 
 ```{r}
