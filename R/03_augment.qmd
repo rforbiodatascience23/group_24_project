@@ -196,6 +196,7 @@ human_log2fc_wide
 ```{r}
 write_tsv(x = rel_mouse_df, file = str_c("../data/03_dat_aug_mouse", ".tsv.gz"))
 
+write_tsv(human_aug_log, "../data/03_dat_aug_human_loc.tsv.gz")
 write_tsv(human_log_expression, "../data/03_dat_aug_human_log.tsv.gz")
 write_tsv(human_log2fc_wide, "../data/03_dat_aug_human_log2fc.tsv.gz")
 ```
