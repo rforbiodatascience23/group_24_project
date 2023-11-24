@@ -139,7 +139,7 @@ zero_counts_genes <- mouse_analysis |>
   summarise(zero_count = sum(expression_levels == 0))
 
 #Create a histogram plot with percentages
-zero_counts_genes |> 
+mouse_zero_plot <- zero_counts_genes |> 
   ggplot(aes(x = zero_count)) + 
   geom_histogram(mapping = aes(y = ..count../sum(..count..)), 
                  binwidth = 1, 
@@ -149,6 +149,8 @@ zero_counts_genes |>
   labs(title = "Inactive Gene Percentage per Replicate", 
        x = "Number of Sample", 
        y = "Percentage of Genes")
+mouse_zero_plot
+ggsave("../results/mouse_zero_plot.png", bg = "white")
 ```
 
 We can see that most genes are either all zeroes (\~40%) or all non-zeroes( 33%). Let's also compare the number of active genes in each treatment.
