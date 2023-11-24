@@ -1,0 +1,74 @@
+---
+title: "Untitled"
+format: html
+editor: visual
+---
+
+PCA analysis using the LOG2 expression
+
+```{r}
+library(tidyverse) 
+library(dplyr)
+library(broom) # devtools::install_github("tidymodels/broom")
+library(ggplot2)
+library(cowplot) 
+library(purrr)
+library(scales)
+library(ggrepel)
+
+human_log_expression <- read_tsv(file = "../data/03_dat_aug_human_log2fc.tsv.gz")
+```
+
+```{r}
+human_log_expression
+```
+
+PCA with relative expressions with the different compounds
+
+```{r}
+#| cache: true
+pca_result<- human_log_expression |> 
+  select_if(is.numeric) |> 
+  scale() |> 
+  prcomp()
+```
+
+This is the plot corresponding the differences in expression between the different conditions
+
+```{r}
+pca_augmented <- pca_result |>
+  augment(data = human_log_expression) 
+  
+pca_augmented |>   
+  ggplot(mapping = aes(x =.fittedPC1, 
+             y = .fittedPC2, 
+             color = cell_line))+
+  geom_point() +
+  background_grid() + 
+  labs( x = "PC1(12,7%)", 
+        y = "PC2(7.5%)", 
+        title = "PCA plot defining the association of the relative expression of the Cell lines when using the G007.LK")
+```
+
+Rotation matrix
+
+```{r}
+pca_result |> 
+  tidy(matrix = "rotation")
+```
+
+```{r}
+pca_result |> 
+  tidy(matrix = "eigenvalues")
+```
+
+```{r}
+pca_result |> 
+  tidy(matrix = "eigenvalues") |> 
+  ggplot(aes(PC, percent)) + 
+  geom_col(fill = "#56B4E9", alpha = 0.8) + 
+  scale_x_continuous(breaks = 1:9) + 
+  scale_y_continuous( labels = scales::percent_format(), 
+                      expand = expansion(mult = c(0, 0.01)) ) + 
+  theme_minimal_hgrid(12)
+```
