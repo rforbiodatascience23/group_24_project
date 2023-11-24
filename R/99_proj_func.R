@@ -117,7 +117,7 @@ signif_genes_error_bars <- function(df, gene_title){
                   width = 0.2) +
     labs(title=paste0('Genes Associated with treatment of', 
                       paste(gene_title),
-                      'in mouse'), 
+                      ' in mouse'), 
          xlab='Estimate (95% CIs)', 
          ylab='Gene')+
     theme(axis.text.y = element_text(size=6),
@@ -128,8 +128,15 @@ signif_genes_error_bars <- function(df, gene_title){
     geom_vline(aes(xintercept=0), linetype="solid", color="black")
   print(p)
   
-  filename <- paste0("../results/signif_genes_", gene_title, ".png")
-  ggsave(filename, plot = p, path = getwd(), width = 10, height = 10, units = "in")
+  filename <- paste0("../results/signif_genes_", gene_title,'.png')
+  ggsave(filename, 
+         plot = p, 
+         path = getwd(), 
+         width = 10, 
+         height = 8, 
+         units = "in", 
+         bg = "white", 
+         device = "png")
 }
 
 ###############################################################################
@@ -139,10 +146,10 @@ volcano_plot <- function(df, gene_title) {
     arrange(estimate) %>%
     mutate(Gene = factor(Gene, levels = unique(Gene))) %>%
     ggplot(aes(x = estimate, y = neglog10p, color = signif, label = Gene)) +
-    geom_point(alpha = 0.1) +
+    geom_point(alpha = 0.15) +
     labs(title=paste0('Genes plotted by lof2fold change and q-value from treatment of', 
                       paste(gene_title),
-                      'in mouse'),
+                      ' in mouse'),
          xlab = 'Log2 Fold Change',
          ylab = '-log10(p-value)') +
     scale_color_manual(values = c(`FALSE` = "blue", `TRUE` = "red")) +
@@ -150,8 +157,16 @@ volcano_plot <- function(df, gene_title) {
     theme(plot.title = element_text(size = 11))
   print(p)
   
-  filename <- paste0("../results/volcano_", gene_title, ".png")
-  ggsave(filename, plot = p, path = getwd(), width = 10, height = 10, units = "in")
+  filename <- paste0("../results/volcano_", gene_title,'.png')
+  ggsave(filename, 
+         plot = p, 
+         path = getwd(), 
+         width = 10, 
+         height = 8, 
+         units = "in", 
+         bg = "white", 
+         device = "png")
+  
 }
 
 

@@ -45,8 +45,8 @@ format:
 - significantly up and down regulated genes
 - volcano plots
 
+<img src="../results/volcano_G007LK.png" alt="Volcano Plot 1" style="width: 48%;"/> <img src="../results/signif_genes_G007LK.png" alt="Volcano Plot 2" style="width: 48%;"/>
 
-![](../results/signif_genes_GK007LK.png)![](../results/volcano_GK007LK.png)
 
 ## Overlaps in regulated genes between treatments
 - Significantly regulated genes in each treatment
@@ -59,11 +59,11 @@ format:
 
 - Hmmmm...
 
-## test image
-![](../results/test.jpg)
 
 ## References
 
+
+## testing
 
 
 
