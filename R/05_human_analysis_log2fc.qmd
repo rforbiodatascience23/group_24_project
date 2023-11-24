@@ -45,11 +45,11 @@ pca_augmented |>
              color = cell_line))+
   geom_point(size =2.5) +
     geom_text_repel( 
-                  mapping = aes(label = cell_line))
+                  mapping = aes(label = cell_line))+
   background_grid() + 
   labs( x = "PC1(12,7%)", 
         y = "PC2(7.5%)", 
-        title = "Association of the Cell line Log2foldchange when using the G007.LK")
+        title = "PCA Plot Depicting Log2foldchange under G007.LK in Human Cells")
 ```
 
 Rotation matrix
