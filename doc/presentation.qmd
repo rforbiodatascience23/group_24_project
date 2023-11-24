@@ -27,25 +27,12 @@ format:
 - How we processed or data to prepare it for analysis 
 - Relative log2 fold expressions
 
-<table>
-<tr>
-  <td style="width: 50%; text-align: center;">
-    <strong>Significant Genes</strong><br>
-    <img src='../results/signif_genes_GK007LK.png' alt='Significant Genes Plot' style='width: 90%;'/>
-  </td>
-  <td style="width: 50%; text-align: center;">
-    <strong>Volcano Plot</strong><br>
-    <img src='../results/volcano_GK007LK.png' alt='Volcano Plot' style='width: 90%;'/>
-  </td>
-</tr>
-</table>
-
 # Results
 ## Mouse gene expression analysis
 - significantly up and down regulated genes
 - volcano plots
 
-<img src="../results/volcano_G007LK.png" alt="Volcano Plot 1" style="width: 48%;"/> <img src="../results/signif_genes_G007LK.png" alt="Volcano Plot 2" style="width: 48%;"/>
+<img src="../results/volcano_G007LK.png" style="width: 48%;"/> <img src="../results/signif_genes_G007LK.png" style="width: 48%;"/>
 
 
 ## Overlaps in regulated genes between treatments

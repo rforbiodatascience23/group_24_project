@@ -56,7 +56,7 @@ signif_genes_error_bars(mouse_WNTG007LK_lm, 'WNT_G007LK')
 ```
 
 ```{r}
-volcano_plot(mouse_WNTG007LK_lm)
+volcano_plot(mouse_WNTG007LK_lm, 'WNT_G007LK')
 ```
 
 ```{r}
@@ -77,12 +77,12 @@ gene_lists <- list(G007LK = genes_G007LK, WNTG007LK = genes_WNTG007LK, WNT = gen
 ```
 
 ```{r}
-
+myCol <- brewer.pal(3, "Pastel2")
 venn.diagram(
   x = gene_lists,
   category.names = c("G007LK", "WNTG007LK", "WNT"),
   filename = "../results/mouse_venn_diagram.png",
-  output = TRUE
+  output = TRUE,
 
     # Output features
   imagetype="png" ,
@@ -110,6 +110,7 @@ venn.diagram(
   cat.fontfamily = "sans",
   rotation = 1
 )
+log_files <- list.files(path = "../results", pattern = "mouse_venn_diagram\\.png\\.2023.*\\.log$", full.names = TRUE)
 #source: https://r-graph-gallery.com/14-venn-diagramm
 ```
 
