@@ -6,7 +6,7 @@ editor: visual
 
 Now we are going to proceed with the augmentation of the mouse and human data sets
 
-{r}
+```{r}
 library(tidyverse)
 library(dplyr)
 library(stringr)
@@ -19,20 +19,23 @@ mouse_clean <- read_tsv(file = "../data/02_dat_clean_mouse.tsv.gz")
 mouse_data_suppl <- read_tsv(file = "../data/02_dat_clean_mouse_suppl.tsv.gz")
 human_clean <- read_tsv(file = "../data/02_dat_clean_human.tsv.gz")
 human_suppl_clean <- read_tsv(file = "../data/02_dat_clean_human_suppl.tsv.gz")
+```
 
-{r}
+```{r}
 mouse_clean
+```
 
 We now create a new df where we lose the control group experiments (DMSO) and instead divide the non-control values with the DMSO values of each replicate from the other treatment gene expressions, and thereby convert from expression value to relative expressions. We then log2 transform the relative expression, such that a 0 means no change between control and treatment, positive values mean up regulated and negative means down_regulated.
 
 It could be also used the local minimum for more precise transformation of each experiment
 
-{r}
+```{r}
 test_mouse <- select(mouse_clean, -c(treatment, replicate))
 zeroes_removed_mouse <- test_mouse |>
      select(where(~ !all(.x == 0)))
+```
 
-{r}
+```{r}
 zeroes_replaced_mouse <- zeroes_removed_mouse |>
   rowwise() |>
   mutate(min_non_zero = min(c_across(where(is.numeric))[c_across(where(is.numeric)) != 0], na.rm = TRUE)) |>
@@ -55,6 +58,7 @@ scaled_data_mouse |>
   mutate(row_sums = sum(c_across(everything()), na.rm = TRUE))
 
 joined_mouse <- bind_cols(mouse_clean[1:2],scaled_data_mouse)
+```
 
 We now create a new data frame where we lose the control group experiments (DMSO) and instead divide the non-control values with the DMSO values of each replicate from the other treatment gene expressions, and thereby convert from expression value to relative expressions. We then log2 transform the relative expression, such that a 0 means no change between control and treatment, and positive values mean up regulated and negative means down_regulated.
 
@@ -64,7 +68,7 @@ $$
 
 This operation will be performed now
 
-{r}
+```{r}
 # There are some issues here
 
 #so basically here we still have 0s
@@ -88,27 +92,31 @@ rel_mouse_df <- joined_mouse |>
                 )
          ) |> 
   select(-c(ends_with('baseline')))  # remove the baseline helper columns
+```
 
 We proceed without joining the mouse supplementary data set with the main one because it doesn't convey any useful information.
 
-{r}
+```{r}
 rel_mouse_df
+```
 
-Human data set augmentation
+## Human data set augmentation
 
-{r}
+```{r}
 human_clean
+```
 
 In order to work with the DMSO and G007.LK values we chose to move on with log transformation in order to reduce the heteroscedasticity and stabilize the variance among the expression levels.
 
 Because we can't log on zeros we add on all the values the 0.65% of the minimum positive values of the expression levels feature as an offset
 
-{r}
+```{r}
 test_human <- select(human_clean, -c(treatment, cell_line))
 zeroes_removed_human <- test_human |>
      select(where(~ !all(.x == 0)))
+```
 
-{r}
+```{r}
 zeroes_replaced_human <- zeroes_removed_human |>
   rowwise() |>
   mutate(min_non_zero = min(c_across(where(is.numeric))[c_across(where(is.numeric)) != 0], na.rm = TRUE)) |>
@@ -131,8 +139,9 @@ scaled_data_human |>
   mutate(row_sums = sum(c_across(everything()), na.rm = TRUE))
 
 joined_human <- bind_cols(human_clean[1:2],scaled_data_human)
+```
 
-{r}
+```{r}
 human_aug <- joined_human |> 
   pivot_longer(
     cols = starts_with("ENSG"),
@@ -140,47 +149,53 @@ human_aug <- joined_human |>
     values_to = "scaled_expression_levels"
   )
 human_aug
+```
 
 We can use it for the first PCA analysis based on the relative expressions of the gene expressions among the 18 cell lines in the two different conditions . We are going to exclude here the column genotype because we are not going to use it
 
-{r}
+```{r}
 human_aug_log <- human_aug |>
   mutate(log2_scaled_expression_levels = log2(scaled_expression_levels)) |>
   select(-scaled_expression_levels)
+```
 
 This is going to be the data frame format used for the PCA analysis with the relative expression levels
 
-{r}
+```{r}
 human_log_expression <- human_aug_log |>
   pivot_wider(names_from = gene_id,
               values_from =log2_scaled_expression_levels)
 
 human_log_expression
+```
 
 Now we are going to create the format for the PCA using the log2fc as a value for the gene columns
 
-{r}
+```{r}
 human_aug_sep_treat <- human_aug_log |>
   pivot_wider(names_from = "treatment",
               values_from = "log2_scaled_expression_levels")
+```
 
-# To be used for PCA when we use the log2fchange as a measure for the gene expression.
+\# To be used for PCA when we use the log2fchange as a measure for the gene expression.
 
-{r}
+```{r}
 human_aug_log2fc <- human_aug_sep_treat |>
   mutate(log2foldchange = G007LK - DMSO)|>
   select(-c(DMSO, G007LK))
+```
 
-{r}
+```{r}
 human_log2fc_wide<- human_aug_log2fc |>
   pivot_wider(names_from = gene_id,
               values_from =log2foldchange)
 
 human_log2fc_wide
+```
 
-{r}
+```{r}
 write_tsv(x = rel_mouse_df, file = str_c("../data/03_dat_aug_mouse", ".tsv.gz"))
 
 write_tsv(human_log_expression, "../data/03_dat_aug_human_log.tsv.gz")
 write_tsv(human_log2fc_wide, "../data/03_dat_aug_human_log2fc.tsv.gz")
-
+```
