@@ -12,6 +12,7 @@ library(dplyr)
 library(tidyr)
 library(broom)
 library(ggrepel)
+source("../R/99_proj_func.R")
 ```
 
 This analysis will see which genes are significantly up and down regulated in the treatment trials
@@ -32,13 +33,44 @@ mouse_df = mouse_df |>
 
 ```
 
-Now lets do an analysis to see which genes are significantly up and down regulated in the treatment trials.
+Now lets do an analysis to see which genes are significantly up and down regulated in each of the treatment trials.
+
+```{r}
+mouse_G007LK_lm <- generate_lm_genes(mouse_df, 'G007LK')
+signif_genes_error_bars(mouse_G007LK_lm)
+
+```
+
+```{r}
+volcano_plot(mouse_G007LK_lm)
+```
+
+```{r}
+mouse_WNT_lm <- generate_lm_genes(mouse_df, 'WNT')
+signif_genes_error_bars(mouse_WNT_lm)
+
+```
+
+```{r}
+volcano_plot(mouse_WNT_lm)
+```
+
+```{r}
+mouse_WNTG007LK_lm <- generate_lm_genes(mouse_df, 'WNT_G007LK')
+signif_genes_error_bars(mouse_WNTG007LK_lm)
+
+```
+
+```{r}
+volcano_plot(mouse_WNTG007LK_lm)
+```
 
 ```{r}
 # select a treatment to test for significant up and down regulations
-treatm = 'G007LK'
+treatm <- 'G007LK'
 
-mouse_df_treat = mouse_df |> 
+
+mouse_lm <- mouse_df |> 
   filter(treatment == 'DMSO' | treatment == treatm) |> 
   mutate(Treated = ifelse(treatment == treatm,1,0))|> 
   pivot_longer(cols = -c(treatment,replicate,Treated), 
@@ -50,6 +82,7 @@ mouse_df_treat = mouse_df |>
            map(.x = data, 
                .f = ~lm(formula = rel_log2_expr_level ~ Treated, 
                         data = .x))) %>% 
+  mutate(model_object_tidy = map(model_object, tidy, conf.int = TRUE)) %>% 
   unnest(model_object_tidy) %>% 
   filter(term == 'Treated') |>
   ungroup(Gene) %>% 
@@ -112,8 +145,8 @@ mouse_estimates_signif <-
 ```
 
 ```{r}
-mouse_estimates_signif |> 
- # filter(estimate > -10 & estimate < 10) |> # We apply this filtering to avoid the genes that only have significant values due to a 0 division in the relative log2 expression transforation.
+mouse_lm |> 
+ # filter(estimate > -10 & estimate < 10) |> # We apply this filtering to avoid the genes that only have significant values due to a 0 division in the relative log2 expression transformation.
   arrange(estimate) |> 
   mutate(Gene = factor(Gene, levels = unique(Gene))) |> 
   ggplot(aes(x=estimate,y = Gene)) +
@@ -131,7 +164,7 @@ mouse_estimates_signif |>
 ```
 
 ```{r}
-mouse_estimates |> 
+mouse_lm |> 
 mutate('neglog10p'= -log10(p.value)) |> 
 arrange(estimate) |> 
 mutate(Gene = factor(Gene, levels = unique(Gene))) |> 
@@ -151,4 +184,35 @@ theme(plot.title = element_text(size = 11))
 ```
 
 ```         
+```
+
+```{r}
+combined_df <- bind_rows(
+  mouse_WNT_lm,
+  mouse_WNTG007LK_lm,
+  mouse_G007LK_lm
+)
+
+significant_genes_df <- combined_df %>%
+  filter(signif) %>%
+  select(Gene, estimate, Treatment)
+
+significant_genes_df %>% 
+  ggplot(aes(x = gene,
+           y = cell_line,
+           fill = log2_fold_change))+
+    geom_tile()+
+    scale_fill_gradient2(low = 'blue',
+                         high ='red', 
+                         midpoint= 0)+
+    theme(axis.text.x = element_text(angle = 45, 
+                                     vjust = 1, 
+                                     hjust=1),
+          axis.text=element_text(size=4),
+          axis.title=element_text(size=5))+
+    theme(legend.position = 'bottom',
+          legend.key.size = unit(5, 'mm'),
+          legend.title=element_text(size=5),
+          legend.text=element_text(size=5))+
+    coord_fixed(ratio=0.6)
 ```

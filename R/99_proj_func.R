@@ -85,25 +85,65 @@ nas_present <- function(alist){
 
 generate_lm_genes <- function(df, treatm){
   df |> 
-    filter(treatment == 'DMSO' | treatment == treatm) |> 
-    mutate(Treated = ifelse(treatment == treatm,1,0))|> 
-    pivot_longer(cols = -c(treatment,replicate,Treated), 
-                 names_to = 'Gene', 
-                 values_to = 'rel_log2_expr_level') %>% 
-    group_by(Gene) |> 
-    nest() %>% 
-    mutate(model_object = 
-             map(.x = data, 
-                 .f = ~lm(formula = rel_log2_expr_level ~ Treated, 
-                          data = .x))) %>% 
-    unnest(model_object_tidy) %>% 
-    filter(term == 'Treated') |>
-    ungroup() %>% 
-    mutate(q.value = p.adjust(p.value, method = "bonferroni"),
-           signif = q.value < 0.05) %>% 
-    filter(signif==TRUE)
+  filter(treatment == 'DMSO' | treatment == treatm) |> 
+  mutate(Treated = ifelse(treatment == treatm,1,0))|> 
+  pivot_longer(cols = -c(treatment,replicate,Treated), 
+               names_to = 'Gene', 
+               values_to = 'rel_log2_expr_level') %>% 
+  group_by(Gene) |> 
+  nest() %>% 
+  mutate(model_object = 
+           map(.x = data, 
+               .f = ~lm(formula = rel_log2_expr_level ~ Treated, 
+                        data = .x))) %>% 
+  mutate(model_object_tidy = map(model_object, tidy, conf.int = TRUE)) %>% 
+  unnest(model_object_tidy) %>% 
+  filter(term == 'Treated') |>
+  ungroup() %>% 
+  mutate(q.value = p.adjust(p.value, method = "bonferroni"),
+         signif = q.value < 0.05)
 }
 
+###############################################################################
+signif_genes_error_bars <- function(df){
+  df %>% 
+  filter(signif==TRUE) %>% 
+  arrange(estimate) |> 
+    mutate(Gene = factor(Gene, levels = unique(Gene))) |> 
+    ggplot(aes(x=estimate,y = Gene)) +
+    geom_point() +
+    geom_errorbar(aes(xmin = conf.low, 
+                      xmax = conf.high),
+                  width = 0.2) +
+    labs(title='Genes Associated with treatment of GK007 in mouse', xlab='Estimate (95% CIs)', ylab='Gene')+
+    theme(axis.text.y = element_text(size=6),
+          panel.background = element_rect(fill = "white"),
+          panel.grid.major = element_line(color = "grey", size = 0.1),
+          panel.grid.minor = element_line(color = "lightgrey", size = 0.1),
+          plot.title = element_text(size = 11))+
+    geom_vline(aes(xintercept=0), linetype="solid", color="black")
+}
+
+###############################################################################
+volcano_plot <- function(df){
+  df %>% 
+  mutate('neglog10p'= -log10(p.value)) |> 
+  arrange(estimate) |> 
+  mutate(Gene = factor(Gene, levels = unique(Gene))) |> 
+  ggplot(aes(x=estimate,y = neglog10p, color=signif, labels=Gene)) +
+    geom_point(alpha=0.1) +
+    labs(title='Genes Associated with treatment of GK007 in mouse', 
+         xlab='Estimate (95% CIs)', 
+         ylab='-log10(p)') +
+    scale_color_manual(values = c("FALSE" = "red", "TRUE" = "turquoise")) #+
+    #geom_text_repel(aes(label=ifelse(signif, as.character(Gene), "")), 
+    #                size = 2,             
+    #                label.size = NA,      
+    #                max.overlaps = Inf,   
+    #                box.padding = 0.3,    
+    #                point.padding = 0.4) +
+    theme(plot.title = element_text(size = 11))
+}
 
 
 
