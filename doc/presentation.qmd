@@ -7,50 +7,56 @@ format:
 ---
 
 # Introduction
-## Dataset and 
+## Dataset and general idea
 
 - What we wanted to do and why we chose that dataset
-
-## Purpose of analysis
-
-- Idea for analysis
-- hi
+- What did we intend to analyse in the datasets
+- What was our general goal for the project
 
 # Methods
 ## Cleaning
 
-- How we cleaned
-- We ddi a b and c
+- How we cleaned the data and why
+
+## Describtion
+- Describing our data
+- Describing the challenges of our data (only one observation per cell line. Few observation in mouse also, as there are only 3 replicates)
+
 
 ## Augmentation
+- How we processed or data to prepare it for analysis
+- Why we did 0 handling and how
+- Why we did log2 fold expressions
 
-- How we processed or data to prepare it for analysis 
-- Relative log2 fold expressions
 
 # Results
 ## Mouse gene expression analysis
-- significantly up and down regulated genes
-- volcano plots
+- Only 346 significantly regulated genes out of 39075
+- 0 handeling making estimated treatment impact on expressions unsure.
 
 <img src="../results/volcano_G007LK.png" style="width: 48%;"/> <img src="../results/signif_genes_G007LK.png" style="width: 48%;"/>
 
 
-## Overlaps in regulated genes between treatments
-- Significantly regulated genes in each treatment
+## Analysis of regulated Mouse genes across the 3 treatments
+- Approximately euqal amounts of significantly regulated genes in each treatment
+- However, the overlap is very small
 
-- The venn diagram shows that there are quite a small overlap
+<img src="../results/mouse_venn_diagram.png" style="width: 130%;"/>
 
-![](../results/mouse_venn_diagram.png)
+
+## The human Analysis
+- PCA
+- where is the variance in the df
 
 # Discussion
 
-- Hmmmm...
-
+- What did we learn
+- What did we prepare for (the biological analysis people can do with our results)
+- Maybe give an example by looking up a single gene or cell line
 
 ## References
 
 
-## testing
 
 
 

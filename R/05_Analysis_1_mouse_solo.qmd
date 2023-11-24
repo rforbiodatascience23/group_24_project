@@ -80,7 +80,7 @@ gene_lists <- list(G007LK = genes_G007LK, WNTG007LK = genes_WNTG007LK, WNT = gen
 myCol <- brewer.pal(3, "Pastel2")
 venn.diagram(
   x = gene_lists,
-  category.names = c("G007LK", "WNTG007LK", "WNT"),
+  category.names = c("G007LK", "WNT_G007LK", "WNT"),
   filename = "../results/mouse_venn_diagram.png",
   output = TRUE,
 
@@ -102,7 +102,7 @@ venn.diagram(
   fontfamily = "sans",
   
   # Set names
-  cat.cex = 0.6,
+  cat.cex = 0.4,
   cat.fontface = "bold",
   cat.default.pos = "outer",
   cat.pos = c(-27, 27, 135),
