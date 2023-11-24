@@ -25,6 +25,7 @@ human_aug <- read_tsv(file = "../data/03_dat_aug_human_log.tsv.gz")
 human_aug_log2fc <- read_tsv(file = "../data/03_dat_aug_human_log2fc.tsv.gz") 
 human_clean <- read_tsv(file = "../data/02_dat_clean_human.tsv.gz")
 mouse_wide <- read_tsv(file = "../data/02_dat_clean_mouse.tsv.gz")
+mouse_aug <- read_tsv(file = "../data/03_dat_aug_mouse.tsv.gz")
 ```
 
 Before delving into the analysis, we would like to understand the data a bit better.
@@ -47,34 +48,28 @@ We also want to understand each gene a bit better. To do this, we compute some s
 
 ```{r}
 mouse_analysis <- mouse_wide |>
-  #should be a fucntion 
   pivot_longer(cols = -c(treatment, replicate),
                names_to = "gene",
                values_to = "expression_levels" )
-```
 
-First we want to see the distribution of the expression levels
-
-```{r}
 mouse_analysis |>
   ggplot( mapping = aes (x = expression_levels))+
   geom_freqpoly()+ 
   facet_wrap(~treatment)
 ```
 
-After log transformation EEEEEEEEEEEEEEEEEEE
+First we want to see the distribution of the expression levels
 
 ```{r}
-plot1 <- mouse_analysis |> 
+mouse_analysis_aug <- mouse_aug |>
+  pivot_longer(cols = -c(treatment, replicate),
+               names_to = "gene",
+               values_to = "expression_levels" )
+
+mouse_analysis_aug |>
   ggplot( mapping = aes (x = expression_levels))+
   geom_freqpoly()+ 
   facet_wrap(~treatment)
-```
-
-```{r}
-ggsave("../results/04key_plots1.png",plot1)
-plot1
-
 ```
 
 ```{r}
@@ -111,7 +106,27 @@ We can also get a crude look at the average activity of the treatments.
 
 They seem to be roughly the same, with the combined treatment being slightly higher than the rest. Let's look at the replicates within treatments as well.
 
-`{# {r} # # Calculate average activity for each treatment and replicate # gene_analysis |>  #   group_by(treatment,  #            replicate) |>  #   summarise(average_expression_levels = mean(expression_levels, #                                              na.rm = TRUE)) |> # # Plot average activity for each treatment and replicate #  #   ggplot(mapping = aes(x = treatment,  #                      y = average_expression_levels,  #                      fill = replicate)) +  #   geom_bar(stat = "identity",  #            position = position_dodge(width = 0.8)) +  #   theme_minimal() +  #   labs(title = "Average Gene Activity by Treatment and Replicate",  #        x = "Treatment",  #        y = "Average Activity")`
+```{r}
+# Calculate average activity for each treatment and replicate
+average_activity_treatment_replicate <- mouse_wide |>
+  pivot_longer(
+    cols = -c(treatment, replicate),
+    names_to = "gene",
+    values_to = "activity"
+  ) |>
+  group_by(treatment, replicate) |>
+  summarise(average_activity = mean(activity, na.rm = TRUE))
+
+# Plot average activity for each treatment and replicate
+ggplot(average_activity_treatment_replicate, aes(x = replicate(),
+                                                 y = average_activity,
+                                                 fill = treatment)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  theme_minimal() +
+  labs(title = "Average Gene Activity by Treatment and Replicate", 
+       x = "Treatment", 
+       y = "Average Activity")
+```
 
 These are also very similar. It would be hard to know the treatment just from the activity. Let's look a bit more into the distribution of zeroes.
 
@@ -248,8 +263,6 @@ ggplot(mapping = aes(x = cell_line,
   theme(axis.text.x = element_text(angle = 45), 
         axis.text = element_text(vjust = 0.5, 
                                  size = 6))
-
-
 ```
 
 ```{r}

@@ -60,19 +60,13 @@ scaled_data_mouse |>
 joined_mouse <- bind_cols(mouse_clean[1:2],scaled_data_mouse)
 ```
 
-We now create a new data frame where we lose the control group experiments (DMSO) and instead divide the non-control values with the DMSO values of each replicate from the other treatment gene expressions, and thereby convert from expression value to relative expressions. We then log2 transform the relative expression, such that a 0 means no change between control and treatment, and positive values mean up regulated and negative means down_regulated
+We now create a new data frame where we lose the control group experiments (DMSO) and instead divide the non-control values with the DMSO values of each replicate from the other treatment gene expressions, and thereby convert from expression value to relative expressions. We then log2 transform the relative expression, such that a 0 means no change between control and treatment, and positive values mean up regulated and negative means down_regulated.
 
-\$\$ \\log
+$$
+\log(expression\_treatment) - \log(expression\_control) = \log(\frac{expression\_treatment}{expression\_control (DMSO)})
+$$
 
-(\\frac{expression\\\_control\\\_trial (DMSO)}{expression\\\_drugX\\\_trial}) \$\$
-
-We now create a new df where we lose the control group experiments (DMSO) and instead subtract the noin-control values with the DMSO values of each replicate from the other treatment gene expressions, and thereby convert from expression value to log2 fold relative expressions. Due to the log law below
-
-\$\$
-
-\\log(expression\\\_treatment) - \\log(expression\\\_control\\\_trial (DMSO)) = \\log(\\frac{expression\\\_treatmentl (DMSO)}{expression\\\_control\\\_trial (DMSO)})
-
-\$\$
+This operation will be performed now
 
 ```{r}
 # There are some issues here
