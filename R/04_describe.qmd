@@ -150,7 +150,7 @@ mouse_zero_plot <- zero_counts_genes |>
        x = "Number of Sample", 
        y = "Percentage of Genes")
 mouse_zero_plot
-ggsave("../results/mouse_zero_plot.png", bg = "white")
+ggsave("../results/mouse_zero_plot.png", bg = "white", device = "png")
 ```
 
 We can see that most genes are either all zeroes (\~40%) or all non-zeroes( 33%). Let's also compare the number of active genes in each treatment.
@@ -305,6 +305,7 @@ zero_counts_genes |>
   labs(title = "Inactive Gene Percentage per Sample", 
        x = "Number of Samples", 
        y = "Percentage of Genes")
+ggsave("../results/human_zero_plot.png", bg = "white", device="png")
 ```
 
 ```{r}
