@@ -45,7 +45,8 @@ test_mouse <- select(mouse_clean, -c(treatment, replicate))
 zeroes_removed_mouse <- test_mouse |>
      select(where(~ !all(.x == 0)))
 ```
-
+We now want to do zero replacement for the rest of the zeroes in the dataset.
+The zeroes are an issue, since log(0) is undefined, and we would like to be able to log-transform the data. The zeroes are also likely not zero, but just below a detection limit. For this, we've replaced the zeroes with 65% of the lowest non-zero value in the experiment. All the data is compositional so when we do the replacement, we want to make sure that the sums of each experiment is the same. We do that by rescaling everything again after replacement by dividing by the sum of rows and multiplying by 10^6.
 The with the rest of our data we normalize and scale the mouse gene expression data
 
 ```{r}
@@ -136,43 +137,6 @@ zeroes_removed_human <- test_human |>
 ```
 
 ```{r}
-'
-zeroes_replaced_human <- zeroes_removed_human |>
-  rowwise() |>
-  mutate(min_non_zero = min(c_across
-                            (where(is.numeric))[c_across(where
-                                                         (is.numeric)) != 0], 
-                            na.rm = TRUE)) |>
-  ungroup() |>
-  mutate(across
-         (where
-           (is.numeric), ~ ifelse(. == 0, 
-                                  0.65 * min_non_zero,
-                                  .))) |>
-  select(-min_non_zero)
-
-zeroes_replaced_sums_human <- zeroes_replaced_human |>
-  rowwise() |>
-  mutate(total_sum = sum(c_across
-                         (everything()), 
-                         na.rm = TRUE))
-n = 1000000
-
-scaled_data_human <- zeroes_replaced_sums_human |>
-  mutate(scaling_factor = n / total_sum) |>
-  rowwise() |>
-  mutate(across
-         (-c(total_sum, scaling_factor), ~ . * scaling_factor)) |>
-  select(-total_sum, -scaling_factor)
-
-scaled_data_human |>
-  rowwise() |>
-  mutate(row_sums = sum(c_across
-                        (everything()), 
-                        na.rm = TRUE))
-
-joined_human <- bind_cols(human_clean[1:2],
-                          scaled_data_human)'
 joined_human <- zero_replacement(zeroes_removed_human, human_clean[1:2])
 ```
 
