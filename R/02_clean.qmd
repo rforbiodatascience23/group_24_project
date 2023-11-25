@@ -84,7 +84,9 @@ mouse_clean <- mouse_data_separated_repl |>
   pivot_wider(names_from = gene_id, 
               values_from = expression_levels
               )
+```
 
+```{r echo=FALSE}
 mouse_clean[1:10]
 ```
 
@@ -124,7 +126,9 @@ mouse_suppl_clean <- mouse_suppl_clean |>
   rename(compound_dose = factor_value_compound) |>
   #get rid of the redundant columns
   select(-c(extract_name, assay_name)) #those two columns contain the same information as the source_name
+```
 
+```{r echo = FALSE}
 mouse_suppl_clean[1:10, ]
 ```
 
@@ -181,7 +185,9 @@ human_clean <- human_clean_long |>
     names_from = gene_id,
     values_from = expression_levels
   )
+```
 
+```{r echo = FALSE}
 human_clean[1:10, ]
 ```
 
@@ -247,7 +253,9 @@ human_suppl_clean_final <- human_suppl_comp_dose |>
   select(-c(extract_name,
             assay_name,
             factor_value_compound))
+```
 
+```{r echo = FALSE}
 human_suppl_clean_final[1:10, ]
 ```
 
