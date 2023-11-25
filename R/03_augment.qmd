@@ -11,6 +11,7 @@ library(tidyverse)
 library(dplyr)
 library(stringr)
 library(tidyr)
+source("../R/99_proj_func.R")
 
 Sys.setenv(VROOM_CONNECTION_SIZE = 3062144) # Setting a larger connection buffer to be able to load the data
 
@@ -37,7 +38,7 @@ We also calculated the local minimum for every replicate/experiment for more pre
 
 This is how we did it:
 
-Firstly we excluded the genes that did not show any differences (expression levels =0) across all replicates
+Firstly we excluded the genes that did not show any expression (expression levels =0) across all replicates
 
 ```{r}
 test_mouse <- select(mouse_clean, -c(treatment, replicate))
@@ -48,7 +49,7 @@ zeroes_removed_mouse <- test_mouse |>
 The with the rest of our data we normalize and scale the mouse gene expression data
 
 ```{r}
-# Replace the zero values in the dataset with a calculated minimum-non-zero value per observation multiplied by 0.65. Thus we ensure that the 0 values that cannot undergo log transformation are replaced by a small non-zero value.
+'# Replace the zero values in the dataset with a calculated minimum-non-zero value per observation multiplied by 0.65. Thus we ensure that the 0 values that cannot undergo log transformation are replaced by a small non-zero value.
 zeroes_replaced_mouse <- zeroes_removed_mouse |>
   rowwise() |>
   mutate(min_non_zero = min(c_across
@@ -87,7 +88,8 @@ scaled_data_mouse |>
 
 #This part of the code binds the normalized and scaled expression data with the first columns from the original mouse data.
 joined_mouse <- bind_cols(mouse_clean[1:2],
-                          scaled_data_mouse)
+                          scaled_data_mouse)'
+joined_mouse <- zero_replacement(zeroes_removed_mouse, mouse_clean[1:2])
 ```
 
 This operation will be performed now
@@ -134,6 +136,7 @@ zeroes_removed_human <- test_human |>
 ```
 
 ```{r}
+'
 zeroes_replaced_human <- zeroes_removed_human |>
   rowwise() |>
   mutate(min_non_zero = min(c_across
@@ -169,7 +172,8 @@ scaled_data_human |>
                         na.rm = TRUE))
 
 joined_human <- bind_cols(human_clean[1:2],
-                          scaled_data_human)
+                          scaled_data_human)'
+joined_human <- zero_replacement(zeroes_removed_human, human_clean[1:2])
 ```
 
 ```{r}
