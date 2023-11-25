@@ -5,8 +5,6 @@ editor: visual
 message: false
 ---
 
-First we need to read the necessary files and the libraries
-
 ```{r message = FALSE}
 
 library(tidyverse)
@@ -36,27 +34,27 @@ mouse_data[1:10, ]
 human_data[1:10, ]
 ```
 
-### Check for the possible NAs in the 4 datasets
+### Check for the possible NAs in the 4 data sets
 
 ```{r}
 walk(data_list, nas_present)
 ```
 
-First of all we observed that none of the data set contains any missing values
+First of all we observe that none of the data sets contain any missing values
 
 ### **Mouse data set description:**
 
-Looking at this data set we can see that it represents the experimental compounds as variables and lists genes by their assebly abbreviations and their common name as rows. Each cell in the data set holds the expression levels of individual genes within the B16-F10 cell line. To optimize the utilization of this data set can perform a tidy procedure.
+Looking at this data set we can see that it represents the experimental compounds as variables and lists genes by their assembly abbreviations and their common name as rows. Each cell in the data set holds the expression levels of individual genes within the B16-F10 cell line. To optimize the utilization of this data set we can perform a tidy procedure.
 
 ### **Human data set description:**
 
-This data set comprises a gene id, a column containing common gene name and multiple columns representing the cell lines that were used for the experiment. This data set also requires some cleaning before analyzing it.
+This data set comprises of a gene id, a column containing common gene name and multiple columns representing the cell lines that were used for the experiment combined with their treatment status. This data set also requires some cleaning before analyzing it.
 
 # Mouse data sets
 
 ### Mouse data cleaning
 
-Converting to the long format
+Converting to long format
 
 ```{r}
 # Convert to long format 
@@ -90,11 +88,11 @@ mouse_clean <- mouse_data_separated_repl |>
 mouse_clean[1:10]
 ```
 
-After the cleaning process the resulting format format presents various treatments as rows with replicate number and gene_ids as variables.
+After the cleaning process the resulting format presents various treatments as rows with replicate number and gene_ids as variables.
 
-Moving on to the mouse supplementary file.Upon inspection of the data set it is seen that most supplementary data consists of general experiment metadata that do not vary between the individual drug experiments.
+### Supplementary mouse data cleaning
 
-## Cleaning of the Mouse Supplementary Data
+Upon inspection of the data set it is seen that most supplementary data consists of metadata concerning the experiment that do not vary between the individual drug experiments.
 
 ```{r}
 # Clean the column names from the mouse supplementary data set
@@ -132,10 +130,10 @@ mouse_suppl_clean <- mouse_suppl_clean |>
 mouse_suppl_clean[1:10, ]
 ```
 
-Now we are done with the cleaning procedure of the mouse data and supplementary data
+That is it for the cleaning process of the mouse data and supplementary mouse data.
 
 ```{r}
-#Save the files containing the mouse data
+# # Write the two clean data sets to tsv files
 write_tsv(x = mouse_clean, 
           file = ("../data/02_dat_clean_mouse.tsv.gz"))
 write_tsv(x = mouse_suppl_clean,
@@ -144,7 +142,7 @@ write_tsv(x = mouse_suppl_clean,
 
 ## Human data sets
 
-This data set is also unity. Therefore we are going to transform them via pivoting longer. But before proceeding, it is evident that the column names encompass dual information. The Cell line and the compound used in each experiment. Consequently we have to split these two.
+This data set is also untidy. Therefore we are going to transform it via pivoting longer. But before proceeding, it is evident that the column names contain two pieces of information, the cell line and the compound used in each experiment. Therefore we have to split these two.
 
 This is our approach of doing that:
 
@@ -177,7 +175,7 @@ human_clean_long <- human_trans |>
   select(-symbol) # we exclude the symbol for the same reason we did when we were cleaning the mouse dataset
 ```
 
-Now we are going to finish our cleaning process by getting back to wide format
+Now we are going to finish our cleaning process by getting back to wide format but with the different genes as variables in the column names
 
 ```{r}
 human_clean <- human_clean_long |>
@@ -190,8 +188,6 @@ human_clean <- human_clean_long |>
 ```{r echo = FALSE}
 human_clean[1:10, ]
 ```
-
-After cleaning we have a data set with the genes as variables and cell line and treatment as rows.
 
 Now we are going to clean the supplementary human file.
 
@@ -260,8 +256,7 @@ human_suppl_clean_final[1:10, ]
 ```
 
 ```{r}
-#Write the two clean datasets to tsv files
-
+# Write the two clean datasets to tsv files
 write_tsv(x = human_clean,
           file = "../data/02_dat_clean_human.tsv.gz")
 write_tsv(x = human_suppl_clean_final,
