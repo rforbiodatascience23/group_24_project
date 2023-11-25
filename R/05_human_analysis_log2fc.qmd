@@ -1,12 +1,12 @@
 ---
-title: "Untitled"
+title: "PCA Analysis"
 format: html
 editor: visual
 ---
 
 PCA analysis using the LOG2fold change in the 18 human Cell lines
 
-```{r}
+```{r message=FALSE, echo =FALSE}
 library(tidyverse) 
 library(dplyr)
 library(broom) # devtools::install_github("tidymodels/broom")
@@ -19,13 +19,7 @@ library(ggrepel)
 human_log2fold <- read_tsv(file = "../data/03_dat_aug_human_log2fc.tsv.gz")
 ```
 
-```{r}
-human_log2fold
-```
-
-PCA model
-
-```{r}
+```{r echo: FALSE}
 #| cache: true
 pca_result<- human_log2fold |> 
   select_if(is.numeric) |> 
@@ -35,7 +29,7 @@ pca_result<- human_log2fold |>
 
 This is the plot corresponding the Log2fold change of the cell lines
 
-```{r}
+```{r echo = FALSE}
 pca_augmented <- pca_result |>
   augment(data = human_log2fold) 
   
@@ -52,19 +46,20 @@ pca_augmented |>
         title = "PCA Plot Depicting Log2foldchange under G007.LK in Human Cells")
 ```
 
-Rotation matrix
-
-```{r}
-pca_result |> 
+```{r echo=FALSE}
+#Rotation matrix
+rotation_matrix<-pca_result |> 
   tidy(matrix = "rotation")
 ```
 
-```{r}
-pca_result |> 
+```{r echo = FALSE}
+eigenvalues<- pca_result |> 
   tidy(matrix = "eigenvalues")
 ```
 
-```{r}
+This is a barplot corresponding to the data variation captured by the Principal components
+
+```{r echo = FALSE}
 pca_result |> 
   tidy(matrix = "eigenvalues") |> 
   ggplot(aes(PC, percent)) + 
@@ -74,3 +69,5 @@ pca_result |>
                       expand = expansion(mult = c(0, 0.01)) ) + 
   theme_minimal_hgrid(12)
 ```
+
+The PC analysis suggests that the PC2 plays a more influential role in the cell stratification based on their log2foldchange. The identified outliers (SkMEL28,A375) and the distinct positioning of WM852 might hurbor crusial information about unique gene expression profiles for responding to the G007.LK. One limitation to our analysis is the limited percentage of variation that is explained by the first and second principal components.
