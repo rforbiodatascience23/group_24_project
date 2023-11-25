@@ -1,5 +1,5 @@
 ---
-title: "PCA Analysis"
+title: "Analysis 2 file - Isolated PCA analysis of the human dataset"
 format: html
 warning: FALSE
 editor: visual
