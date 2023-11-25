@@ -4,8 +4,6 @@ format: html
 editor: visual
 ---
 
-Now we are going to proceed with the augmentation of the mouse and human data sets. For that matter we are loading the clean mouse and human datasets
-
 ```{r message=FALSE}
 library(tidyverse)
 library(dplyr)
@@ -28,26 +26,26 @@ mouse_clean[1:10, ]
 
 ## Mouse augmentation
 
-We now create a new dataframe where exclude the control group experiments (DMSO) from our analysis. We do that by dividing the gene expressions of non-control values by the corresponding DMSO values within each replicate for other treatments. This transformation shifts our data set from absolute expression to relative expressions. Following this transformation, we then apply log2 transform the relative expressions. This transformation effectively sets a \_baseline where a value of 0 indicates no change between the control and treatment conditions. Positive values mean up regulation and negative values suggest down regulation.
+We now create a new data frame where we "exclude" the control group experiments (DMSO) from our analysis. We do that by dividing the gene expressions of non-control values by the corresponding DMSO values within each replicate for every treatments. This transformation shifts our data set from absolute expression to relative expression. Following this transformation, we then apply log2 transformation on the relative expressions. This transformation effectively sets a baseline where a value of 0 indicates no change between the control and treatment conditions. Positive values suggest up regulation and negative values down regulation.
 
 $$
 \log(expression\_treatment) - \log(expression\_control) = \log(\frac{expression\_treatment}{expression\_control (DMSO)})
 $$
 
-We also calculated the local minimum for every replicate/experiment for more precise transformation of each experiment.
+We also calculated the local minimum observed expression for every replicate/experiment for more precise transformation of each experiment.
 
 This is how we did it:
 
-Firstly we excluded the genes that did not show any expression (expression levels =0) across all replicates
+Firstly we excluded the genes that did not show any expression (expression levels = 0) across all replicates of all treatments
 
 ```{r}
 test_mouse <- select(mouse_clean, -c(treatment, replicate))
+
 zeroes_removed_mouse <- test_mouse |>
      select(where(~ !all(.x == 0)))
 ```
-We now want to do zero replacement for the rest of the zeroes in the dataset.
-The zeroes are an issue, since log(0) is undefined, and we would like to be able to log-transform the data. The zeroes are also likely not zero, but just below a detection limit. For this, we've replaced the zeroes with 65% of the lowest non-zero value in the experiment. All the data is compositional so when we do the replacement, we want to make sure that the sums of each experiment is the same. We do that by rescaling everything again after replacement by dividing by the sum of rows and multiplying by 10^6.
-The with the rest of our data we normalize and scale the mouse gene expression data
+
+We now want to do zero replacement for the rest of the zeroes in the data set. The zeroes are an issue, since log(0) is undefined, and we would like to be able to log-transform the data. In some cases, the zeroes may suggest expression below the detection limit. Therefore, we've replaced the zeroes with 65% of the lowest non-zero value in the experiment. All the data is compositional so when we do the replacement, we want to make sure that the sums of each experiment is the same. We do that by rescaling everything again after replacement by dividing by the sum of rows and multiplying by 10\^6.
 
 ```{r}
 joined_mouse <- zero_replacement(zeroes_removed_mouse, mouse_clean[1:2])
@@ -92,6 +90,7 @@ We implement the same notion as with the mouse data
 
 ```{r}
 test_human <- select(human_clean, -c(treatment, cell_line))
+
 zeroes_removed_human <- test_human |>
      select(where(~ !all(.x == 0)))
 ```
@@ -109,15 +108,13 @@ human_aug <- joined_human |>
   )
 ```
 
-We can use it for the first PCA analysis based on the relative expressions of the gene expressions among the 18 cell lines in the two different conditions .
+We can use it for a PCA analysis based on the relative expressions of the gene expressions among the 18 cell lines in the two different conditions.
 
 ```{r}
 human_aug <- human_aug |>
   mutate(log2_expression_levels = log2(expression_levels)) |>
   select(-expression_levels)
 ```
-
-The next data frame is going to be the data frame format used for the PCA analysis with the relative expression levels
 
 ```{r}
 human_aug_wide_gene <- human_aug |>
@@ -129,15 +126,13 @@ human_aug_wide_gene <- human_aug |>
 human_aug_wide_gene
 ```
 
-Now we are going to create the format for the PCA using the log2fc as a value for the gene columns
+Now we are going to create the format for another PCA using the log2fc as a value for the gene columns
 
 ```{r}
 human_aug_wide_treat <- human_aug |>
   pivot_wider(names_from = "treatment",
               values_from = "log2_expression_levels")
 ```
-
-To be used for PCA when we use the log2foldchange as a measure for the gene expression.
 
 ```{r}
 #This is where we are calculating the log2foldchange for every gene
@@ -147,7 +142,7 @@ human_aug_log2fc <- human_aug_wide_treat |>
 ```
 
 ```{r}
-human_aug_log2fc_wide<- human_aug_log2fc |>
+human_aug_log2fc_wide <- human_aug_log2fc |>
   pivot_wider(names_from = gene_id,
               values_from =log2foldchange)
 ```
@@ -156,7 +151,7 @@ human_aug_log2fc_wide<- human_aug_log2fc |>
 human_aug_log2fc_wide
 ```
 
-We proceed without joining the mouse and the human supplementary data to the original data sets since they do convey any useful information.
+We proceed without joining the mouse and the human supplementary data to the original data sets since they don't convey any useful information for our further analysis
 
 ```{r}
 write_tsv(x = rel_mouse_df, file = str_c("../data/03_dat_aug_mouse", ".tsv.gz"))
