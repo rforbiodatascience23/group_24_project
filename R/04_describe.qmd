@@ -8,7 +8,7 @@ format:
     embed-resources: true
 ---
 
-```{r messsage = FALSE}
+```{r messsage = FALSE, warning=FALSE}
 library(VennDiagram)
 library(tidyverse)
 library(purrr) 
@@ -51,21 +51,19 @@ knitr::kable(treatment_counts)
 knitr::kable(replicate_counts)
 ```
 
-Our next step of the ED analysis is the identification of the Gene expression per treatment. That is why we created the freqpoly plots
+Our next step of the ED analysis is the identification of the gene expression per treatment. That is why we created the freqpoly plots
 
 ```{r}
 mouse_analysis <- mouse_wide |>
   pivot_longer(cols = -c(treatment, replicate),
                names_to = "gene",
                values_to = "expression_levels")
-
-
 ```
 
-This is the distribution of the Expression Levels in the original data
+This is the distribution of the expression levels in the original data
 
 ```{r}
-freq_plot_mouse<-mouse_analysis |>
+freq_plot_mouse <- mouse_analysis |>
   ggplot( mapping = aes (x = expression_levels))+
   geom_freqpoly()+ 
   facet_wrap(~treatment)
@@ -73,7 +71,7 @@ freq_plot_mouse<-mouse_analysis |>
 freq_plot_mouse
 ```
 
-The bulk of zeros suggests that there is no difference in expression between the different conditions. This is a common observation for an RNA Seq dataset, since many genes are not activated remain inactive or unaffected by the studied conditions.
+The bulk of zeros suggests that there is no difference in expression between the different conditions. This is a common observation for an RNA Seq data set, since many genes are not activated or remain inactive or unaffected by the studied conditions.
 
 ```{r}
 mouse_analysis_aug <- mouse_aug |>
@@ -81,13 +79,15 @@ mouse_analysis_aug <- mouse_aug |>
                names_to = "gene",
                values_to = "expression_levels" )
 
-mouse_analysis_aug |>
+freq_log_plot_mouse <- mouse_analysis_aug |>
   ggplot( mapping = aes (x = expression_levels))+
   geom_freqpoly()+ 
   facet_wrap(~treatment)
+
+freq_log_plot_mouse
 ```
 
-This is the distribution of the Expression Levels after transforming the data.
+This is the distribution of the expression levels after transforming the data.
 
 Next, we want to check the summary statistics of the gene expression levels.
 
@@ -101,28 +101,24 @@ mouse_statistics <- mouse_analysis |>
             average_value = mean(expression_levels) 
             )
 
-
-```
-
-```{r}
 knitr::kable(mouse_statistics[1:10, ])
 ```
 
 We can also get a crude look at the average expression levels for every experiment.
 
 ```{r}
- mouse_analysis |> 
-   group_by(treatment) |> 
-   summarise(average_expression_levels = mean(expression_levels,
-                                              na.rm = TRUE)) |>
-   ggplot(mapping = aes(x = treatment, 
-                        y = average_expression_levels)) +
-   geom_bar(stat = "identity",
-            fill = "blue") + 
-   theme_minimal() +
-   labs(title = "Average Gene Expression for Each Treatment",
-        x = "Treatment", 
-        y = "Average Expression Levels")
+mouse_analysis |> 
+  group_by(treatment) |> 
+  summarise(average_expression_levels = mean(expression_levels,
+                                             na.rm = TRUE)) |>
+  ggplot(mapping = aes(x = treatment, 
+                       y = average_expression_levels)) +
+  geom_bar(stat = "identity",
+           fill = "blue") + 
+  theme_minimal() +
+  labs(title = "Average Gene Expression for Each Treatment",
+       x = "Treatment", 
+       y = "Average Expression Levels")
 ```
 
 They seem to be roughly the same, with the combined treatment (WNT+G007.LK) being slightly higher than the rest.
@@ -163,7 +159,7 @@ ggplot(average_activity_treatment_replicate,
        y = "Average Activity")
 ```
 
-These are also very similar. It would be hard to know the treatment just from the activity.
+These are also very similar. It would be hard to point out the treatment just by looking at the gene activity.
 
 As we saw previously we have a lot of zeroes in our data set. But what is their distribution across the samples? For that matter we create the following histogram.
 
@@ -188,7 +184,7 @@ mouse_zero_plot
 ggsave("../results/mouse_zero_plot.png", bg = "white", device = "png")
 ```
 
-We can see that most genes are either all zeroes (\~40%) or all non-zeroes( 33%).
+We can see that most genes either have all zeroes (\~40%) or all non-zeroes( 33%).
 
 Let's also compare the number of active genes in each treatment.
 
@@ -443,5 +439,3 @@ ggplot(aes(x = gene,
         legend.text=element_text(size=5))+
   coord_fixed(ratio=0.6)
 ```
-
-
