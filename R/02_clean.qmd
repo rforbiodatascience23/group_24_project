@@ -7,7 +7,8 @@ message: false
 
 First we need to read the necessary files and the libraries
 
-```{r}
+```{r message = FALSE}
+
 library(tidyverse)
 library(stringr)
 library(dplyr)
@@ -27,31 +28,35 @@ data_list <- list(mouse_data, mouse_suppl_data,human_data, human_suppl_data)
 
 First we need to see how the data are represented
 
-```{r}
-mouse_data
+```{r echo = FALSE}
+mouse_data[1:10, ]
 ```
 
-```{r}
-human_data
+```{r echo = FALSE}
+human_data[1:10, ]
 ```
+
+### Check for the possible NAs in the 4 datasets
 
 ```{r}
 walk(data_list, nas_present)
 ```
 
-First of all we can see that there are no NAs presented in neither of the 4 data sets we chose. Let's take a closer look though:
+First of all we observed that none of the data set contains any missing values
 
-**Mouse data set:**
+### **Mouse data set description:**
 
-Looking at this data set we can see that it contains the compounds that were used during the experiment as variables and the genes abbreviation in the assembly and their common name as rows and the values contained in every cell are the expression levels of each gene of the B16-F10 cell line. We can perform a tidy procedure here to make the most out of this data set.
+Looking at this data set we can see that it represents the experimental compounds as variables and lists genes by their assebly abbreviations and their common name as rows. Each cell in the data set holds the expression levels of individual genes within the B16-F10 cell line. To optimize the utilization of this data set can perform a tidy procedure.
 
-**Human data set:**
+### **Human data set description:**
 
-This data set contains a column of the gene id, a column of the common gene name and the rest of the columns are composed of the cell lines that were used for the experiment.
+This data set comprises a gene id, a column containing common gene name and multiple columns representing the cell lines that were used for the experiment. This data set also requires some cleaning before analyzing it.
 
-We will rename the column names as untreated and treated based on DMSO (vehicle solvent for the drug) and G007-LK (drug), respectively. We observe that there are many variables in column names, so we need to separate them.
+# Mouse data sets
 
-## Mouse data sets
+### Mouse data cleaning
+
+Converting to the long format
 
 ```{r}
 # Convert to long format 
@@ -80,24 +85,26 @@ mouse_clean <- mouse_data_separated_repl |>
               values_from = expression_levels
               )
 
-mouse_clean
+mouse_clean[1:10]
 ```
 
-After cleaning we end up with this format were we have the different treatments as rows with replicate number and gene_ids as variables.
+After the cleaning process the resulting format format presents various treatments as rows with replicate number and gene_ids as variables.
 
-Now we are going to clean the mouse supplementary file. Upon inspection of the data set it is seen that most supplementary data are simply consistent general experiment metadata that do not vary between the individual drug experiments. The concentration of the drugs used is the only column that could pose any valuable information and we there filter the data set to only retain this value for each compound.
+Moving on to the mouse supplementary file.Upon inspection of the data set it is seen that most supplementary data consists of general experiment metadata that do not vary between the individual drug experiments.
+
+## Cleaning of the Mouse Supplementary Data
 
 ```{r}
-# Firstly we want to clean the column names a bit
+# Clean the column names from the mouse supplementary data set
 
 mouse_suppl_clean <-mouse_suppl_data |>
   janitor::clean_names() |>
   rename_with(
-    ~ str_remove(., "characteristics_"),
+    ~ str_remove(., "characteristics_"),# remove the characteristics_ from the column names
     starts_with("characteristics_"),
   ) |>
   rename_with(
-       ~str_remove(., "comment_"),
+       ~str_remove(., "comment_"), #remove the comment_ from the column names
     starts_with("comment_")
   )
 ```
@@ -118,7 +125,7 @@ mouse_suppl_clean <- mouse_suppl_clean |>
   #get rid of the redundant columns
   select(-c(extract_name, assay_name)) #those two columns contain the same information as the source_name
 
-mouse_suppl_clean
+mouse_suppl_clean[1:10, ]
 ```
 
 Now we are done with the cleaning procedure of the mouse data and supplementary data
@@ -131,13 +138,11 @@ write_tsv(x = mouse_suppl_clean,
           file = ("../data/02_dat_clean_mouse_suppl.tsv.gz"))
 ```
 
-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--
-
 ## Human data sets
 
-These data are untidy. So we are going to transform them via pivoting longer. But before we do that we can definitely see that the column names contain two pieces of information. The Cell line and compound used in each experiment. So we have to split these two.
+This data set is also unity. Therefore we are going to transform them via pivoting longer. But before proceeding, it is evident that the column names encompass dual information. The Cell line and the compound used in each experiment. Consequently we have to split these two.
 
-Here is how we did it :
+This is our approach of doing that:
 
 ```{r}
 human_trans <-human_data |>
@@ -177,7 +182,7 @@ human_clean <- human_clean_long |>
     values_from = expression_levels
   )
 
-human_clean
+human_clean[1:10, ]
 ```
 
 After cleaning we have a data set with the genes as variables and cell line and treatment as rows.
@@ -187,6 +192,7 @@ Now we are going to clean the supplementary human file.
 The source name column has the same format as the columns we pivoted before and separated them into cell_line and compound columns.
 
 ```{r}
+#Clean the column names from the human supplementary data
 human_suppl_clean <- human_suppl_data |>
   janitor::clean_names() |>
   rename_with(
@@ -236,12 +242,13 @@ human_suppl_comp_dose <- human_suppl_clean_change_treat |>
 ```
 
 ```{r}
+#Extract the redundant columns
 human_suppl_clean_final <- human_suppl_comp_dose |>
   select(-c(extract_name,
             assay_name,
             factor_value_compound))
 
-human_suppl_clean_final
+human_suppl_clean_final[1:10, ]
 ```
 
 ```{r}

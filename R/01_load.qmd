@@ -6,18 +6,21 @@ message: false
 ---
 
 ```{r message = FALSE}
+#Load the necessary libraries for data handling and manipulation
+
+
 library(tidyverse)
 library(readr)
-source("../R/99_proj_func.R")
+source("../R/99_proj_func.R") #Custom functions created by us
 ```
 
 ```{r}
 # Generates data folder and _raw sub folder
-generate_dir()
+generate_dir() #call function to generate the directory
 ```
 
-```{r}
-# Captures URLs containing needed data sets
+```{r message=FALSE}
+# Here we define the URLs for downloading human and mouse data files
 
 human_file <- "https://raw.githubusercontent.com/s232996/project/main/gCSI_GRdata_v1.3.tsv/data/human.csv"
 
@@ -28,9 +31,9 @@ mouse_file <- "https://raw.githubusercontent.com/s232996/project/main/gCSI_GRdat
 mouse_suppl_file <- "https://raw.githubusercontent.com/s232996/project/main/gCSI_GRdata_v1.3.tsv/data/mouse_suppl.txt"
 ```
 
-The following functions download the files and saves them in the data correct folders
+```{r message = FALSE}
+#The following functions download the files and saves them in #the data correct folders
 
-```{r}
 human_data <- download_csv(human_file, "01_dat_load_human")
 mouse_data <- download_csv(mouse_file, "01_dat_load_mouse")
 
@@ -38,9 +41,13 @@ human_suppl_data <- download_txt(human_suppl_file, "01_dat_load_human_suppl")
 mouse_suppl_data <- download_txt(mouse_suppl_file, "01_dat_load_mouse_suppl")
 ```
 
-```{r}
+```{r warning = FALSE}
+#Combine downloaded data into a list for further processing
+
+
 data_list <- list(human_data, human_suppl_data, mouse_data, mouse_suppl_data)
-head_all(data_list)
+
+head_all(data_list)# display the head of every dataset contained in the datalist
 ```
 
 \
