@@ -70,4 +70,4 @@ pca_result |>
   theme_minimal_hgrid(12)
 ```
 
-The PC analysis suggests that the PC2 plays a more influential role in the cell stratification based on their log2Foldchange. The identified outliers (Skmel28,A375) and the distinct positioning of WM793 might hurbour crucial information about unique gene expression profiles for responding to the G007.LK. One limitation to our analysis is the limited percentage of variation that is explained by the first and second principal components.
+The PC analysis suggests that the PC2 plays a more influential role in the cell stratification based on their log2Foldchange. The identified outliers (Skmel28,A375) and the distinct positioning of WM793 might harbour crucial information about unique gene expression profiles for responding to the G007.LK. One limitation to our analysis is the limited percentage of variation that is explained by the first and second principal components.
