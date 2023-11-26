@@ -38,7 +38,7 @@ format:
 -   Only 346 significantly regulated genes out of 39075
 -   0 handling making estimated treatment impact on expressions unsure.
 
-![](images/05_key_plot_1.png){width="48%"}  ![](images/05_key_plot_2.png){width="48%"}
+![](images/05_key_plot_1.png){width="48%"} ![](images/05_key_plot_2.png){width="48%"}
 
 ## Analysis of regulated Mouse genes across the 3 treatments
 
@@ -52,9 +52,9 @@ format:
 
 -   PCA analysis across 18 human cell lines
 
-    Expression Levels vs Compound                                   Expression Levels vs Log2 Fold-Change
+    ##### Expression Levels vs Compound                                     Expression Levels vs Log2 Fold-Change
 
-![](images/06_key_plot_1.png){width="9.3cm" height="5.8cm"}       ![](images/07_key_plot_1.png){width="45%"}
+![](images/06_key_plot_1.png){width="45%"} ![](images/07_key_plot_1.png){width="39%"}
 
 # Discussion
 
