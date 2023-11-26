@@ -5,7 +5,7 @@ editor: visual
 warning: false
 ---
 
-```{r echo = FALSE, message=FALSE}
+```{r message=FALSE, echo =FALSE, warning = FALSE}
 #|label: load the packages
 #install.packages("VennDiagram")
 library(VennDiagram)

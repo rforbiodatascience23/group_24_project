@@ -6,7 +6,7 @@ editor: visual
 
 PCA analysis using the LOG2fold change in the 18 human Cell lines
 
-```{r message=FALSE, echo =FALSE}
+```{r message=FALSE, echo =FALSE, warning = FALSE}
 library(tidyverse) 
 library(dplyr)
 library(broom) 
@@ -16,10 +16,11 @@ library(purrr)
 library(scales)
 library(ggrepel)
 
+Sys.setenv(VROOM_CONNECTION_SIZE = 3062144)
 human_log2fold <- read_tsv(file = "../data/03_dat_aug_human_log2fc_wide.tsv.gz")
 ```
 
-```{r echo: FALSE}
+```{r}
 #| cache: true
 #Apply the PCA model
 pca_result<- human_log2fold |> 
@@ -49,13 +50,13 @@ pca_augmented |>
 ggsave("../results/07_key_plot_1.png")
 ```
 
-```{r echo=FALSE}
+```{r eval = FALSE, echo = FALSE}
 #Rotation matrix
 pca_result |> 
   tidy(matrix = "rotation")
 ```
 
-```{r echo = FALSE}
+```{r eval = FALSE, echo = FALSE}
 pca_result |> 
   tidy(matrix = "eigenvalues")
 ```
