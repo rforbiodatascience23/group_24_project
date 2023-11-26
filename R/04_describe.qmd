@@ -217,40 +217,6 @@ active_genes_plot <- active_genes_per_treatment |>
 active_genes_plot
 ```
 
-As last part of our EDA we are going to Create a Venn Diagram in order to get a first clue of the genes that were commonly influenced for all the samples.
-
-```{r}
-#Prepare the list of active genes for each treatment
-
-active_genes_sets <- mouse_wide %>%
-  pivot_longer(
-    cols = -c(treatment, replicate),
-    names_to = "gene",
-    values_to = "activity"
-  ) %>%
-  filter(activity > 0) %>%
-  select(treatment, gene) %>%
-  distinct() %>%
-  split(.$treatment) %>%
-  lapply(function(x) unique(x$gene))
-
-# Generate the Venn diagram for a subset of treatments (e.g., the first three)
-selected_treatments <- names(active_genes_sets)[1:length(active_genes_sets)]
-venn_data <- active_genes_sets[selected_treatments]
-
-#Create the Venn diagram
-venn_plot <- venn.diagram(
-  x = venn_data,
-  category.names = selected_treatments,
-  filename = NULL
-)
-
-#Plot the Venn diagram
-grid.newpage()
-grid.draw(venn_plot)
-
-```
-
 ## Human Data Investigation
 
 Firstly we check the distribution of expression levels
