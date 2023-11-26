@@ -1,8 +1,10 @@
 ---
-title: "02_clean"
-format: html
+title: "Clean"
 editor: visual
 message: false
+format:
+  html:
+    embed-resources: true
 ---
 
 ```{r message = FALSE}

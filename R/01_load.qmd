@@ -1,8 +1,10 @@
 ---
-title: "load file"
-format: html
+title: "Load"
 editor: visual
 message: false
+format:
+  html:
+    embed-resources: true
 ---
 
 ```{r message = FALSE}

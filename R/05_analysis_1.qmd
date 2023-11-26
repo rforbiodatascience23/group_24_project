@@ -1,11 +1,13 @@
 ---
-title: "Analysis 1 file - Isolated analysis of the mouse dataset"
-format: html
+title: "Analysis 1 - Analysis of the mouse dataset"
 editor: visual
 warning: false
+format:
+  html:
+    embed-resources: true
 ---
 
-```{r echo = FALSE, message=FALSE}
+```{r message=FALSE, echo =FALSE, warning = FALSE}
 #|label: load the packages
 #install.packages("VennDiagram")
 library(VennDiagram)

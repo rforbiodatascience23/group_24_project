@@ -1,11 +1,13 @@
 ---
-title: "Analysis 2 file - Isolated PCA analysis of the human dataset"
-format: html
+title: "Analysis 2 file - PCA analysis on the human dataset"
 warning: FALSE
 editor: visual
+format:
+  html:
+    embed-resources: true
 ---
 
-```{r echo = FALSE}
+```{r message=FALSE, echo =FALSE, warning = FALSE}
 library(tidyverse) 
 library(broom) 
 library(dplyr) 
@@ -60,12 +62,12 @@ ggsave("../results/06_key_plot_1.png", bg = "white", device = "png")
 
 Rotation matrix
 
-```{r echo=FALSE}
+```{r eval=FALSE}
 pca_result |> 
   tidy(matrix = "rotation")
 ```
 
-```{r echo =FALSE}
+```{r eval =FALSE}
 pca_result |> 
   tidy(matrix = "eigenvalues")
 ```

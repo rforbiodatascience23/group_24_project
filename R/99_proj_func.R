@@ -89,25 +89,25 @@ generate_lm_genes <- function(df, treatm){
   mutate(Treated = ifelse(treatment == treatm,1,0))|>     #create binary indicator of treatment
   pivot_longer(cols = -c(treatment,replicate,Treated), 
                names_to = 'Gene', 
-               values_to = 'rel_log2_expr_level') %>%     #pivot longer for gene expressions
+               values_to = 'rel_log2_expr_level') |>      #pivot longer for gene expressions
   group_by(Gene) |>                                       
-  nest() %>% 
+  nest() |> 
   mutate(model_object = 
            map(.x = data, 
                .f = ~lm(formula = rel_log2_expr_level ~ Treated, 
-                        data = .x))) %>%                 # do the lm for each gene
-  mutate(model_object_tidy = map(model_object, tidy, conf.int = TRUE)) %>%   # extract the nested lm df for each gene
-  unnest(model_object_tidy) %>%    #unnest it
+                        data = .x))) |>                  # do the lm for each gene
+  mutate(model_object_tidy = map(model_object, tidy, conf.int = TRUE)) |>    # extract the nested lm df for each gene
+  unnest(model_object_tidy) |>     #unnest it
   filter(term == 'Treated') |>   
-  ungroup() %>% 
+  ungroup() |> 
   mutate(q.value = p.adjust(p.value, method = "bonferroni"),
          signif = q.value < 0.05)    # benferroni adjust the p-values
 }
 
 ###############################################################################
 signif_genes_error_bars <- function(df, gene_title){
-  p <- df %>% 
-  filter(signif==TRUE) %>% #filter by onfly signififcantly up or down regulated
+  p <- df |> 
+  filter(signif==TRUE) |>  #filter by onfly signififcantly up or down regulated
   arrange(estimate) |>    #sort by estimate of treatment effect on expression
     mutate(Gene = factor(Gene, levels = unique(Gene))) |> 
     ggplot(aes(x=estimate,y = Gene)) +
@@ -144,10 +144,10 @@ signif_genes_error_bars <- function(df, gene_title){
 
 ###############################################################################
 volcano_plot <- function(df, gene_title) {
-  p <- df %>% 
-    mutate(neglog10p = -log10(p.value)) %>%
-    arrange(estimate) %>%  #sort by estimate of treatment effect on expression
-    mutate(Gene = factor(Gene, levels = unique(Gene))) %>%
+  p <- df |> 
+    mutate(neglog10p = -log10(p.value)) |> 
+    arrange(estimate) |>   #sort by estimate of treatment effect on expression
+    mutate(Gene = factor(Gene, levels = unique(Gene))) |> 
     ggplot(aes(x = estimate, y = neglog10p, color = signif, label = Gene)) +
     geom_point(alpha = 0.15) +
     labs(title=paste0('Genes Plotted by log2fold Change and q-value from Treatment of ', 
@@ -162,7 +162,7 @@ volcano_plot <- function(df, gene_title) {
   
 
   filename <- paste0('../results/05_key_plot_1.png')
-  if (gene_title == 'GK007LK') {
+  if (gene_title == 'GL007LK') {
     # Save the key plot
     ggsave(filename, 
            plot = p, 

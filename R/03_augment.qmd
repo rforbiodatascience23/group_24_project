@@ -1,7 +1,9 @@
 ---
-title: "03_augment"
-format: html
+title: "Augment"
 editor: visual
+format:
+  html:
+    embed-resources: true
 ---
 
 ```{r message=FALSE}

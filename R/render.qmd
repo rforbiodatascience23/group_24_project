@@ -1,0 +1,35 @@
+---
+title: "render"
+format: html
+editor: visual
+---
+
+## Quarto Render
+
+
+```{r}
+Sys.setenv(VROOM_CONNECTION_SIZE = 3062144)
+#in files
+source_files <- c("./01_load.qmd", "./02_clean.qmd", "./03_augment.qmd", 
+                  "./05_analysis_mouse.qmd", "./06_analysis_human_log_expr.qmd", 
+                  "./07_analysis_human_log2fc.qmd")
+
+# Out dir
+destination_dir <- "../results/"
+
+for (file in source_files) {
+    # Render the file
+    quarto::quarto_render(file)
+    
+    #get the html filenames
+    output_file <- gsub("qmd$", "html", basename(file))
+
+    # Full in and out paths
+    source_path <- file.path(dirname(file), output_file)
+    destination_path <- file.path(destination_dir, output_file)
+
+    file.rename(source_path, destination_path)
+}
+quarto::quarto_render("../doc/presentation.qmd")
+
+```
