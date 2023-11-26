@@ -30,9 +30,9 @@ quarto::quarto_render(input = "../R/01_load.qmd")
 quarto::quarto_render(input = "../R/02_clean.qmd")
 quarto::quarto_render(input = "../R/03_augment.qmd")
 quarto::quarto_render(input = "../R/04_describe.qmd")
-quarto::quarto_render(input = "../R/05_analysis_01.qmd")
-quarto::quarto_render(input = "../R/06_analysis_02.qmd")
-quarto::quarto_render(input = "../R/07_analysis_03.qmd")
+quarto::quarto_render(input = "../R/05_analysis_1.qmd")
+quarto::quarto_render(input = "../R/06_analysis_2.qmd")
+quarto::quarto_render(input = "../R/07_analysis_3.qmd")
 
 file.rename(from = "../R/01_load.html",
             to = "../results/load.html")
@@ -42,16 +42,10 @@ file.rename(from = "../R/03_augment.html",
             to = "../results/augment.html")
 file.rename(from = "../R/04_describe.html",
             to = "../results/describe.html")
-file.rename(from = "../R/05_analysis_01.html",
-            to = "../results/analysis_01.html")
+file.rename(from = "../R/05_analysis_1.html",
+            to = "../results/analysis_1.html")
 file.rename(from = "../R/06_analysis_2.html",
             to = "../results/analysis_2.html")
 file.rename(from = "../R/07_analysis_3.html",
             to = "../results/analysis_3.html")
-```
-
-```{r}
-render_all <- function(){
-  
-}
 ```
