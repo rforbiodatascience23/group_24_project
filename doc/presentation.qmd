@@ -1,5 +1,5 @@
 ---
-title: "Investegation of treatments in mice and humans"
+title: "Investegation of melanoma treatments in mice and humans"
 author: "Group - 24"
 format: 
   revealjs:
@@ -18,7 +18,7 @@ format:
 
 - How we cleaned the data and why
 
-## Describtion
+## Description
 - Describing our data
 - Describing the challenges of our data (only one observation per cell line. Few observation in mouse also, as there are only 3 replicates)
 
@@ -32,27 +32,43 @@ format:
 # Results
 ## Mouse gene expression analysis
 - Only 346 significantly regulated genes out of 39075
-- 0 handeling making estimated treatment impact on expressions unsure.
+- 0 handling making estimated treatment impact on expressions unsure.
 
 <img src="../results/volcano_G007LK.png" style="width: 48%;"/> <img src="../results/signif_genes_G007LK.png" style="width: 48%;"/>
 
 
 ## Analysis of regulated Mouse genes across the 3 treatments
-- Approximately euqal amounts of significantly regulated genes in each treatment
+- Approximately equal amounts of significantly regulated genes in each treatment
 - However, the overlap is very small
 
 <img src="../results/mouse_venn_diagram.png" style="width: 130%;"/>
 
 
 ## The human Analysis
-- PCA
-- where is the variance in the df
+- PCA analysis across 18 human cell lines
+
+- Significantly affected human genes by the G007.LK compound
+
+plot(Heatmap)
+
+- Expression Levels vs Compound
+
+plot
+
+- Expression Levels vs Log2FoldChange
+
+plot
+
+
 
 # Discussion
 
 - What did we learn
 - What did we prepare for (the biological analysis people can do with our results)
 - Maybe give an example by looking up a single gene or cell line
+
+- The observed limitations in the PCA highlight the complicate nature of gene regulation
+- Future work is needed to better understand the impact on gene expression and cellular pathways
 
 ## References
 
