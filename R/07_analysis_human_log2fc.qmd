@@ -33,7 +33,7 @@ This is the plot corresponding the Log2fold change of the cell lines
 pca_augmented <- pca_result |>
   augment(data = human_log2fold) 
   
-pca_augmented |>   
+pca_cell_line_plot <- pca_augmented |>   
   ggplot(mapping = aes(x =.fittedPC1, 
              y = .fittedPC2, 
              color = cell_line))+
@@ -44,6 +44,7 @@ pca_augmented |>
   labs( x = "PC1(12,7%)", 
         y = "PC2(7.5%)", 
         title = "PCA Plot Depicting Log2foldchange under G007.LK in Human Cells")
+ggsave("../results/pca_cell_line_plot.png", bg = "white", device = "png")
 ```
 
 ```{r echo=FALSE}

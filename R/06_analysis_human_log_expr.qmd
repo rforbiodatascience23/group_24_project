@@ -38,7 +38,7 @@ pca_augmented <- pca_result |>
 treated_cells<- pca_augmented |> 
   filter(treatment == "G007LK")
 
-pca_augmented |> 
+pca_treat_plot <- pca_augmented |> 
   ggplot(aes(.fittedPC1, 
              .fittedPC2, 
              color = treatment,
@@ -53,8 +53,13 @@ pca_augmented |>
   labs(x = "PC1(10%)", 
        y = "PC2(8.2%)", 
        title = "PCA Plot Depicting the Cell Responses to G007.LK")
+<<<<<<< HEAD
   
 
+=======
+  pca_treat_plot
+  ggsave("../results/pca_treat_plot.png",bg = "white", device = "png")
+>>>>>>> 946817dc9e44a008279ec43345b5023ddc38d6a2
 ```
 
 Rotation matrix
