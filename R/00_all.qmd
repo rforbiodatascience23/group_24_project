@@ -1,8 +1,10 @@
 ---
 title: "00_all"
-format: html
 editor: visual
 message: false
+format:
+  html:
+    embed-resources: true
 ---
 
 ```{r message = FALSE}
@@ -23,4 +25,37 @@ library(ggrepel)
 library(scales)
 library(broom)
 source("../R/99_proj_func.R")
+```
+
+```{r}
+quarto::quarto_render(input = "../R/01_load.qmd")
+file.rename(from = "../R/01_load.html",
+            to = "../results/01_load.html")
+
+quarto::quarto_render(input = "../R/02_clean.qmd")
+file.rename(from = "../R/02_clean.html",
+            to = "../results/02_clean.html")
+
+quarto::quarto_render(input = "../R/03_augment.qmd")
+file.rename(from = "../R/03_augment.html",
+            to = "../results/03_augment.html")
+
+quarto::quarto_render(input = "../R/04_describe.qmd")
+file.rename(from = "../R/04_describe.html",
+            to = "../results/04_describe.html")
+
+quarto::quarto_render(input = "../R/05_analysis_1.qmd")
+file.rename(from = "../R/05_analysis_1.html",
+            to = "../results/05_analysis_1.html")
+
+quarto::quarto_render(input = "../R/06_analysis_2.qmd")
+file.rename(from = "../R/06_analysis_2.html",
+            to = "../results/06_analysis_2.html")
+
+quarto::quarto_render(input = "../R/07_analysis_3.qmd")
+file.rename(from = "../R/07_analysis_3.html",
+            to = "../results/07_analysis_3.html")
+
+file.rename(from = "../R/00_all.html",
+            to = "../results/00_all.html")
 ```
