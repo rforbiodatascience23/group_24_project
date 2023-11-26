@@ -1,8 +1,8 @@
 ---
 title: "04_describe"
 editor: visual
-echo : FALSE
-warning: FALSE
+echo : false
+warning: false
 format: 
   html:
     embed-resources: true
@@ -25,7 +25,6 @@ Sys.setenv(VROOM_CONNECTION_SIZE = 3062144)
 
 human_aug <- read_tsv(file = "../data/03_dat_aug_human.tsv.gz") 
 human_aug_log2fc_wide <- read_tsv(file = "../data/03_dat_aug_human_log2fc_wide.tsv.gz")
-human_aug_wide_gene <- read_tsv(file = "../data/03_dat_aug_human_wide_gene.tsv.gz")
 human_clean <- read_tsv(file = "../data/02_dat_clean_human.tsv.gz")
 mouse_wide <- read_tsv(file = "../data/02_dat_clean_mouse.tsv.gz")
 mouse_aug <- read_tsv(file = "../data/03_dat_aug_mouse.tsv.gz")
@@ -69,7 +68,7 @@ freq_plot_mouse <- mouse_analysis |>
   facet_wrap(~treatment)
 
 freq_plot_mouse
-
+ggsave("../results/mouse_freqpoly.png")
 ```
 
 The bulk of zeros suggests that there is no difference in expression between the different conditions. This is a common observation for an RNA Seq data set, since many genes are not activated or remain inactive or unaffected by the studied conditions.
@@ -86,6 +85,7 @@ freq_log_plot_mouse <- mouse_analysis_aug |>
   facet_wrap(~treatment)
 
 freq_log_plot_mouse
+ggsave("../results/mouse_log_freqpoly.png")
 
 ```
 
@@ -159,6 +159,8 @@ ggplot(average_activity_treatment_replicate,
   labs(title = "Average Gene Activity by Treatment and Replicate",
        x = "Treatment and Replicate",
        y = "Average Activity")
+ggsave("../results/mouse_gene_activity_barplot.png")
+
 ```
 
 These are also very similar. It would be hard to point out the treatment just by looking at the gene activity.
@@ -266,7 +268,8 @@ human_analysis |>
   ggplot(mapping = aes (x = expression_levels))+ 
   geom_freqpoly()+ 
   facet_wrap(~treatment)
-ggsave('../results/human_freqpoly.png')
+  
+ggsave("../results/human_freqpoly.png")
 
 ```
 
@@ -277,6 +280,7 @@ human_aug |>
   ggplot(mapping = aes(x = log2_expression_levels))+ 
   geom_freqpoly()+ 
   facet_wrap(~treatment)
+ggsave("../results/human_log_freqpoly.png")
 ```
 
 Next we want to check the summary statistics of the gene expression levels
@@ -362,6 +366,7 @@ ggplot(mapping = aes(x = cell_line,
   theme(axis.text.x = element_text(angle = 45), 
         axis.text = element_text(vjust = 0.5, 
                                  size = 6))
+ggsave("../results/human_gene_activity_barplot.png")
 ```
 
 Now we want to see the average number of active genes per cell line.
@@ -443,5 +448,7 @@ ggplot(aes(x = gene,
         legend.title=element_text(size=5),
         legend.text=element_text(size=5))+
   coord_fixed(ratio=0.6)
+
+ggsave("../results/human_signif_genes.png")
 
 ```
