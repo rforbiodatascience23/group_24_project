@@ -16,11 +16,12 @@ library(purrr)
 library(scales)
 library(ggrepel)
 
-human_log2fold <- read_tsv(file = "../data/03_dat_aug_human_log2fc.tsv.gz")
+human_log2fold <- read_tsv(file = "../data/03_dat_aug_human_log2fc_wide.tsv.gz")
 ```
 
 ```{r echo: FALSE}
 #| cache: true
+#Apply the PCA model
 pca_result<- human_log2fold |> 
   select_if(is.numeric) |> 
   scale() |> 
@@ -33,18 +34,19 @@ This is the plot corresponding the Log2fold change of the cell lines
 pca_augmented <- pca_result |>
   augment(data = human_log2fold) 
   
-pca_cell_line_plot <- pca_augmented |>   
+pca_augmented |>   
   ggplot(mapping = aes(x =.fittedPC1, 
              y = .fittedPC2, 
              color = cell_line))+
-  geom_point(size =2.5) +
+  geom_point(size =2) +
     geom_text_repel( 
                   mapping = aes(label = cell_line))+
   background_grid() + 
-  labs( x = "PC1(12,7%)", 
+  labs( x = "PC1(12.7%)", 
         y = "PC2(7.5%)", 
-        title = "PCA Plot Depicting Log2foldchange under G007.LK in Human Cells")
-ggsave("../results/pca_cell_line_plot.png", bg = "white", device = "png")
+        title = "PCA Plot Depicting Log2foldchange under G007.LK")
+
+
 ```
 
 ```{r echo=FALSE}
@@ -69,6 +71,7 @@ pca_result |>
   scale_y_continuous( labels = scales::percent_format(), 
                       expand = expansion(mult = c(0, 0.01)) ) + 
   theme_minimal_hgrid(12)
+
 ```
 
 The PC analysis suggests that the PC2 plays a more influential role in the cell stratification based on their log2Foldchange. The identified outliers (Skmel28,A375) and the distinct positioning of WM793 might harbor crucial information about unique gene expression profiles for responding to the G007.LK. One limitation to our analysis is the limited percentage of variation that is explained by the first and second principal components.
