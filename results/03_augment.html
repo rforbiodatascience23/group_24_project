@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>03_augment</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="03_augment_files/libs/clipboard/clipboard.min.js"></script>
+<script src="03_augment_files/libs/quarto-html/quarto.js"></script>
+<script src="03_augment_files/libs/quarto-html/popper.min.js"></script>
+<script src="03_augment_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="03_augment_files/libs/quarto-html/anchor.min.js"></script>
+<link href="03_augment_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="03_augment_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="03_augment_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="03_augment_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="03_augment_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">03_augment</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"../R/99_proj_func.R"</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">Sys.setenv</span>(<span class="at">VROOM_CONNECTION_SIZE =</span> <span class="dv">3062144</span>) <span class="co"># Setting a larger connection buffer to be able to load the data</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Loading the clean data for the mouse and human datasets</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>mouse_clean <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(<span class="at">file =</span> <span class="st">"../data/02_dat_clean_mouse.tsv.gz"</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>mouse_data_suppl <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(<span class="at">file =</span> <span class="st">"../data/02_dat_clean_mouse_suppl.tsv.gz"</span>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>human_clean <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(<span class="at">file =</span> <span class="st">"../data/02_dat_clean_human.tsv.gz"</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>human_suppl_clean <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(<span class="at">file =</span> <span class="st">"../data/02_dat_clean_human_suppl.tsv.gz"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 35,685
+   treatment  replicate ENSMUSG00000000001 ENSMUSG00000000003 ENSMUSG00000000028
+   &lt;chr&gt;          &lt;dbl&gt;              &lt;dbl&gt;              &lt;dbl&gt;              &lt;dbl&gt;
+ 1 DMSO               1               75.0                  0               48.8
+ 2 DMSO               2               76.6                  0               55.6
+ 3 DMSO               3               54.9                  0               49.9
+ 4 G007LK             1               74.9                  0               50.4
+ 5 G007LK             2               70.0                  0               57.7
+ 6 G007LK             3               59.2                  0               49.6
+ 7 WNT                1               74.9                  0               49.5
+ 8 WNT                2               73.4                  0               51.4
+ 9 WNT                3               57.3                  0               47.4
+10 WNT_G007LK         1               74.1                  0               47.9
+# ℹ 35,680 more variables: ENSMUSG00000000037 &lt;dbl&gt;, ENSMUSG00000000049 &lt;dbl&gt;,
+#   ENSMUSG00000000056 &lt;dbl&gt;, ENSMUSG00000000058 &lt;dbl&gt;,
+#   ENSMUSG00000000078 &lt;dbl&gt;, ENSMUSG00000000085 &lt;dbl&gt;,
+#   ENSMUSG00000000088 &lt;dbl&gt;, ENSMUSG00000000093 &lt;dbl&gt;,
+#   ENSMUSG00000000094 &lt;dbl&gt;, ENSMUSG00000000103 &lt;dbl&gt;,
+#   ENSMUSG00000000120 &lt;dbl&gt;, ENSMUSG00000000125 &lt;dbl&gt;,
+#   ENSMUSG00000000126 &lt;dbl&gt;, ENSMUSG00000000127 &lt;dbl&gt;, …</code></pre>
+</div>
+</div>
+<section id="mouse-augmentation" class="level2">
+<h2 class="anchored" data-anchor-id="mouse-augmentation">Mouse augmentation</h2>
+<p>We now create a new data frame where we “exclude” the control group experiments (DMSO) from our analysis. We do that by dividing the gene expressions of non-control values by the corresponding DMSO values within each replicate for every treatments. This transformation shifts our data set from absolute expression to relative expression. Following this transformation, we then apply log2 transformation on the relative expressions. This transformation effectively sets a baseline where a value of 0 indicates no change between the control and treatment conditions. Positive values suggest up regulation and negative values down regulation.</p>
+<p><span class="math display">\[
+\log(expression\_treatment) - \log(expression\_control) = \log(\frac{expression\_treatment}{expression\_control (DMSO)})
+\]</span></p>
+<p>We also calculated the local minimum observed expression for every replicate/experiment for more precise transformation of each experiment.</p>
+<p>This is how we did it:</p>
+<p>Firstly we excluded the genes that did not show any expression (expression levels = 0) across all replicates of all treatments</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>test_mouse <span class="ot">&lt;-</span> <span class="fu">select</span>(mouse_clean, <span class="sc">-</span><span class="fu">c</span>(treatment, replicate))</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>zeroes_removed_mouse <span class="ot">&lt;-</span> test_mouse <span class="sc">|&gt;</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>     <span class="fu">select</span>(<span class="fu">where</span>(<span class="sc">~</span> <span class="sc">!</span><span class="fu">all</span>(.x <span class="sc">==</span> <span class="dv">0</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We now want to do zero replacement for the rest of the zeroes in the data set. The zeroes are an issue, since log(0) is undefined, and we would like to be able to log-transform the data. In some cases, the zeroes may suggest expression below the detection limit. Therefore, we’ve replaced the zeroes with 65% of the lowest non-zero value in the experiment. All the data is compositional so when we do the replacement, we want to make sure that the sums of each experiment is the same. We do that by rescaling everything again after replacement by dividing by the sum of rows and multiplying by 10^6.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>joined_mouse <span class="ot">&lt;-</span> <span class="fu">zero_replacement</span>(zeroes_removed_mouse, mouse_clean[<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 12 × 24,062
+   treatment  replicate ENSMUSG00000000001 ENSMUSG00000000028 ENSMUSG00000000037
+   &lt;chr&gt;          &lt;dbl&gt;              &lt;dbl&gt;              &lt;dbl&gt;              &lt;dbl&gt;
+ 1 DMSO               1               75.7               49.2               1.22
+ 2 DMSO               2               75.8               55.0               2.78
+ 3 DMSO               3               58.3               53.0               3.35
+ 4 G007LK             1               75.2               50.6               1.40
+ 5 G007LK             2               68.9               56.8               2.46
+ 6 G007LK             3               62.8               52.5               4.59
+ 7 WNT                1               72.5               47.9               1.11
+ 8 WNT                2               73.6               51.5               1.85
+ 9 WNT                3               59.8               49.4               2.91
+10 WNT_G007LK         1               72.2               46.7               1.13
+11 WNT_G007LK         2               71.2               52.7               2.20
+12 WNT_G007LK         3               63.3               41.0               3.23
+# ℹ 24,057 more variables: ENSMUSG00000000049 &lt;dbl&gt;, ENSMUSG00000000056 &lt;dbl&gt;,
+#   ENSMUSG00000000058 &lt;dbl&gt;, ENSMUSG00000000078 &lt;dbl&gt;,
+#   ENSMUSG00000000085 &lt;dbl&gt;, ENSMUSG00000000088 &lt;dbl&gt;,
+#   ENSMUSG00000000093 &lt;dbl&gt;, ENSMUSG00000000094 &lt;dbl&gt;,
+#   ENSMUSG00000000120 &lt;dbl&gt;, ENSMUSG00000000125 &lt;dbl&gt;,
+#   ENSMUSG00000000126 &lt;dbl&gt;, ENSMUSG00000000127 &lt;dbl&gt;,
+#   ENSMUSG00000000131 &lt;dbl&gt;, ENSMUSG00000000134 &lt;dbl&gt;, …</code></pre>
+</div>
+</div>
+<p>This operation will be performed now</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">#"Make a baseline dataset with the values for the control group"</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>DMSO <span class="ot">&lt;-</span> joined_mouse <span class="sc">|&gt;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(treatment<span class="sc">==</span><span class="st">'DMSO'</span>) <span class="sc">|&gt;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(treatment))</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co">#"Making the relative dataset"</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>rel_mouse_df <span class="ot">&lt;-</span> joined_mouse <span class="sc">|&gt;</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>   <span class="co"># Creating baseline columns for each gene with the baseline values for each replicate</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(DMSO,                   </span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>            <span class="at">by =</span> <span class="st">'replicate'</span>,</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>            <span class="at">suffix =</span> <span class="fu">c</span>(<span class="st">""</span>, <span class="st">"_baseline"</span>)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>            ) <span class="sc">|&gt;</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Subtracting baseline values from the original gene columns</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="sc">-</span><span class="fu">c</span>(<span class="st">"treatment"</span>,</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>                   <span class="st">"replicate"</span>,</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">ends_with</span>(<span class="st">'baseline'</span>)),</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>                <span class="sc">~</span> <span class="fu">log</span>(.x <span class="sc">/</span> <span class="fu">get</span>(<span class="fu">str_c</span>(<span class="fu">cur_column</span>(), <span class="st">"_baseline"</span>)),<span class="dv">2</span>)</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>                )</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>         ) <span class="sc">|&gt;</span> </span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(<span class="fu">ends_with</span>(<span class="st">'baseline'</span>)))  <span class="co"># remove the baseline helper columns</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 24,062
+   treatment  replicate ENSMUSG00000000001 ENSMUSG00000000028 ENSMUSG00000000037
+   &lt;chr&gt;          &lt;dbl&gt;              &lt;dbl&gt;              &lt;dbl&gt;              &lt;dbl&gt;
+ 1 DMSO               1            0                   0                   0    
+ 2 DMSO               2            0                   0                   0    
+ 3 DMSO               3            0                   0                   0    
+ 4 G007LK             1           -0.00877             0.0396              0.204
+ 5 G007LK             2           -0.137               0.0449             -0.180
+ 6 G007LK             3            0.105              -0.0141              0.457
+ 7 WNT                1           -0.0629             -0.0398             -0.125
+ 8 WNT                2           -0.0417             -0.0960             -0.592
+ 9 WNT                3            0.0348             -0.100              -0.200
+10 WNT_G007LK         1           -0.0685             -0.0776             -0.110
+# ℹ 24,057 more variables: ENSMUSG00000000049 &lt;dbl&gt;, ENSMUSG00000000056 &lt;dbl&gt;,
+#   ENSMUSG00000000058 &lt;dbl&gt;, ENSMUSG00000000078 &lt;dbl&gt;,
+#   ENSMUSG00000000085 &lt;dbl&gt;, ENSMUSG00000000088 &lt;dbl&gt;,
+#   ENSMUSG00000000093 &lt;dbl&gt;, ENSMUSG00000000094 &lt;dbl&gt;,
+#   ENSMUSG00000000120 &lt;dbl&gt;, ENSMUSG00000000125 &lt;dbl&gt;,
+#   ENSMUSG00000000126 &lt;dbl&gt;, ENSMUSG00000000127 &lt;dbl&gt;,
+#   ENSMUSG00000000131 &lt;dbl&gt;, ENSMUSG00000000134 &lt;dbl&gt;, …</code></pre>
+</div>
+</div>
+</section>
+<section id="human-data-set-augmentation" class="level2">
+<h2 class="anchored" data-anchor-id="human-data-set-augmentation">Human data set augmentation</h2>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 39,077
+   cell_line treatment ENSG00000000003 ENSG00000000005 ENSG00000000419
+   &lt;chr&gt;     &lt;chr&gt;               &lt;dbl&gt;           &lt;dbl&gt;           &lt;dbl&gt;
+ 1 A375      DMSO                 15.6               0           150. 
+ 2 A375      G007LK               15.6               0           169. 
+ 3 FemxI     DMSO                 21.8               0            88.1
+ 4 FemxI     G007LK               22.2               0            87.1
+ 5 FemxV     DMSO                 22.7               0            62.1
+ 6 FemxV     G007LK               22.8               0            76.3
+ 7 LOX       DMSO                 21.6               0            62.9
+ 8 LOX       G007LK               23.6               0            71.1
+ 9 MeWo      DMSO                 12.3               0           104. 
+10 MeWo      G007LK               12.8               0            93.9
+# ℹ 39,072 more variables: ENSG00000000457 &lt;dbl&gt;, ENSG00000000460 &lt;dbl&gt;,
+#   ENSG00000000938 &lt;dbl&gt;, ENSG00000000971 &lt;dbl&gt;, ENSG00000001036 &lt;dbl&gt;,
+#   ENSG00000001084 &lt;dbl&gt;, ENSG00000001167 &lt;dbl&gt;, ENSG00000001460 &lt;dbl&gt;,
+#   ENSG00000001461 &lt;dbl&gt;, ENSG00000001497 &lt;dbl&gt;, ENSG00000001561 &lt;dbl&gt;,
+#   ENSG00000001617 &lt;dbl&gt;, ENSG00000001626 &lt;dbl&gt;, ENSG00000001629 &lt;dbl&gt;,
+#   ENSG00000001630 &lt;dbl&gt;, ENSG00000001631 &lt;dbl&gt;, ENSG00000002016 &lt;dbl&gt;,
+#   ENSG00000002079 &lt;dbl&gt;, ENSG00000002330 &lt;dbl&gt;, ENSG00000002549 &lt;dbl&gt;, …</code></pre>
+</div>
+</div>
+<p>We implement the same notion as with the mouse data</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>test_human <span class="ot">&lt;-</span> <span class="fu">select</span>(human_clean, <span class="sc">-</span><span class="fu">c</span>(treatment, cell_line))</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>zeroes_removed_human <span class="ot">&lt;-</span> test_human <span class="sc">|&gt;</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>     <span class="fu">select</span>(<span class="fu">where</span>(<span class="sc">~</span> <span class="sc">!</span><span class="fu">all</span>(.x <span class="sc">==</span> <span class="dv">0</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>joined_human <span class="ot">&lt;-</span> <span class="fu">zero_replacement</span>(zeroes_removed_human, human_clean[<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 36 × 31,194
+   cell_line treatment ENSG00000000003 ENSG00000000005 ENSG00000000419
+   &lt;chr&gt;     &lt;chr&gt;               &lt;dbl&gt;           &lt;dbl&gt;           &lt;dbl&gt;
+ 1 A375      DMSO                 15.7        2.83e-10           152. 
+ 2 A375      G007LK               14.2        2.54e-10           154. 
+ 3 FemxI     DMSO                 22.2        3.65e-10            89.4
+ 4 FemxI     G007LK               22.1        6.58e-11            86.7
+ 5 FemxV     DMSO                 23.6        1.79e-10            64.7
+ 6 FemxV     G007LK               23.1        5.41e-11            77.4
+ 7 LOX       DMSO                 19.4        6.68e-11            56.5
+ 8 LOX       G007LK               20.4        1.04e-10            61.3
+ 9 MeWo      DMSO                 12.2        1.41e-10           103. 
+10 MeWo      G007LK               12.9        9.56e-11            94.5
+# ℹ 26 more rows
+# ℹ 31,189 more variables: ENSG00000000457 &lt;dbl&gt;, ENSG00000000460 &lt;dbl&gt;,
+#   ENSG00000000938 &lt;dbl&gt;, ENSG00000000971 &lt;dbl&gt;, ENSG00000001036 &lt;dbl&gt;,
+#   ENSG00000001084 &lt;dbl&gt;, ENSG00000001167 &lt;dbl&gt;, ENSG00000001460 &lt;dbl&gt;,
+#   ENSG00000001461 &lt;dbl&gt;, ENSG00000001497 &lt;dbl&gt;, ENSG00000001561 &lt;dbl&gt;,
+#   ENSG00000001617 &lt;dbl&gt;, ENSG00000001626 &lt;dbl&gt;, ENSG00000001629 &lt;dbl&gt;,
+#   ENSG00000001630 &lt;dbl&gt;, ENSG00000001631 &lt;dbl&gt;, ENSG00000002016 &lt;dbl&gt;, …</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>human_aug <span class="ot">&lt;-</span> joined_human <span class="sc">|&gt;</span> </span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="fu">starts_with</span>(<span class="st">"ENSG"</span>),</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"gene_id"</span>,</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"expression_levels"</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We can use it for a PCA analysis based on the relative expressions of the gene expressions among the 18 cell lines in the two different conditions.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>human_aug <span class="ot">&lt;-</span> human_aug <span class="sc">|&gt;</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">log2_expression_levels =</span> <span class="fu">log2</span>(expression_levels)) <span class="sc">|&gt;</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>expression_levels)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>human_aug_wide_gene <span class="ot">&lt;-</span> human_aug <span class="sc">|&gt;</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> gene_id,</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">values_from =</span>log2_expression_levels)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 36 × 31,194
+   cell_line treatment ENSG00000000003 ENSG00000000005 ENSG00000000419
+   &lt;chr&gt;     &lt;chr&gt;               &lt;dbl&gt;           &lt;dbl&gt;           &lt;dbl&gt;
+ 1 A375      DMSO                 3.97           -31.7            7.24
+ 2 A375      G007LK               3.82           -31.9            7.27
+ 3 FemxI     DMSO                 4.47           -31.3            6.48
+ 4 FemxI     G007LK               4.46           -33.8            6.44
+ 5 FemxV     DMSO                 4.56           -32.4            6.02
+ 6 FemxV     G007LK               4.53           -34.1            6.27
+ 7 LOX       DMSO                 4.28           -33.8            5.82
+ 8 LOX       G007LK               4.35           -33.2            5.94
+ 9 MeWo      DMSO                 3.61           -32.7            6.69
+10 MeWo      G007LK               3.69           -33.3            6.56
+# ℹ 26 more rows
+# ℹ 31,189 more variables: ENSG00000000457 &lt;dbl&gt;, ENSG00000000460 &lt;dbl&gt;,
+#   ENSG00000000938 &lt;dbl&gt;, ENSG00000000971 &lt;dbl&gt;, ENSG00000001036 &lt;dbl&gt;,
+#   ENSG00000001084 &lt;dbl&gt;, ENSG00000001167 &lt;dbl&gt;, ENSG00000001460 &lt;dbl&gt;,
+#   ENSG00000001461 &lt;dbl&gt;, ENSG00000001497 &lt;dbl&gt;, ENSG00000001561 &lt;dbl&gt;,
+#   ENSG00000001617 &lt;dbl&gt;, ENSG00000001626 &lt;dbl&gt;, ENSG00000001629 &lt;dbl&gt;,
+#   ENSG00000001630 &lt;dbl&gt;, ENSG00000001631 &lt;dbl&gt;, ENSG00000002016 &lt;dbl&gt;, …</code></pre>
+</div>
+</div>
+<p>Now we are going to create the format for another PCA using the log2fc as a value for the gene columns</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>human_aug_wide_treat <span class="ot">&lt;-</span> human_aug <span class="sc">|&gt;</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> <span class="st">"treatment"</span>,</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">values_from =</span> <span class="st">"log2_expression_levels"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co">#This is where we are calculating the log2foldchange for every gene</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>human_aug_log2fc <span class="ot">&lt;-</span> human_aug_wide_treat <span class="sc">|&gt;</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">log2foldchange =</span> G007LK <span class="sc">-</span> DMSO)<span class="sc">|&gt;</span> </span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(DMSO, G007LK))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>human_aug_log2fc_wide <span class="ot">&lt;-</span> human_aug_log2fc <span class="sc">|&gt;</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> gene_id,</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">values_from =</span>log2foldchange)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 18 × 31,193
+   cell_line ENSG00000000003 ENSG00000000005 ENSG00000000419 ENSG00000000457
+   &lt;chr&gt;               &lt;dbl&gt;           &lt;dbl&gt;           &lt;dbl&gt;           &lt;dbl&gt;
+ 1 A375             -0.149            -0.159         0.0237        -0.381   
+ 2 FemxI            -0.00658          -2.47         -0.0438         0.241   
+ 3 FemxV            -0.0325           -1.72          0.259          0.00386 
+ 4 LOX               0.0694            0.645         0.119         -0.0222  
+ 5 MeWo              0.0771           -0.563        -0.125         -0.112   
+ 6 Skmel28           0.158             1.53          0.0914         0.221   
+ 7 WM115            -0.0636            0.857        -0.0364        -0.138   
+ 8 WM1341           -0.0547           -0.893         0.0656        -0.0814  
+ 9 WM1366            0.0908           -0.959         0.00538       -0.176   
+10 WM1382            0.117             1.01         -0.0718         0.0277  
+11 WM239             0.170            -0.970         0.0566        -0.205   
+12 WM266            -0.0364           -2.27          0.169         -0.447   
+13 WM35             -0.0421            2.28          0.0853         0.293   
+14 WM45.1           -0.195            -1.41         -0.00322        0.000810
+15 WM793            -0.102            -0.610         0.114          0.0456  
+16 WM852            -0.0178            0.475        -0.179         -0.0908  
+17 WM9               0.232            -1.66          0.258         -0.114   
+18 WM983            -0.0824           -1.27         -0.0946         0.0246  
+# ℹ 31,188 more variables: ENSG00000000460 &lt;dbl&gt;, ENSG00000000938 &lt;dbl&gt;,
+#   ENSG00000000971 &lt;dbl&gt;, ENSG00000001036 &lt;dbl&gt;, ENSG00000001084 &lt;dbl&gt;,
+#   ENSG00000001167 &lt;dbl&gt;, ENSG00000001460 &lt;dbl&gt;, ENSG00000001461 &lt;dbl&gt;,
+#   ENSG00000001497 &lt;dbl&gt;, ENSG00000001561 &lt;dbl&gt;, ENSG00000001617 &lt;dbl&gt;,
+#   ENSG00000001626 &lt;dbl&gt;, ENSG00000001629 &lt;dbl&gt;, ENSG00000001630 &lt;dbl&gt;,
+#   ENSG00000001631 &lt;dbl&gt;, ENSG00000002016 &lt;dbl&gt;, ENSG00000002079 &lt;dbl&gt;,
+#   ENSG00000002330 &lt;dbl&gt;, ENSG00000002549 &lt;dbl&gt;, ENSG00000002586 &lt;dbl&gt;, …</code></pre>
+</div>
+</div>
+<p>We proceed without joining the mouse and the human supplementary data to the original data sets since they don’t convey any useful information for our further analysis</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_tsv</span>(<span class="at">x =</span> rel_mouse_df, <span class="at">file =</span> <span class="fu">str_c</span>(<span class="st">"../data/03_dat_aug_mouse"</span>, <span class="st">".tsv.gz"</span>))</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="fu">write_tsv</span>(human_aug, <span class="st">"../data/03_dat_aug_human.tsv.gz"</span>)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="fu">write_tsv</span>(human_aug_wide_gene, <span class="st">"../data/03_dat_aug_human_wide_gene.tsv.gz"</span>)</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="fu">write_tsv</span>(human_aug_log2fc_wide, <span class="st">"../data/03_dat_aug_human_log2fc_wide.tsv.gz"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
