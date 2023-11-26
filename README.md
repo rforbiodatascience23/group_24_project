@@ -29,7 +29,7 @@ In a study focusing on mouse melanoma cell line B16-F10, 12 samples were examine
 
 **Human data sets**
 
-The two data sets concerning human RNA-seq were derived from the study "Human melanoma cell lines treated with G007-LK"". During this experiment 18 human melanoma cell lines derived from skin were treated with the compound GOO7-LK with the purpose of detecting its effect on the RNA-seq profile of the cells.
+The two data sets concerning human RNA-seq were derived from the study "Human melanoma cell lines treated with G007-LK"". During this experiment 18 human melanoma cell lines derived from skin were treated with the compound GOO7-LK with the purpose of detecting its effect on the RNA-seq profile of the cells. Three pooled technical replicates from a panel of the 18 human melanoma cell lines were treated with dimethyl sulfoxide (DMSO) or G007-LK for 24 hours
 
 **Cell lines**: A-375, FEMX-I, FEMX-V, LOX-IMVI, MeWo, SK-MEL-28, WM115, WM1341B, WM1366, WM1382, WM239A, WM266.4, WM35, WM451Lu, WM793B, WM852, WM9, WM983B
 
