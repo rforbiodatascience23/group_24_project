@@ -28,7 +28,6 @@ source("../R/99_proj_func.R")
 ```
 
 ```{r}
-{r}
 quarto::quarto_render(input = "../R/01_load.qmd")
 file.rename(from = "../R/01_load.html",
             to = "../results/01_load.html")
