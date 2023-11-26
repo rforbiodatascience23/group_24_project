@@ -106,8 +106,8 @@ generate_lm_genes <- function(df, treatm){
 
 ###############################################################################
 signif_genes_error_bars <- function(df, gene_title){
-  p <- df %>% 
-  filter(signif==TRUE) %>% #filter by onfly signififcantly up or down regulated
+  p <- df |> 
+  filter(signif==TRUE) |>  #filter by onfly signififcantly up or down regulated
   arrange(estimate) |>    #sort by estimate of treatment effect on expression
     mutate(Gene = factor(Gene, levels = unique(Gene))) |> 
     ggplot(aes(x=estimate,y = Gene)) +
