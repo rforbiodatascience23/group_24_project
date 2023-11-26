@@ -54,4 +54,4 @@ Study on human cell lines Accession Number: E-MTAB-8438
 
 Study on mouse cell line Accession Number: E-MTAB-8101
 
-Waaler, Jo, et al. "Tankyrase Inhibition Sensitizes Melanoma to PD-1 Immune Checkpoint Blockade in Syngeneic Mouse Models." *Communications Biology*, vol. 3, no. 1, 24 Apr. 2020, <https://doi.org/10.1038/s42003-020-0916-2.> Accessed 25 Nov. 2023.
+Waaler, Jo, et al. "Tankyrase Inhibition Sensitizes Melanoma to PD-1 Immune Checkpoint Blockade in Syngeneic Mouse Models." *Communications Biology*, vol. 3, no. 1, 24 Apr. 2020, <https://doi.org/10.1038%2Fs42003-020-0916-2> Accessed 25 Nov. 2023.
