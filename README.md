@@ -1,5 +1,17 @@
 # group_24_project
 
+## Project contributors
+
+Oliver Morell
+
+Andre
+
+Antonios Otapasidis
+
+Konstantinos Lyroudis
+
+Georgios Retsinias
+
 We investigated two studies on comparative RNA-seq of coding RNA on a mouse cancer cell line and 18 human cancer cell lines.
 
 **Mouse data sets**
