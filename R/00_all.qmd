@@ -27,25 +27,30 @@ source("../R/99_proj_func.R")
 
 ```{r}
 quarto::quarto_render(input = "../R/01_load.qmd")
-quarto::quarto_render(input = "../R/02_clean.qmd")
-quarto::quarto_render(input = "../R/03_augment.qmd")
-quarto::quarto_render(input = "../R/04_describe.qmd")
-quarto::quarto_render(input = "../R/05_analysis_1.qmd")
-quarto::quarto_render(input = "../R/06_analysis_2.qmd")
-quarto::quarto_render(input = "../R/07_analysis_3.qmd")
-
 file.rename(from = "../R/01_load.html",
             to = "../results/load.html")
+
+quarto::quarto_render(input = "../R/02_clean.qmd")
 file.rename(from = "../R/02_clean.html",
             to = "../results/clean.html")
+
+quarto::quarto_render(input = "../R/03_augment.qmd")
 file.rename(from = "../R/03_augment.html",
             to = "../results/augment.html")
+
+quarto::quarto_render(input = "../R/04_describe.qmd")
 file.rename(from = "../R/04_describe.html",
             to = "../results/describe.html")
+
+quarto::quarto_render(input = "../R/05_analysis_1.qmd")
 file.rename(from = "../R/05_analysis_1.html",
             to = "../results/analysis_1.html")
+
+quarto::quarto_render(input = "../R/06_analysis_2.qmd")
 file.rename(from = "../R/06_analysis_2.html",
             to = "../results/analysis_2.html")
+
+quarto::quarto_render(input = "../R/07_analysis_3.qmd")
 file.rename(from = "../R/07_analysis_3.html",
             to = "../results/analysis_3.html")
 ```
