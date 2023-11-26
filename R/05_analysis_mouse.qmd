@@ -60,6 +60,8 @@ signif_genes_error_bars(mouse_WNTG007LK_lm, 'WNT_G007LK')
 volcano_plot(mouse_WNTG007LK_lm, 'WNT_G007LK')
 ```
 
+Lets also make a Venn diagram of which significantly regulated genes are present in multiple treatments
+
 ```{r echo = FALSE}
 genes_G007LK <- mouse_G007LK_lm %>% 
   filter(signif) %>%
