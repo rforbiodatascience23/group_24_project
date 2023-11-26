@@ -450,8 +450,12 @@ ggplot(aes(x = gene,
         legend.key.size = unit(5, 'mm'),
         legend.title=element_text(size=5),
         legend.text=element_text(size=5))+
+  labs(title = "Heat Map of extreme gene expressions", 
+       x = "Gene ID", 
+       y = "Cell line",
+       fill = "log2FC")+
   coord_fixed(ratio=0.6)
 
-ggsave("../results/04_key_plot_9.png")
+ggsave("../results/04_key_plot_9.png", bg = "white", device="png")
 
 ```
