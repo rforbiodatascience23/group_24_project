@@ -85,30 +85,30 @@ nas_present <- function(alist){
 
 generate_lm_genes <- function(df, treatm){
   df |> 
-  filter(treatment == 'DMSO' | treatment == treatm) |> 
-  mutate(Treated = ifelse(treatment == treatm,1,0))|> 
+  filter(treatment == 'DMSO' | treatment == treatm) |>    # Filter for control
+  mutate(Treated = ifelse(treatment == treatm,1,0))|>     #create binary indicator of treatment
   pivot_longer(cols = -c(treatment,replicate,Treated), 
                names_to = 'Gene', 
-               values_to = 'rel_log2_expr_level') %>% 
-  group_by(Gene) |> 
+               values_to = 'rel_log2_expr_level') %>%     #pivot longer for gene expressions
+  group_by(Gene) |>                                       
   nest() %>% 
   mutate(model_object = 
            map(.x = data, 
                .f = ~lm(formula = rel_log2_expr_level ~ Treated, 
-                        data = .x))) %>% 
-  mutate(model_object_tidy = map(model_object, tidy, conf.int = TRUE)) %>% 
-  unnest(model_object_tidy) %>% 
-  filter(term == 'Treated') |>
+                        data = .x))) %>%                 # do the lm for each gene
+  mutate(model_object_tidy = map(model_object, tidy, conf.int = TRUE)) %>%   # extract the nested lm df for each gene
+  unnest(model_object_tidy) %>%    #unnest it
+  filter(term == 'Treated') |>   
   ungroup() %>% 
   mutate(q.value = p.adjust(p.value, method = "bonferroni"),
-         signif = q.value < 0.05)
+         signif = q.value < 0.05)    # benferroni adjust the p-values
 }
 
 ###############################################################################
 signif_genes_error_bars <- function(df, gene_title){
   p <- df %>% 
-  filter(signif==TRUE) %>% 
-  arrange(estimate) |> 
+  filter(signif==TRUE) %>% #filter by onfly signififcantly up or down regulated
+  arrange(estimate) |>    #sort by estimate of treatment effect on expression
     mutate(Gene = factor(Gene, levels = unique(Gene))) |> 
     ggplot(aes(x=estimate,y = Gene)) +
     geom_point() +
@@ -125,7 +125,7 @@ signif_genes_error_bars <- function(df, gene_title){
           panel.grid.major = element_line(color = "grey", size = 0.1),
           panel.grid.minor = element_line(color = "lightgrey", size = 0.1),
           plot.title = element_text(size = 11))+
-    geom_vline(aes(xintercept=0), linetype="solid", color="black")
+    geom_vline(aes(xintercept=0), linetype="solid", color="black")    #plot estimate and error bars of signif genes
   print(p)
   
   filename <- paste0("../results/signif_genes_", gene_title,'.png')
@@ -143,7 +143,7 @@ signif_genes_error_bars <- function(df, gene_title){
 volcano_plot <- function(df, gene_title) {
   p <- df %>% 
     mutate(neglog10p = -log10(p.value)) %>%
-    arrange(estimate) %>%
+    arrange(estimate) %>%  #sort by estimate of treatment effect on expression
     mutate(Gene = factor(Gene, levels = unique(Gene))) %>%
     ggplot(aes(x = estimate, y = neglog10p, color = signif, label = Gene)) +
     geom_point(alpha = 0.15) +
