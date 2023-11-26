@@ -1,8 +1,10 @@
 ---
 title: "Analysis 2 file - PCA analysis on the human dataset"
-format: html
 warning: FALSE
 editor: visual
+format:
+  html:
+    embed-resources: true
 ---
 
 ```{r message=FALSE, echo =FALSE, warning = FALSE}

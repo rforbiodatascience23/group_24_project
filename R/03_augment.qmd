@@ -1,7 +1,9 @@
 ---
 title: "Augment"
-format: html
 editor: visual
+format:
+  html:
+    embed-resources: true
 ---
 
 ```{r message=FALSE}

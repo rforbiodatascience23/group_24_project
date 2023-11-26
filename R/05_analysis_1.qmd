@@ -1,8 +1,10 @@
 ---
 title: "Analysis 1 - Analysis of the mouse dataset"
-format: html
 editor: visual
 warning: false
+format:
+  html:
+    embed-resources: true
 ---
 
 ```{r message=FALSE, echo =FALSE, warning = FALSE}
