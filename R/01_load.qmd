@@ -1,5 +1,5 @@
 ---
-title: "load file"
+title: "Load"
 format: html
 editor: visual
 message: false
