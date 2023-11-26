@@ -115,7 +115,7 @@ signif_genes_error_bars <- function(df, gene_title){
     geom_errorbar(aes(xmin = conf.low, 
                       xmax = conf.high),
                   width = 0.2) +
-    labs(title=paste0('Genes Associated with treatment of ', 
+    labs(title=paste0('Genes Associated with Treatment of ', 
                       paste(gene_title),
                       ' in mouse'), 
          xlab='Estimate (95% CIs)', 
@@ -147,7 +147,7 @@ volcano_plot <- function(df, gene_title) {
     mutate(Gene = factor(Gene, levels = unique(Gene))) %>%
     ggplot(aes(x = estimate, y = neglog10p, color = signif, label = Gene)) +
     geom_point(alpha = 0.15) +
-    labs(title=paste0('Genes plotted by log2fold Change and q-value from Treatment of ', 
+    labs(title=paste0('Genes Plotted by log2fold Change and q-value from Treatment of ', 
                       paste(gene_title),
                       ' in mouse'),
          xlab = 'Log2 Fold Change',
