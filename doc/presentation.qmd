@@ -34,14 +34,14 @@ format:
 - Only 346 significantly regulated genes out of 39075
 - 0 handling making estimated treatment impact on expressions unsure.
 
-<img src="../results/volcano_G007LK.png" style="width: 48%;"/> <img src="../results/signif_genes_G007LK.png" style="width: 48%;"/>
+<img src="../results/05_key_plot_1.png" style="width: 48%;"/> <img src="../results/05_key_plot_2.png" style="width: 48%;"/>
 
 
 ## Analysis of regulated Mouse genes across the 3 treatments
 - Approximately equal amounts of significantly regulated genes in each treatment
 - However, the overlap is very small
 
-<img src="../results/mouse_venn_diagram.png" style="width: 130%;"/>
+<img src="../results/05_key_plot_3.png" style="width: 130%;"/>
 
 
 ## The human Analysis

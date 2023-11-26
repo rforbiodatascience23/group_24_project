@@ -84,7 +84,7 @@ myCol <- brewer.pal(3, "Pastel2")
 venn.diagram(
   x = gene_lists,
   category.names = c("G007LK", "WNT_G007LK", "WNT"),
-  filename = "../results/mouse_venn_diagram.png",
+  filename = "../results/05_key_plot_3.png",
   output = TRUE,
 
     # Output features
