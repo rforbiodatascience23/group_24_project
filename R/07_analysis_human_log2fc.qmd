@@ -9,7 +9,7 @@ PCA analysis using the LOG2fold change in the 18 human Cell lines
 ```{r message=FALSE, echo =FALSE}
 library(tidyverse) 
 library(dplyr)
-library(broom) # devtools::install_github("tidymodels/broom")
+library(broom) 
 library(ggplot2)
 library(cowplot) 
 library(purrr)

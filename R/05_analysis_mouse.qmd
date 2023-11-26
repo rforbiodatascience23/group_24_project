@@ -2,6 +2,7 @@
 title: "Analysis 1 file - Isolated analysis of the mouse dataset"
 format: html
 editor: visual
+warning: false
 ---
 
 ```{r echo = FALSE, message=FALSE}
@@ -20,9 +21,9 @@ source("../R/99_proj_func.R")
 
 This analysis will see which genes are significantly up and down regulated in the treatment trials
 
-Here we begin by loading the augmented mouse dat aset
+Here we begin by loading the augmented mouse dataset
 
-```{r echo = FALSE}
+```{r echo = FALSE, message = FALSE}
 Sys.setenv(VROOM_CONNECTION_SIZE = 3062144) # Setting a larger connection buffer to be able to load the data
 # Loading the data
 mouse_df <- read_tsv(file = "../data/03_dat_aug_mouse.tsv.gz")
