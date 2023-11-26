@@ -107,7 +107,7 @@ venn.diagram(
   fontfamily = "sans",
   
   # Set names
-  cat.cex = 0.4,
+  cat.cex = 0.3,
   cat.fontface = "bold",
   cat.default.pos = "outer",
   cat.pos = c(-27, 27, 135),
