@@ -128,16 +128,19 @@ signif_genes_error_bars <- function(df, gene_title){
     geom_vline(aes(xintercept=0), linetype="solid", color="black")    #plot estimate and error bars of signif genes
   print(p)
   
-  filename <- paste0("../results/signif_genes_", gene_title,'.png')
-  ggsave(filename, 
-         plot = p, 
-         path = getwd(), 
-         width = 10, 
-         height = 8, 
-         units = "in", 
-         bg = "white", 
-         device = "png")
-}
+  filename <- "../results/05_key_plot_2.png"
+  if (gene_title == 'GK007LK') {
+    # Save the key plot
+    ggsave(filename, 
+           plot = p, 
+           path = getwd(), 
+           width = 10, 
+           height = 8, 
+           units = "in", 
+           bg = "white", 
+           device = "png")
+    }
+  }
 
 ###############################################################################
 volcano_plot <- function(df, gene_title) {
@@ -157,15 +160,19 @@ volcano_plot <- function(df, gene_title) {
     theme(plot.title = element_text(size = 11))
   print(p)
   
-  filename <- paste0("../results/volcano_", gene_title,'.png')
-  ggsave(filename, 
-         plot = p, 
-         path = getwd(), 
-         width = 10, 
-         height = 8, 
-         units = "in", 
-         bg = "white", 
-         device = "png")
+
+  filename <- paste0('../results/05_key_plot_1.png')
+  if (gene_title == 'GK007LK') {
+    # Save the key plot
+    ggsave(filename, 
+           plot = p, 
+           path = getwd(), 
+           width = 10, 
+           height = 8, 
+           units = "in", 
+           bg = "white", 
+           device = "png")
+  }
   
 }
 ###########
