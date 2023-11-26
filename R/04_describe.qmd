@@ -365,7 +365,6 @@ ggplot(mapping = aes(x = cell_line,
   theme(axis.text.x = element_text(angle = 45), 
         axis.text = element_text(vjust = 0.5, 
                                  size = 6))
-ggsave("../results/03_key_plot_6.png")
 ```
 
 Now we want to see the average number of active genes per cell line.
@@ -448,6 +447,6 @@ ggplot(aes(x = gene,
         legend.text=element_text(size=5))+
   coord_fixed(ratio=0.6)
 
-ggsave("../results/03_key_plot_7.png")
+ggsave("../results/03_key_plot_6.png")
 
 ```
