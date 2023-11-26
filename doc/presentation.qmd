@@ -1,5 +1,5 @@
 ---
-title: "Investegation of melanoma treatments in mice and humans"
+title: "Investigation of melanoma treatments in mice and humans"
 author: "Group - 24"
 format: 
   revealjs:
@@ -7,75 +7,59 @@ format:
 ---
 
 # Introduction
+
 ## Dataset and general idea
 
-- What we wanted to do and why we chose that dataset
-- What did we intend to analyse in the datasets
-- What was our general goal for the project
+-   What we wanted to do and why we chose that dataset
+-   What did we intend to analyse in the datasets
+-   What was our general goal for the project
 
 # Methods
+
 ## Cleaning
 
-- How we cleaned the data and why
+-   How we cleaned the data and why
 
 ## Description
-- Describing our data
-- Describing the challenges of our data (only one observation per cell line. Few observation in mouse also, as there are only 3 replicates)
 
+-   Describing our data
+-   Describing the challenges of our data (only one observation per cell line. Few observation in mouse also, as there are only 3 replicates)
 
 ## Augmentation
-- How we processed or data to prepare it for analysis
-- Why we did 0 handling and how
-- Why we did log2 fold expressions
 
+-   How we processed or data to prepare it for analysis
+-   Why we did 0 handling and how
+-   Why we did log2 fold expressions
 
 # Results
+
 ## Mouse gene expression analysis
-- Only 346 significantly regulated genes out of 39075
-- 0 handling making estimated treatment impact on expressions unsure.
+
+-   Only 346 significantly regulated genes out of 39075
+-   0 handling making estimated treatment impact on expressions unsure.
 
 <img src="../results/05_key_plot_1.png" style="width: 48%;"/> <img src="../results/05_key_plot_2.png" style="width: 48%;"/>
 
-
 ## Analysis of regulated Mouse genes across the 3 treatments
-- Approximately equal amounts of significantly regulated genes in each treatment
-- However, the overlap is very small
+
+-   Approximately equal amounts of significantly regulated genes in each treatment
+-   However, the overlap is very small
 
 <img src="../results/05_key_plot_3.png" style="width: 130%;"/>
 
-
 ## The human Analysis
-- PCA analysis across 18 human cell lines
 
-- Significantly affected human genes by the G007.LK compound
+-   PCA analysis across 18 human cell lines
 
-plot(Heatmap)
+    Expression Levels vs Compound Expression Levels vs Log2 Fold-Change
 
-- Expression Levels vs Compound
+<img src="../results/06_key_plot_1.png" width="8cm" height="6cm"/>
 
-plot
-
-- Expression Levels vs Log2FoldChange
-
-plot
-
-
+<img src="../results/07_key_plot_1.png" width="8cm" height="6cm"/>
 
 # Discussion
 
-- What did we learn
-- What did we prepare for (the biological analysis people can do with our results)
-- Maybe give an example by looking up a single gene or cell line
-
-- The observed limitations in the PCA highlight the complicate nature of gene regulation
-- Future work is needed to better understand the impact on gene expression and cellular pathways
+-   PCA limitations underscore the complexity of gene regulation and its impact on cell line behavior
+-   Future work is needed to better understand melanoma cell's biology (selection of better candidates, compounds)
 
 ## References
-
-
-
-
-
-
-
-
