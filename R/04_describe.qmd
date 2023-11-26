@@ -69,6 +69,7 @@ freq_plot_mouse <- mouse_analysis |>
   facet_wrap(~treatment)
 
 freq_plot_mouse
+
 ```
 
 The bulk of zeros suggests that there is no difference in expression between the different conditions. This is a common observation for an RNA Seq data set, since many genes are not activated or remain inactive or unaffected by the studied conditions.
@@ -85,6 +86,7 @@ freq_log_plot_mouse <- mouse_analysis_aug |>
   facet_wrap(~treatment)
 
 freq_log_plot_mouse
+
 ```
 
 This is the distribution of the expression levels after transforming the data.
@@ -254,6 +256,7 @@ human_analysis <- human_clean |>
                names_to = "gene",
                values_to = "expression_levels" )|>
   relocate(gene, .before = 1)
+
 ```
 
 This is the distribution of the Expression Levels in the original data
@@ -263,6 +266,8 @@ human_analysis |>
   ggplot(mapping = aes (x = expression_levels))+ 
   geom_freqpoly()+ 
   facet_wrap(~treatment)
+ggsave('../results/human_freqpoly.png')
+
 ```
 
 We then check the distribution of expression levels after log2 transformation
@@ -438,4 +443,5 @@ ggplot(aes(x = gene,
         legend.title=element_text(size=5),
         legend.text=element_text(size=5))+
   coord_fixed(ratio=0.6)
+
 ```
