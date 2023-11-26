@@ -129,7 +129,7 @@ signif_genes_error_bars <- function(df, gene_title){
   print(p)
   
   filename <- "../results/05_key_plot_2.png"
-  if (gene_title == 'GK007LK') {
+  if (gene_title == 'G007LK') {
     # Save the key plot
     ggsave(filename, 
            plot = p, 
@@ -162,7 +162,7 @@ volcano_plot <- function(df, gene_title) {
   
 
   filename <- paste0('../results/05_key_plot_1.png')
-  if (gene_title == 'GL007LK') {
+  if (gene_title == 'G007LK') {
     # Save the key plot
     ggsave(filename, 
            plot = p, 
