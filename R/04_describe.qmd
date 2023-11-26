@@ -15,7 +15,6 @@ library(purrr)
 library(dplyr)
 library(ggplot2)
 library(tidyr)
-library(patchwork)
 library(viridis)
 library(ggridges)
 ```
@@ -68,7 +67,7 @@ freq_plot_mouse <- mouse_analysis |>
   facet_wrap(~treatment)
 
 freq_plot_mouse
-ggsave("../results/mouse_freqpoly.png")
+ggsave("../results/03_key_plot_1.png")
 ```
 
 The bulk of zeros suggests that there is no difference in expression between the different conditions. This is a common observation for an RNA Seq data set, since many genes are not activated or remain inactive or unaffected by the studied conditions.
@@ -85,7 +84,7 @@ freq_log_plot_mouse <- mouse_analysis_aug |>
   facet_wrap(~treatment)
 
 freq_log_plot_mouse
-ggsave("../results/mouse_log_freqpoly.png")
+ggsave("../results/03_key_plot_2.png")
 
 ```
 
@@ -159,7 +158,7 @@ ggplot(average_activity_treatment_replicate,
   labs(title = "Average Gene Activity by Treatment and Replicate",
        x = "Treatment and Replicate",
        y = "Average Activity")
-ggsave("../results/mouse_gene_activity_barplot.png")
+ggsave("../results/03_mouse_gene_activity_barplot.png")
 
 ```
 
@@ -185,7 +184,7 @@ mouse_zero_plot <- zero_counts_genes |>
        x = "Number of Samples", 
        y = "Percentage of Genes")
 mouse_zero_plot
-ggsave("../results/mouse_zero_plot.png", bg = "white", device = "png")
+ggsave("../results/03_key_plot_4.png", bg = "white", device = "png")
 ```
 
 We can see that most genes either have all zeroes (\~40%) or all non-zeroes( 33%).
@@ -269,7 +268,7 @@ human_analysis |>
   geom_freqpoly()+ 
   facet_wrap(~treatment)
   
-ggsave("../results/human_freqpoly.png")
+ggsave("../results/03_key_plot_5.png")
 
 ```
 
@@ -280,7 +279,7 @@ human_aug |>
   ggplot(mapping = aes(x = log2_expression_levels))+ 
   geom_freqpoly()+ 
   facet_wrap(~treatment)
-ggsave("../results/human_log_freqpoly.png")
+
 ```
 
 Next we want to check the summary statistics of the gene expression levels
@@ -339,7 +338,7 @@ zero_counts_genes |>
   labs(title = "Inactive Gene Percentage per Sample", 
        x = "Number of Samples", 
        y = "Percentage of Genes")
-ggsave("../results/human_zero_plot.png", bg = "white", device="png")
+ggsave("../06_results/03_key_plot_6.png", bg = "white", device="png")
 ```
 
 We can see that over 40% of our data do not contain any 0s but 20% of them are 0 across every sample.
@@ -366,7 +365,7 @@ ggplot(mapping = aes(x = cell_line,
   theme(axis.text.x = element_text(angle = 45), 
         axis.text = element_text(vjust = 0.5, 
                                  size = 6))
-ggsave("../results/human_gene_activity_barplot.png")
+ggsave("../results/03_key_plot_6.png")
 ```
 
 Now we want to see the average number of active genes per cell line.
@@ -449,6 +448,6 @@ ggplot(aes(x = gene,
         legend.text=element_text(size=5))+
   coord_fixed(ratio=0.6)
 
-ggsave("../results/human_signif_genes.png")
+ggsave("../results/03_key_plot_7.png")
 
 ```
