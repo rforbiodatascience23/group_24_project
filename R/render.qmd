@@ -10,8 +10,7 @@ editor: visual
 ```{r}
 Sys.setenv(VROOM_CONNECTION_SIZE = 3062144)
 #in files
-source_files <- c("./01_load.qmd", "./02_clean.qmd", "./03_augment.qmd", 
-                  "./05_analysis_mouse.qmd", "./06_analysis_human_log_expr.qmd", 
+source_files <- c("./01_load.qmd", "./02_clean.qmd", "./03_augment.qmd",   "./04_describe.qmd","./05_analysis_mouse.qmd", "./06_analysis_human_log_expr.qmd", 
                   "./07_analysis_human_log2fc.qmd")
 
 # Out dir
