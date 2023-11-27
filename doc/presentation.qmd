@@ -21,22 +21,32 @@ format:
 
 ## Methods
 
+::: columns
+::: {.column width="40%"}
 ### Cleaning
+::: {style="font-size: 70%;"}
 
-::: {style="font-size: 50%;"}
+
 -   Drop redundant columns and rows
 -   Check for NAs
 -   Tidy the untidy data
-
+:::
 :::
 
+::: {.column width="60%"}
 ### Augmentation
 
-::: {style="font-size: 50%;"}
+::: {style="font-size: 70%;"}
 -   Zero replacement
 -   log2 transformation
 -   log2 fold change
 :::
+:::
+:::
+
+
+
+
 
 ```{r, style="max-height: 200px; overflow: auto;"}
 #| echo: true
@@ -124,9 +134,9 @@ print(joined_df)
 
 ![](../results/05_key_plot_3.png){width="50%" fig-align="center"}
 
-## Discussion
 
-### The Human Analysis
+
+## The Human Analysis
 
 ::: {style="font-size: 50%;"}
 -   PCA.1 The way the cell lines are segregated indicates that the biological background outweighs the direct impact of the treatment in regards to gene expression variance
