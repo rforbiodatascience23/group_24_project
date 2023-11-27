@@ -124,7 +124,7 @@ signif_genes_error_bars <- function(df, gene_title){
           panel.background = element_rect(fill = "white"),
           panel.grid.major = element_line(color = "grey", size = 0.1),
           panel.grid.minor = element_line(color = "lightgrey", size = 0.1),
-          plot.title = element_text(size = 11))+
+          plot.title = element_text(size = 15))+
     geom_vline(aes(xintercept=0), linetype="solid", color="black")    #plot estimate and error bars of signif genes
   print(p)
   
@@ -157,7 +157,7 @@ volcano_plot <- function(df, gene_title) {
          ylab = '-log10(p-value)') +
     scale_color_manual(values = c(`FALSE` = "blue", `TRUE` = "red")) +
     theme_minimal() +
-    theme(plot.title = element_text(size = 11))
+    theme(plot.title = element_text(size = 15))
   print(p)
   
 
