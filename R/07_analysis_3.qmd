@@ -48,7 +48,7 @@ pca_augmented |>
   background_grid() + 
   labs( x = "PC1(12.7%)", 
         y = "PC2(7.5%)", 
-        title = "PCA Plot Depicting log2fold change under G007.LK")
+        title = "PCA Plot Depicting Log2fold Change under G007.LK")
 
 ggsave("../results/07_key_plot_1.png", bg = "white", device = "png")
 ```
