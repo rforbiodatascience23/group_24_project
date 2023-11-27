@@ -71,7 +71,7 @@ format:
 ### The Human Analysis
 ::: {style="font-size: 50%;"}
 
-- PCA.1 The way the cell lines are segregated highlight the biological background outweighs the direct impact of the treatment in regards to gene expression variance
+- PCA.1 The way the cell lines are segregated indicates that the biological background outweighs the direct impact of the treatment in regards to gene expression variance
 
 - PCA.2 Outliers like SkMEL28 and A375, along with the distinctive positioning of WM852, suggested unique gene expression profiles potentially associated with the response to G007.LK.
 
