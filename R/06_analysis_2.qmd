@@ -57,7 +57,7 @@ pca_augmented |>
        title = "PCA Plot Depicting the Cell Responses to G007.LK") 
 
 ggsave("../results/06_key_plot_1.png", bg = "white", device = "png")
-
+log_files <- list.files(path = "../results", pattern = "pca_diagram\\.png\\.2023.*\\.log$", full.names = TRUE)
 ```
 
 Rotation matrix

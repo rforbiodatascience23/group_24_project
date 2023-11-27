@@ -20,16 +20,24 @@ format:
 
 -   How we cleaned the data and why
 
-## Description
-
--   Describing our data
--   Describing the challenges of our data (only one observation per cell line. Few observation in mouse also, as there are only 3 replicates)
-
 ## Augmentation
 
 -   How we processed or data to prepare it for analysis
 -   Why we did 0 handling and how
 -   Why we did log2 fold expressions
+
+## Description 1
+
+-   Describing our data
+-   Describing the challenges of our data (only one observation per cell line. Few observation in mouse also, as there are only 3 replicates)
+
+![](images/04_key_plot_1.png){fig-align="left"}
+
+![](images/04_key_plot_2.png){fig-align="right"}
+
+## Description 2
+
+![](images/04_key_plot_3-01.png)
 
 # Results
 
@@ -52,7 +60,7 @@ format:
 
 -   PCA analysis across 18 human cell lines
 
-    ##### Expression Levels vs Compound                                     Expression Levels vs Log2 Fold-Change
+    ##### Expression Levels vs Compound                                           Expression Levels vs Log2 Fold-Change
 
 ![](images/06_key_plot_1.png){width="45%"} ![](images/07_key_plot_1.png){width="39%"}
 
