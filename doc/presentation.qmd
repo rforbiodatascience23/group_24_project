@@ -64,7 +64,7 @@ format:
 
 -   However, the overlap is very small
 :::
-![](../results/05_key_plot_3.png){width="50%"}
+![](../results/05_key_plot_3.png){width="50%" fig-align="center"}
 
 ## Discussion
 
