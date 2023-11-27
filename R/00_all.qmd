@@ -55,7 +55,4 @@ file.rename(from = "../R/06_analysis_2.html",
 quarto::quarto_render(input = "../R/07_analysis_3.qmd")
 file.rename(from = "../R/07_analysis_3.html",
             to = "../results/07_analysis_3.html")
-
-file.rename(from = "../R/00_all.html",
-            to = "../results/00_all.html")
 ```
