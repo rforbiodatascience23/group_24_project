@@ -68,6 +68,6 @@ format:
 
 -   Combined investigation across mouse and human melanoma cell lines provided valuable insights into the influences of the studied compounds and treatment effects on their gene expression patterns
 
--   Future work is needed to better understand melanoma cell's biology (ie. selection of other promising cell candidates, compounds)
+-   Future work is needed to better understand the impact of these treatments on gene expression and cellular pathways across different melanoma cells ( selection of other promising cell candidates and compounds)
 
 ## References
