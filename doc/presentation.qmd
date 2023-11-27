@@ -1,6 +1,6 @@
 ---
 title: "Investigation of G007-LK treatment in mouse and human melanoma cell lines"
-author: "Group - 24"
+author: "Group 24"
 format: 
   revealjs:
     embed-resources: true
@@ -24,9 +24,21 @@ format:
 ### Cleaning
 
 ::: {style="font-size: 50%;"}
--   How we cleaned the data and why
+-   Drop redundant columns and rows
+-   Check for NAs
+-   Tidy the untidy data
 
-```{r, style="max-height: 300px; overflow: auto;"}
+:::
+
+### Augmentation
+
+::: {style="font-size: 50%;"}
+-   Zero replacement
+-   log2 transformation
+-   log2 fold change
+:::
+
+```{r, style="max-height: 200px; overflow: auto;"}
 #| echo: true
 #| eval: false 
 zero_replacement <- function(zeroes_removed_df, cols_to_join){
@@ -73,14 +85,6 @@ joined_df <- bind_cols(cols_to_join,
 print(joined_df)
 }
 ```
-:::
-
-### Augmentation
-
-::: {style="font-size: 50%;"}
--   Zero replacement
--   log2 fold change
-:::
 
 ## Description
 
