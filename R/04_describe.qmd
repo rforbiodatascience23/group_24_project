@@ -69,8 +69,7 @@ freq_plot_mouse <- mouse_analysis |>
   geom_freqpoly(aes(color = treatment))+ 
   facet_wrap(~treatment)+
   labs(title = "Distribution of Expressions levels in different treatments",
-       x = "Expression Levels", 
-       y = "Number of genes")
+       x = "Expression Levels")
 
 freq_plot_mouse
 
@@ -90,8 +89,7 @@ freq_log_plot_mouse <- mouse_analysis_aug |>
   ggplot( mapping = aes (x = expression_levels))+
   geom_freqpoly(aes(color = treatment))+ 
   facet_wrap(~treatment)+
-  labs(x = "Expression Levels(log2)", 
-       y = "Number of genes")
+  labs(x = "Expression Levels(log2)")
 
 freq_log_plot_mouse
 
