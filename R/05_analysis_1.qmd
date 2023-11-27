@@ -81,8 +81,7 @@ gene_lists <- list(G007LK = genes_G007LK, WNTG007LK = genes_WNTG007LK, WNT = gen
 
 ```
 
-```{r echo = FALSE}
-myCol <- brewer.pal(3, "Pastel2")
+```{myCol <- brewer.pal(3, "Pastel2")}
 venn.diagram(
   x = gene_lists,
   category.names = c("G007LK", "WNT_G007LK", "WNT"),
@@ -116,6 +115,7 @@ venn.diagram(
   rotation = 1
 )
 log_files <- list.files(path = "../results", pattern = "mouse_venn_diagram\\.png\\.2023.*\\.log$", full.names = TRUE)
+file.remove(log_files)
 #source: https://r-graph-gallery.com/14-venn-diagramm
 ```
 
