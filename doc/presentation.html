@@ -8,10 +8,10 @@
 <link href="presentation_files/libs/quarto-html/light-border.css" rel="stylesheet">
 <link href="presentation_files/libs/quarto-html/quarto-html.min.css" rel="stylesheet" data-mode="light">
 <link href="presentation_files/libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
-  <meta name="generator" content="quarto-1.3.353">
+  <meta name="generator" content="quarto-1.3.450">
 
   <meta name="author" content="Group - 24">
-  <title>Investegation of melanoma treatments in mice and humans</title>
+  <title>Investigation of melanoma treatments in mice and humans</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
@@ -325,7 +325,7 @@
     <div class="slides">
 
 <section id="title-slide" class="quarto-title-block center">
-  <h1 class="title">Investegation of melanoma treatments in mice and humans</h1>
+  <h1 class="title">Investigation of melanoma treatments in mice and humans</h1>
 
 <div class="quarto-title-authors">
 <div class="quarto-title-author">
@@ -336,35 +336,15 @@ Group - 24
 </div>
 
 </section>
-<section>
-<section id="introduction" class="title-slide slide level1 center">
-<h1>Introduction</h1>
-
+<section id="introduction" class="slide level2">
+<h2>Introduction</h2>
+<p>Dataset and general idea - What we wanted to do and why we chose that dataset - What did we intend to analyse in the datasets - What was our general goal for the project</p>
 </section>
-<section id="dataset-and-general-idea" class="slide level2">
-<h2>Dataset and general idea</h2>
-<ul>
-<li>What we wanted to do and why we chose that dataset</li>
-<li>What did we intend to analyse in the datasets</li>
-<li>What was our general goal for the project</li>
-</ul>
-</section></section>
-<section>
-<section id="methods" class="title-slide slide level1 center">
-<h1>Methods</h1>
-
-</section>
-<section id="cleaning" class="slide level2">
-<h2>Cleaning</h2>
+<section id="methods" class="slide level2">
+<h2>Methods</h2>
+<h3 id="cleaning">Cleaning</h3>
 <ul>
 <li>How we cleaned the data and why</li>
-</ul>
-</section>
-<section id="description" class="slide level2">
-<h2>Description</h2>
-<ul>
-<li>Describing our data</li>
-<li>Describing the challenges of our data (only one observation per cell line. Few observation in mouse also, as there are only 3 replicates)</li>
 </ul>
 </section>
 <section id="augmentation" class="slide level2">
@@ -374,61 +354,60 @@ Group - 24
 <li>Why we did 0 handling and how</li>
 <li>Why we did log2 fold expressions</li>
 </ul>
-</section></section>
-<section>
-<section id="results" class="title-slide slide level1 center">
-<h1>Results</h1>
-
 </section>
-<section id="mouse-gene-expression-analysis" class="slide level2">
-<h2>Mouse gene expression analysis</h2>
+<section id="description-1" class="slide level2">
+<h2>Description (1)</h2>
+<ul>
+<li><p>Many zero expressions through cell lines in each of treatment</p>
+<p><img data-src="images/04_key_plot_1-02.png" style="width:48.0%"></p></li>
+</ul>
+</section>
+<section id="description-2" class="slide level2">
+<h2>Description (2)</h2>
+
+<img data-src="images/04_key_plot_2-02.png" class="r-stretch"></section>
+<section id="results" class="slide level2">
+<h2>Results</h2>
+<h3 id="mouse-gene-expression-analysis">Mouse gene expression analysis</h3>
 <ul>
 <li>Only 346 significantly regulated genes out of 39075</li>
 <li>0 handling making estimated treatment impact on expressions unsure.</li>
 </ul>
-<p><img src="../results/volcano_G007LK.png" style="width: 48%;"> <img src="../results/signif_genes_G007LK.png" style="width: 48%;"></p>
+<p><img data-src="images/05_key_plot_1.png" style="width:48.0%"> <img data-src="images/05_key_plot_2.png" style="width:48.0%"></p>
 </section>
 <section id="analysis-of-regulated-mouse-genes-across-the-3-treatments" class="slide level2">
 <h2>Analysis of regulated Mouse genes across the 3 treatments</h2>
 <ul>
-<li>Approximately equal amounts of significantly regulated genes in each treatment</li>
-<li>However, the overlap is very small</li>
+<li><p>Approximately equal amounts of significantly regulated genes in each treatment</p></li>
+<li><p>However, the overlap is very small</p>
+<p><img data-src="images/05_key_plot_3-01.png"></p></li>
 </ul>
-
-<img src="../results/mouse_venn_diagram.png" style="width: 130%;" class="r-stretch"></section>
+</section>
 <section id="the-human-analysis" class="slide level2">
 <h2>The human Analysis</h2>
 <ul>
 <li><p>PCA analysis across 18 human cell lines</p></li>
-<li><p>Significantly affected human genes by the G007.LK compound</p></li>
+<li><p>PCA limitations underscore the complexity of gene regulation and its impact on cell line behavior</p></li>
 </ul>
-<p>plot(Heatmap)</p>
+<p><img data-src="images/06_key_plot_1.png" style="width:45.0%"> <img data-src="images/07_key_plot_1.png" style="width:39.0%"></p>
+</section>
+<section id="discussion" class="slide level2">
+<h2>Discussion</h2>
 <ul>
-<li>Expression Levels vs Compound</li>
-</ul>
-<p>plot</p>
-<ul>
-<li>Expression Levels vs Log2FoldChange</li>
-</ul>
-<p>plot</p>
-</section></section>
-<section>
-<section id="discussion" class="title-slide slide level1 center">
-<h1>Discussion</h1>
-<ul>
-<li><p>What did we learn</p></li>
-<li><p>What did we prepare for (the biological analysis people can do with our results)</p></li>
-<li><p>Maybe give an example by looking up a single gene or cell line</p></li>
-<li><p>The observed limitations in the PCA highlight the complicate nature of gene regulation</p></li>
-<li><p>Future work is needed to better understand the impact on gene expression and cellular pathways</p></li>
+<li><p>Combined investigation across mouse and human melanoma cell lines provided valuable insights into the influences of the studied compounds and treatment effects on their gene expression patterns</p></li>
+<li><p>Future work is needed to better understand the impact of these treatments on gene expression and cellular pathways across different melanoma cells ( selection of other promising cell candidates and compounds)</p></li>
 </ul>
 </section>
 <section id="references" class="slide level2">
 <h2>References</h2>
+<h6 id="jo-waaler-2022-human-melanoma-cell-lines-treated-with-g007-lk.-biostudies-e-mtab-8438.-retrieved-from-httpswww.ebi.ac.ukbiostudiesarrayexpressstudiese-mtab-8438">Jo Waaler (2022) Human melanoma cell lines treated with G007-LK.&nbsp;<em>BioStudies</em>, E-MTAB-8438. Retrieved from https://www.ebi.ac.uk/biostudies/arrayexpress/studies/E-MTAB-8438</h6>
+<h6 id="jo-waaler-2021.-mouse-melanoma-cell-line-b16-f10-treated-with-g007-lk.-biostudies-e-mtab-8101.-retrieved-from-httpswww.ebi.ac.ukbiostudiesarrayexpressstudiese-mtab-8101">Jo Waaler (2021). Mouse melanoma cell line B16-F10 treated with G007-LK.&nbsp;<em>BioStudies</em>, E-MTAB-8101. Retrieved from https://www.ebi.ac.uk/biostudies/arrayexpress/studies/E-MTAB-8101</h6>
+<h6 id="waaler-jo-et-al.-tankyrase-inhibition-sensitizes-melanoma-to-pd-1-immune-checkpoint-blockade-in-syngeneic-mouse-models.-communications-biology-vol.-3-no.-1-24-apr.-2020-httpsdoi.org10.10382fs42003-020-0916-2-accessed-25-nov.-2023">Waaler, Jo, et al.&nbsp;“Tankyrase Inhibition Sensitizes Melanoma to PD-1 Immune Checkpoint Blockade in Syngeneic Mouse Models.” <em>Communications Biology</em>, vol.&nbsp;3, no. 1, 24 Apr.&nbsp;2020, <a href="https://doi.org/10.1038%2Fs42003-020-0916-2" class="uri">https://doi.org/10.1038%2Fs42003-020-0916-2</a> Accessed 25 Nov.&nbsp;2023</h6>
+<h6 id="martínfernández-josep-antoni-javier-palareaalbaladejo-and-ricardo-antonio-olea.-dealing-with-zeros.-compositional-data-analysis-theory-and-applications-2011-43-58.">Martín‐Fernández, Josep Antoni, Javier Palarea‐Albaladejo, and Ricardo Antonio Olea. “Dealing with zeros.”&nbsp;<em>Compositional data analysis: Theory and applications</em>&nbsp;(2011): 43-58.</h6>
 <div class="footer footer-default">
 
 </div>
-</section></section>
+</section>
     </div>
   </div>
 
