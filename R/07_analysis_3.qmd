@@ -1,7 +1,8 @@
 ---
 title: "Analysis 3 - PCA analysis on the human dataset"
-editor: visual
-format:
+echo : false
+warning: false
+format: 
   html:
     embed-resources: true
 ---

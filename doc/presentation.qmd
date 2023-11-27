@@ -60,13 +60,14 @@ format:
 
 -   PCA analysis across 18 human cell lines
 
-    ##### Expression Levels vs Compound                                           Expression Levels vs Log2 Fold-Change
+-   Inheritent biological characteristics play a more dominant role in the separation of the cell lines compared to the treatment
 
 ![](images/06_key_plot_1.png){width="45%"} ![](images/07_key_plot_1.png){width="39%"}
 
 # Discussion
 
+-   Our combined investigation across mouse and human melanoma cell lines provided valuable insights into influences and treatment effects on gene expression
 -   PCA limitations underscore the complexity of gene regulation and its impact on cell line behavior
--   Future work is needed to better understand melanoma cell's biology (selection of better candidates, compounds)
+-   Future work is needed to better understand melanoma cell's biology (ie. selection of other promising cell candidates, compounds)
 
 ## References

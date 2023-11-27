@@ -1,8 +1,9 @@
 ---
 title: "Analysis 2 file - PCA analysis on the human dataset"
-warning: FALSE
 editor: visual
-format:
+echo : false
+warning: false
+format: 
   html:
     embed-resources: true
 ---
@@ -22,7 +23,7 @@ human_log_expression <- read_tsv(file = "../data/03_dat_aug_human_wide_gene.tsv.
 
 Now we are going to perform a PCA analysis on the Cell relative expression on different conditions
 
-```{r echo = FALSE}
+```{r message = FALSE}
 #|cache: TRUE 
 #Here we implement the model for the PCA analysis
 pca_result <- human_log_expression |> 
@@ -62,12 +63,12 @@ log_files <- list.files(path = "../results", pattern = "pca_diagram\\.png\\.2023
 
 Rotation matrix
 
-```{r eval=FALSE}
+```{r eval =FALSE, echo = FALSE}
 pca_result |> 
   tidy(matrix = "rotation")
 ```
 
-```{r eval =FALSE}
+```{r echo = FALSE, eval =FALSE}
 pca_result |> 
   tidy(matrix = "eigenvalues")
 ```
