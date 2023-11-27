@@ -60,14 +60,14 @@ format:
 
 -   PCA analysis across 18 human cell lines
 
--   Inheritent biological characteristics play a more dominant role in the separation of the cell lines compared to the treatment
+-   PCA limitations underscore the complexity of gene regulation and its impact on cell line behavior
 
 ![](images/06_key_plot_1.png){width="45%"} ![](images/07_key_plot_1.png){width="39%"}
 
 # Discussion
 
--   Our combined investigation across mouse and human melanoma cell lines provided valuable insights into influences and treatment effects on gene expression
--   PCA limitations underscore the complexity of gene regulation and its impact on cell line behavior
+-   Combined investigation across mouse and human melanoma cell lines provided valuable insights into the influences of the studied compounds and treatment effects on their gene expression patterns
+
 -   Future work is needed to better understand melanoma cell's biology (ie. selection of other promising cell candidates, compounds)
 
 ## References
