@@ -17,6 +17,7 @@ library(ggplot2)
 library(tidyr)
 library(viridis)
 library(ggridges)
+library(patchwork)
 ```
 
 ```{r message = FALSE}
@@ -64,13 +65,18 @@ This is the distribution of the expression levels in the original data
 freq_plot_mouse <- mouse_analysis |>
   ggplot( mapping = aes (x = expression_levels))+
   geom_freqpoly(aes(color = treatment))+ 
-  facet_wrap(~treatment)
+  facet_wrap(~treatment)+
+  labs(title = "Distribution of Expressions levels in different treatments",
+       x = "Expression Levels", 
+       y = "Number of genes")
 
 freq_plot_mouse
-ggsave("../results/04_key_plot_1.png", bg = "white", device = "png")
+
 ```
 
 The bulk of zeros suggests that there is no difference in expression between the different conditions. This is a common observation for an RNA Seq data set, since many genes are not activated or remain inactive or unaffected by the studied conditions.
+
+This is the distribution of the expression levels after transforming the data.
 
 ```{r}
 mouse_analysis_aug <- mouse_aug |>
@@ -81,14 +87,18 @@ mouse_analysis_aug <- mouse_aug |>
 freq_log_plot_mouse <- mouse_analysis_aug |>
   ggplot( mapping = aes (x = expression_levels))+
   geom_freqpoly(aes(color = treatment))+ 
-  facet_wrap(~treatment)
+  facet_wrap(~treatment)+
+  labs(x = "Expression Levels(log2)", 
+       y = "Number of genes")
 
 freq_log_plot_mouse
-ggsave("../results/04_key_plot_2.png", bg = "white", device = "png")
 
 ```
 
-This is the distribution of the expression levels after transforming the data.
+```{r}
+p1 <- freq_plot_mouse/freq_log_plot_mouse
+ggsave("../results/04_key_plot_1.png",p1, bg = "white", device = "png")
+```
 
 Next, we want to check the summary statistics of the gene expression levels.
 
@@ -160,7 +170,6 @@ average_plot2 <- ggplot(average_activity_treatment_replicate,
        x = "Treatment and Replicate",
        y = "Average Activity")
 average_plot2
-ggsave("../results/04_key_plot_3.png", bg = "white", device = "png")
 
 ```
 
@@ -187,10 +196,14 @@ mouse_zero_plot <- zero_counts_genes |>
        y = "Percentage of Genes")+
   coord_flip()
 mouse_zero_plot
-ggsave("../results/04_key_plot_4.png", bg = "white", device = "png")
 ```
 
 We can see that most genes either have all zeroes (\~33%) or all non-zeroes( 40%).
+
+```{r}
+p2 <- average_plot2/ mouse_zero_plot
+ggsave("../results/04_key_plot_2.png",p2, bg = "white", device = "png")
+```
 
 Let's also compare the number of active genes in each treatment.
 
@@ -237,8 +250,10 @@ human_freq_plot1 <- human_analysis |>
   ggplot(mapping = aes (x = expression_levels))+ 
   geom_freqpoly()+ 
   facet_wrap(~treatment)
+
+human_freq_plot1
   
-ggsave("../results/04_key_plot_5.png", bg = "white", device = "png")
+
 ```
 
 We then check the distribution of expression levels after log2 transformation
@@ -248,7 +263,8 @@ human_freq_plot2 <- human_aug |>
   ggplot(mapping = aes(x = log2_expression_levels))+ 
   geom_freqpoly()+ 
   facet_wrap(~treatment)
-ggsave("../results/04_key_plot_6.png", bg = "white", device = "png")
+human_freq_plot2
+
 ```
 
 Next we want to check the summary statistics of the gene expression levels
@@ -308,7 +324,8 @@ zero_counts_genes |>
        x = "Presence of zero expression", 
        y = "Percentage of Genes")+
   coord_flip()
-ggsave("../results/04_key_plot_7.png", bg = "white", device="png")
+zero_counts_genes
+
 ```
 
 We can see that over 40% of our data do not contain any 0s but 20% of them are 0 across every sample.
@@ -335,7 +352,7 @@ ggplot(mapping = aes(x = cell_line,
   theme(axis.text.x = element_text(angle = 45), 
         axis.text = element_text(vjust = 0.5, 
                                  size = 6))
-ggsave("../results/04_key_plot_8.png", bg = "white", device="png")
+
 ```
 
 Now we want to see the average number of active genes per cell line.
@@ -360,8 +377,10 @@ active_genes_plot <- ggplot(data = active_genes_per_cell,
   theme(axis.text.x = element_text(angle = 45) )+ 
   scale_y_continuous(breaks = seq(0,27500, by = 2500))
 
-print(active_genes_plot)
+active_genes_plot
 ```
+
+After we use the boxplot in order to visualize again the distibution of expession levels between the two experimental conditions after the log2 trasnformation per cell lina
 
 ```{r}
 human_aug |> 
@@ -372,6 +391,9 @@ human_aug |>
    theme(axis.text.x = element_text(angle = 45), 
         axis.text = element_text(vjust = 0.5, 
                                  size = 6))+
+   labs(title = "Distribution of gene expression throu cell lines per treatment", 
+       x = "Cell line", 
+       y = "Expression levels(log2)")+
   facet_wrap(~treatment)
 ```
 
@@ -422,6 +444,6 @@ ggplot(aes(x = gene,
        fill = "log2FC")+
   coord_fixed(ratio=0.6)
 
-ggsave("../results/04_key_plot_9.png", bg = "white", device="png")
+ggsave("../results/04_key_plot_3.png", bg = "white", device="png")
 
 ```

@@ -6,17 +6,13 @@ format:
     theme: moon
 ---
 
-# Introduction
+## Introduction
 
-## Dataset and general idea
+Dataset and general idea - What we wanted to do and why we chose that dataset - What did we intend to analyse in the datasets - What was our general goal for the project
 
--   What we wanted to do and why we chose that dataset
--   What did we intend to analyse in the datasets
--   What was our general goal for the project
+## Methods
 
-# Methods
-
-## Cleaning
+### Cleaning
 
 -   How we cleaned the data and why
 
@@ -26,22 +22,19 @@ format:
 -   Why we did 0 handling and how
 -   Why we did log2 fold expressions
 
-## Description 1
+## Description (1)
 
--   Describing our data
--   Describing the challenges of our data (only one observation per cell line. Few observation in mouse also, as there are only 3 replicates)
+-   Many zero expressions through cell lines in each of treatment
 
-![](images/04_key_plot_1.png){fig-align="left"}
+    ![](images/04_key_plot_1-02.png){width="48%"}
 
-![](images/04_key_plot_2.png){fig-align="right"}
+## Description (2)
 
-## Description 2
+![](images/04_key_plot_2-02.png)
 
-![](images/04_key_plot_3-01.png)
+## Results
 
-# Results
-
-## Mouse gene expression analysis
+### Mouse gene expression analysis
 
 -   Only 346 significantly regulated genes out of 39075
 -   0 handling making estimated treatment impact on expressions unsure.
@@ -64,7 +57,7 @@ format:
 
 ![](images/06_key_plot_1.png){width="45%"} ![](images/07_key_plot_1.png){width="39%"}
 
-# Discussion
+## Discussion
 
 -   Combined investigation across mouse and human melanoma cell lines provided valuable insights into the influences of the studied compounds and treatment effects on their gene expression patterns
 
@@ -72,10 +65,10 @@ format:
 
 ## References
 
-######  BioStudies. *Biostudies &lt; the European Bioinformatics Institute &lt; EMBL-ebi*, *EMBL-EBI homepage*. Available at: https://www.ebi.ac.uk/biostudies/arrayexpress/studies (Accessed: 27 November 2023) 
-
 ###### Jo Waaler (2022) Human melanoma cell lines treated with G007-LK. *BioStudies*, E-MTAB-8438. Retrieved from https://www.ebi.ac.uk/biostudies/arrayexpress/studies/E-MTAB-8438
 
 ###### Jo Waaler (2021). Mouse melanoma cell line B16-F10 treated with G007-LK. *BioStudies*, E-MTAB-8101. Retrieved from https://www.ebi.ac.uk/biostudies/arrayexpress/studies/E-MTAB-8101
 
 ###### Waaler, Jo, et al. "Tankyrase Inhibition Sensitizes Melanoma to PD-1 Immune Checkpoint Blockade in Syngeneic Mouse Models." *Communications Biology*, vol. 3, no. 1, 24 Apr. 2020, <https://doi.org/10.1038%2Fs42003-020-0916-2> Accessed 25 Nov. 2023
+
+###### Martín‐Fernández, Josep Antoni, Javier Palarea‐Albaladejo, and Ricardo Antonio Olea. "Dealing with zeros." *Compositional data analysis: Theory and applications* (2011): 43-58.
