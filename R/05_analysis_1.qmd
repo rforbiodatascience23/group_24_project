@@ -117,8 +117,11 @@ venn.diagram(
   rotation = 1
 )
 knitr::include_graphics("../results/05_key_plot_3.png")
-log_files <- list.files(path = "../results", pattern = "mouse_venn_diagram\\.png\\.2023.*\\.log$", full.names = TRUE)
+log_files <- list.files(path = "../results", 
+                        pattern = "05_key_plot_3\\.png\\.2023.*\\.log$", 
+                        full.names = TRUE)
 file.remove(log_files)
+
 
 #source: https://r-graph-gallery.com/14-venn-diagramm
 ```
