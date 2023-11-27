@@ -25,7 +25,6 @@ human_log2fold <- read_tsv(file = "../data/03_dat_aug_human_log2fc_wide.tsv.gz")
 ```
 
 ```{r}
-#| cache: true
 #Apply the PCA model
 pca_result<- human_log2fold |> 
   select_if(is.numeric) |> 

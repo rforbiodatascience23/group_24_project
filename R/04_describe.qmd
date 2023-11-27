@@ -315,7 +315,7 @@ zero_counts_genes <- human_analysis |>
 
 #Create a histogram plot with percentages
 
-zero_counts_genes |> 
+zero_counts_plot <- zero_counts_genes |> 
   ggplot(mapping = aes(x = zero_count)) +
   geom_histogram(mapping = aes(y = after_stat(count/sum(count))), 
                  binwidth = 1, 
@@ -326,7 +326,7 @@ zero_counts_genes |>
        x = "Presence of zero expression", 
        y = "Percentage of Genes")+
   coord_flip()
-zero_counts_genes
+zero_counts_plot
 
 ```
 
