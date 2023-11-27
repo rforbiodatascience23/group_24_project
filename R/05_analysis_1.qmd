@@ -1,5 +1,5 @@
 ---
-title: "Analysis 1 - Analysis of the mouse dataset"
+title: "Analysis 1 - Analysis on the mouse dataset"
 editor: visual
 echo : false
 warning: false
@@ -7,6 +7,8 @@ format:
   html:
     embed-resources: true
 ---
+
+## Analysis 1 - Analysis on the mouse data set
 
 ```{r message=FALSE, echo =FALSE, warning = FALSE}
 #|label: load the packages

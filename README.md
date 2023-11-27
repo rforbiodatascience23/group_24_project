@@ -17,24 +17,26 @@ We investigated two studies on comparative RNA-seq of coding RNA on a
 mouse cancer cell line and 18 human cancer cell lines.
 
 ## Packages to install
+-   install.packages("quarto")
 
--   install.packages(tidyverse)
 
--   install.packages(viridis)
+-   install.packages("tidyverse")
 
--   install.packages(ggridges)
+-   install.packages("viridis")
 
--   install.packages(VennDiagram)
+-   install.packages("ggridges")
 
--   install.packages(broom)
+-   install.packages("VennDiagram")
 
--   install.packages(ggrepel)
+-   install.packages("broom")
 
--   install.packages(RColorBrewer)
+-   install.packages("ggrepel")
 
--   install.packages(cowplot)
+-   install.packages("RColorBrewer")
 
--   install.packages(scales)
+-   install.packages("cowplot")
+
+-   install.packages("scales")
 
 **Mouse data sets**
 

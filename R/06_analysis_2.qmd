@@ -8,6 +8,8 @@ format:
     embed-resources: true
 ---
 
+## Analysis 2 - PCA analysis on the human data set 
+
 ```{r message=FALSE, echo =FALSE, warning = FALSE}
 library(tidyverse) 
 library(broom) 
@@ -55,7 +57,7 @@ pca_augmented |>
   background_grid() + 
   labs(x = "PC1(10%)", 
        y = "PC2(8.2%)", 
-       title = "PCA Plot Depicting the Cell Responses to G007.LK") 
+       title = "PCA Plot Depicting Cell line Responses to G007.LK") 
 
 ggsave("../results/06_key_plot_1.png", bg = "white", device = "png")
 log_files <- list.files(path = "../results", pattern = "pca_diagram\\.png\\.2023.*\\.log$", full.names = TRUE)
