@@ -22,8 +22,8 @@ format:
 ## Methods
 
 ### Cleaning
-::: {style="font-size: 50%;"}
 
+::: {style="font-size: 50%;"}
 -   How we cleaned the data and why
 
 ```{r, style="max-height: 300px; overflow: auto;"}
@@ -76,78 +76,82 @@ print(joined_df)
 :::
 
 ### Augmentation
+
 ::: {style="font-size: 50%;"}
-
-- Zero replacement 
-- log2 fold change
-
+-   Zero replacement
+-   log2 fold change
 :::
-## Description 
-::: {style="font-size: 70%;"}
 
--   Observed major zero expression levels through cell lines in each of treatment
+## Description
+
+::: {style="font-size: 70%;"}
+-   Observed amount of zero expression levels through cell lines in each of treatment
 :::
 
 ![](../results/04_key_plot_1.png){width="659" height="463" fig-align="center"}
 
-## Description 
+## Description
 
+::: {style="font-size: 70%;"}
+-   Not enough information about the differecne between the treatments
+-   Searching for null expression over the different samples
+:::
 
-![](../results/04_key_plot_2.png){fig-align="center" width="701" height="393"}
+![](../results/04_key_plot_2.png){fig-align="center" width="580" height="465"}
 
 ## Results
 
 ### Mouse gene expression analysis
-::: {style="font-size: 50%;"}
 
+::: {style="font-size: 62%;"}
 -   Only 346 significantly regulated genes out of 39075
 -   0 handling making estimated treatment impact on expressions unsure.
 :::
+
 ![](../results/05_key_plot_1.png){width="48%"} ![](../results/05_key_plot_2.png){width="48%"}
 
 ## Analysis of regulated Mouse genes across the 3 treatments
-::: {style="font-size: 70%;"}
 
+::: {style="font-size: 70%;"}
 -   Approximately equal amounts of significantly regulated genes in each treatment
 
 -   However, the overlap is very small
 :::
+
 ![](../results/05_key_plot_3.png){width="50%" fig-align="center"}
 
 ## Discussion
 
 ### The Human Analysis
+
 ::: {style="font-size: 50%;"}
+-   PCA.1 The way the cell lines are segregated indicates that the biological background outweighs the direct impact of the treatment in regards to gene expression variance
 
-- PCA.1 The way the cell lines are segregated indicates that the biological background outweighs the direct impact of the treatment in regards to gene expression variance
+-   PCA.2 Outliers like SkMEL28 and A375, along with the distinctive positioning of WM852, suggested unique gene expression profiles potentially associated with the response to G007.LK.
 
-- PCA.2 Outliers like SkMEL28 and A375, along with the distinctive positioning of WM852, suggested unique gene expression profiles potentially associated with the response to G007.LK.
-
-- This limitation in explaining variance by the principal components underscores the complex nature of gene expression changes in the human cell lines.
-
+-   This limitation in explaining variance by the principal components underscores the complex nature of gene expression changes in the human cell lines.
 :::
 
 ![](../results/06_key_plot_1.png){width="40%"} ![](../results/07_key_plot_1.png){width="40%"}
 
 ## Discussion
+
 ::: {style="font-size: 70%;"}
+-   In our mouse model, the BVES gene appears to be the most significantly impacted.This gene contributes to regeneration processes
 
+-   This transition between species allowed us to explore cross-species insights in regards to the effect of the G007.LK compound
 
-
-- In our mouse model, the BVES gene appears to be the most significantly impacted.This gene contributes to regeneration processes
-
--  This transition between species allowed us to explore cross-species insights in regards to the effect of the G007.LK compound
-
--  More extensive work is needed to fully understand the impact of the G007.LK in gene expression and cellular pathway across different melanoma cells
+-   More extensive work is needed to fully understand the impact of the G007.LK in gene expression and cellular pathway across different melanoma cells
 :::
+
 ## References
+
 ::: {style="font-size: 50%;"}
+-   Jo Waaler (2022) Human melanoma cell lines treated with G007-LK. *BioStudies*, E-MTAB-8438. Retrieved from https://www.ebi.ac.uk/biostudies/arrayexpress/studies/E-MTAB-8438
 
-- Jo Waaler (2022) Human melanoma cell lines treated with G007-LK. *BioStudies*, E-MTAB-8438. Retrieved from https://www.ebi.ac.uk/biostudies/arrayexpress/studies/E-MTAB-8438
+-   Jo Waaler (2021). Mouse melanoma cell line B16-F10 treated with G007-LK. *BioStudies*, E-MTAB-8101. Retrieved from https://www.ebi.ac.uk/biostudies/arrayexpress/studies/E-MTAB-8101
 
-- Jo Waaler (2021). Mouse melanoma cell line B16-F10 treated with G007-LK. *BioStudies*, E-MTAB-8101. Retrieved from https://www.ebi.ac.uk/biostudies/arrayexpress/studies/E-MTAB-8101
+-   Waaler, Jo, et al. "Tankyrase Inhibition Sensitizes Melanoma to PD-1 Immune Checkpoint Blockade in Syngeneic Mouse Models." *Communications Biology*, vol. 3, no. 1, 24 Apr. 2020, <https://doi.org/10.1038%2Fs42003-020-0916-2> Accessed 25 Nov. 2023
 
-- Waaler, Jo, et al. "Tankyrase Inhibition Sensitizes Melanoma to PD-1 Immune Checkpoint Blockade in Syngeneic Mouse Models." *Communications Biology*, vol. 3, no. 1, 24 Apr. 2020, <https://doi.org/10.1038%2Fs42003-020-0916-2> Accessed 25 Nov. 2023
-
-- Martín‐Fernández, Josep Antoni, Javier Palarea‐Albaladejo, and Ricardo Antonio Olea. "Dealing with zeros." *Compositional data analysis: Theory and applications* (2011): 43-58.
+-   Martín‐Fernández, Josep Antoni, Javier Palarea‐Albaladejo, and Ricardo Antonio Olea. "Dealing with zeros." *Compositional data analysis: Theory and applications* (2011): 43-58.
 :::
