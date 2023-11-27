@@ -51,7 +51,7 @@ Dataset and general idea - What we wanted to do and why we chose that dataset - 
 -   However, the overlap is very small
 
 
-## ![](../results/05_key_plot_3-01.png){width="50%"}
+## ![](../results/05_key_plot_3.png){width="50%"}
 
 
 
