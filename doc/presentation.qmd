@@ -5,6 +5,8 @@ format:
   revealjs:
     embed-resources: true
     theme: moon
+    footer: "R for Bio Data Science"
+    slide-number: true
 ---
 
 ## Introduction
@@ -62,7 +64,7 @@ format:
 
 -   PCA analysis across 18 human cell lines
 
-    ![](../results/06_key_plot_1.png){width="29%"} ![](../results/07_key_plot_1.png){width="29%"}
+    ![](../results/06_key_plot_1.png){width="40%"} ![](../results/07_key_plot_1.png){width="40%"}
 
 ## Discussion
 
