@@ -8,6 +8,8 @@ format:
     embed-resources: true
 ---
 
+## Analysis 2 - PCA analysis on the human data set 
+
 ```{r message=FALSE, echo =FALSE, warning = FALSE}
 library(tidyverse) 
 library(broom) 
