@@ -26,6 +26,54 @@ format:
 
 -   How we cleaned the data and why
 
+```{r, style="max-height: 300px; overflow: auto;"}
+#| echo: true
+#| eval: false 
+zero_replacement <- function(zeroes_removed_df, cols_to_join){
+# Replace the zero values in the dataset with a calculated minimum-non-zero value per observation multiplied by 0.65. Thus we ensure that the 0 values that cannot undergo log transformation are replaced by a small non-zero value.
+zeroes_replaced_df <- zeroes_removed_df |>
+  rowwise() |>
+  mutate(min_non_zero = min(c_across
+                            (where
+                              (is.numeric))[c_across(where
+                                                     (is.numeric)) != 0], na.rm = TRUE)) |>
+  ungroup() |>
+  mutate(across
+         (where
+           (is.numeric), ~ ifelse(. == 0, 
+                                  0.65 * min_non_zero,
+                                  .))) |>
+  select(-min_non_zero)
+
+#This part calculated the sum across all genes for every observation in the dataset with the replaced zeroes
+zeroes_replaced_sums_df <- zeroes_replaced_df |>
+  rowwise() |>
+  mutate(total_sum = sum(c_across
+                         (everything()),
+                         na.rm = TRUE))
+
+n = 1000000 # the data are normalized in TPM that is why we selected 1 million as n
+
+#Data normalization. This part ensures that different experiments with varying total expression levels are brought to consistant scale
+scaled_data_df <- zeroes_replaced_sums_df |>
+  mutate(scaling_factor = n / total_sum) |>
+  rowwise() |>
+  mutate(across(-c(total_sum, scaling_factor), ~ . * scaling_factor)) |>
+  select(-total_sum, -scaling_factor)
+
+scaled_data_df |>
+  rowwise() |>
+  mutate(row_sums = sum(c_across
+                        (everything()), 
+                        na.rm = TRUE))
+
+#This part of the code binds the normalized and scaled expression data with the first columns from the original df data.
+joined_df <- bind_cols(cols_to_join,
+                          scaled_data_df)
+print(joined_df)
+}
+```
+
 :::
 ### Augmentation
 ::: {style="font-size: 50%;"}
