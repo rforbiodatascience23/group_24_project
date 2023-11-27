@@ -37,7 +37,7 @@ Dataset and general idea - What we wanted to do and why we chose that dataset - 
 -   Only 346 significantly regulated genes out of 39075
 -   0 handling making estimated treatment impact on expressions unsure.
 
-![](images/05_key_plot_1.png){width="36%"} ![](images/05_key_plot_2.png){width="36%"}
+![](images/05_key_plot_1.png){width="45%"} ![](images/05_key_plot_2.png){width="45%"}
 
 ## Analysis of regulated Mouse genes across the 3 treatments
 
@@ -45,21 +45,24 @@ Dataset and general idea - What we wanted to do and why we chose that dataset - 
 
 -   However, the overlap is very small
 
-## ![](images/05_key_plot_3-01.png){width="48%"}
+![](images/05_key_plot_3-01.png){width="40%"}
 
-## The human Analysis
+## Discussion
+### The Human Analysis
 
 -   PCA analysis across 18 human cell lines
 
--   PCA limitations underscore the complexity of gene regulation and its impact on cell line behavior
 
-    ![](images/06_key_plot_1.png){width="29%"} ![](images/07_key_plot_1.png){width="29%"}
+    ![](images/06_key_plot_1.png){width="40%"}                   ![](images/07_key_plot_1.png){width="40%"}
+
 
 ## Discussion
 
--   Combined investigation across mouse and human melanoma cell lines provided valuable insights into the influences of the studied compounds and treatment effects on their gene expression patterns
+- The BVES gene seems to be the most influenced gene based on our mouse model. The BVES gene plays a role in regeneration processes
 
--   Future work is needed to better understand the impact of these treatments on gene expression and cellular pathways across different melanoma cells ( selection of other promising cell candidates and compounds)
+-  Our holistic investigation across mouse and human melanoma cell lines provided valuable insights into the influences of the studied compounds and G007.LK effects on their gene expression patterns
+
+-  Though more extensive work is needed to fully understand the impact of the G007.LK in gene expression and cellular pathway across different melanoma cells
 
 ## References
 
