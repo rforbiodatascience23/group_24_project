@@ -9,7 +9,13 @@ format:
 
 ## Introduction
 
-Dataset and general idea - What we wanted to do and why we chose that dataset - What did we intend to analyse in the datasets - What was our general goal for the project
+-   WNT/β-catenin pathway -\> disregulation in melanoma
+
+-   G007LK -\> decreases WNT/β-catenin signaling
+
+-   Two data sets and two metadata sets (mouse and human)
+
+-   Goal was to identify up and down regulated genes after G007LK treatment
 
 ## Methods
 
@@ -40,9 +46,7 @@ Dataset and general idea - What we wanted to do and why we chose that dataset - 
 -   Only 346 significantly regulated genes out of 39075
 -   0 handling making estimated treatment impact on expressions unsure.
 
-
 ![](../results/05_key_plot_1.png){width="36%"} ![](../results/05_key_plot_2.png){width="36%"}
-
 
 ## Analysis of regulated Mouse genes across the 3 treatments
 
@@ -50,29 +54,23 @@ Dataset and general idea - What we wanted to do and why we chose that dataset - 
 
 -   However, the overlap is very small
 
-
 ## ![](../results/05_key_plot_3.png){width="50%"}
 
-
-
-
 ## Discussion
+
 ### The Human Analysis
 
 -   PCA analysis across 18 human cell lines
 
-
-
     ![](../results/06_key_plot_1.png){width="29%"} ![](../results/07_key_plot_1.png){width="29%"}
-
 
 ## Discussion
 
--  In our mouse model, the BVES gene appears to be the most significantly impacted.This gene contributes to regeneration processes
+-   In our mouse model, the BVES gene appears to be the most significantly impacted.This gene contributes to regeneration processes
 
--  Our holistic investigation across mouse and human melanoma cell lines provided valuable insights into the influences of the studied compounds and G007.LK effects on their gene expression patterns
+-   Our holistic investigation across mouse and human melanoma cell lines provided valuable insights into the influences of the studied compounds and G007.LK effects on their gene expression patterns
 
--  More extensive work is needed to fully understand the impact of the G007.LK in gene expression and cellular pathway across different melanoma cells
+-   More extensive work is needed to fully understand the impact of the G007.LK in gene expression and cellular pathway across different melanoma cells
 
 ## References
 
