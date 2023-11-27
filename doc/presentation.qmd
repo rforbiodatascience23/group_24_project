@@ -73,14 +73,14 @@ joined_df <- bind_cols(cols_to_join,
 print(joined_df)
 }
 ```
-
 :::
+
 ### Augmentation
 ::: {style="font-size: 50%;"}
 
--   How we processed or data to prepare it for analysis
--   Why we did 0 handling and how
--   Why we did log2 fold expressions
+- Zero replacement 
+- log2 fold change
+
 :::
 ## Description 
 ::: {style="font-size: 70%;"}
