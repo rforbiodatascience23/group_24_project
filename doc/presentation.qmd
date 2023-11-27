@@ -71,3 +71,11 @@ format:
 -   Future work is needed to better understand the impact of these treatments on gene expression and cellular pathways across different melanoma cells ( selection of other promising cell candidates and compounds)
 
 ## References
+
+BioStudies. *Biostudies &lt; the European Bioinformatics Institute &lt; EMBL-ebi*, *EMBL-EBI homepage*. Available at: https://www.ebi.ac.uk/biostudies/arrayexpress/studies (Accessed: 27 November 2023)
+
+Jo Waaler (2022) Human melanoma cell lines treated with G007-LK. *BioStudies*, E-MTAB-8438. Retrieved from https://www.ebi.ac.uk/biostudies/arrayexpress/studies/E-MTAB-8438
+
+Jo Waaler (2021). Mouse melanoma cell line B16-F10 treated with G007-LK. *BioStudies*, E-MTAB-8101. Retrieved from https://www.ebi.ac.uk/biostudies/arrayexpress/studies/E-MTAB-8101
+
+Waaler, Jo, et al. "Tankyrase Inhibition Sensitizes Melanoma to PD-1 Immune Checkpoint Blockade in Syngeneic Mouse Models." *Communications Biology*, vol. 3, no. 1, 24 Apr. 2020, <https://doi.org/10.1038%2Fs42003-020-0916-2> Accessed 25 Nov. 2023
