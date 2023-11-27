@@ -64,11 +64,11 @@ HEAD
 
 ## Discussion
 
-- The BVES gene seems to be the most influenced gene based on our mouse model. The BVES gene plays a role in regeneration processes
+-  In our mouse model, the BVES gene appears to be the most significantly impacted.This gene contributes to regeneration processes
 
 -  Our holistic investigation across mouse and human melanoma cell lines provided valuable insights into the influences of the studied compounds and G007.LK effects on their gene expression patterns
 
--  Though more extensive work is needed to fully understand the impact of the G007.LK in gene expression and cellular pathway across different melanoma cells
+-  More extensive work is needed to fully understand the impact of the G007.LK in gene expression and cellular pathway across different melanoma cells
 
 ## References
 
